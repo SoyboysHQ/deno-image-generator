@@ -78,6 +78,7 @@ serve(async (req) => {
           "--allow-write",
           "--allow-ffi",
           "--allow-sys",
+          "--allow-env",
           "generate_image.ts",
           JSON.stringify(inputData)
         ],

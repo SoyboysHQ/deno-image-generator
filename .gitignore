@@ -2,13 +2,24 @@
 *.jpg
 *.jpeg
 *.png
+# But keep the background and test outputs for reference
+!background.jpeg
+!*_test*.jpg
 
-# Font files (user should download these)
-*.ttf
-*.otf
+# Font files - IMPORTANT: Don't ignore these if deploying with Docker!
+# For local dev: Download fonts manually
+# For Docker: Commit fonts to repo (or download in Dockerfile)
+# Uncomment next line if you don't want to commit fonts:
+# *.ttf
+# *.otf
 
 # Deno
 .deno/
+
+# Docker
+docker_test_output.jpg
+test_output.jpg
+tunnel_test.jpg
 
 # OS
 .DS_Store
@@ -23,5 +34,9 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Environment files
+.env
+.env.local
 
 

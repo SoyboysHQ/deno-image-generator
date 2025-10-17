@@ -1,0 +1,51 @@
+# Generated images
+*.jpg
+!background.jpeg
+
+# Node modules (not needed in Deno)
+node_modules/
+
+# Git files
+.git/
+.gitignore
+
+# Documentation (not needed in runtime)
+*.md
+!README.md
+
+# Test files
+test_*.sh
+test_*.ts
+*_test.ts
+
+# Example files
+example_input.json
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Deno cache (will be rebuilt in container)
+.deno/
+
+# Output directory
+output/
+
+# Development files
+download_test_assets.ts
+test_setup.ts
+n8n_workflow_template.json
+CHECKLIST.md
+SERVER_SETUP.md
+QUICK_START.md
+

@@ -162,7 +162,7 @@ function wrapText(
   return lines.length * lineHeight;
 }
 
-// Improved highlight: subtle wavy rounded rectangle
+// Highlight: simple rectangle (Docker-compatible - NO save/restore/globalAlpha)
 function drawWavyHighlight(
   ctx: SKRSContext2D,
   x: number,
@@ -171,47 +171,13 @@ function drawWavyHighlight(
   height: number,
   color: string,
 ): void {
-  ctx.save();
-  ctx.beginPath();
-  const waveAmp = 1 + Math.random() * 0.5; // very subtle
-  const waveLen = 18;
-  const radius = 8;
-  // Top edge (wavy)
-  ctx.moveTo(x + radius, y);
-  for (let i = 0; i <= width - 2 * radius; i += waveLen) {
-    ctx.lineTo(
-      x + radius + i,
-      y + Math.sin((i / (width - 2 * radius)) * Math.PI * 2) * waveAmp,
-    );
-  }
-  ctx.lineTo(x + width - radius, y);
-  // Top-right corner
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  // Right edge
-  ctx.lineTo(x + width, y + height - radius);
-  // Bottom-right corner
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  // Bottom edge (wavy)
-  for (let i = width - 2 * radius; i >= 0; i -= waveLen) {
-    ctx.lineTo(
-      x + radius + i,
-      y + height +
-        Math.sin((i / (width - 2 * radius)) * Math.PI * 2 + Math.PI) * waveAmp,
-    );
-  }
-  ctx.lineTo(x + radius, y + height);
-  // Bottom-left corner
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  // Left edge
-  ctx.lineTo(x, y + radius);
-  // Top-left corner
-  ctx.quadraticCurveTo(x, y, x + radius, y);
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.globalAlpha = 0.7; // more transparent
-  ctx.fill();
-  ctx.globalAlpha = 1.0;
-  ctx.restore();
+  // Docker canvas doesn't handle save/restore or globalAlpha properly
+  // Use a semi-transparent color instead
+  ctx.fillStyle = "rgba(240, 226, 49, 0.7)"; // #F0E231 at 70% opacity
+  
+  // Move highlight UP to appear behind text (not below it)
+  // Text baseline is at y, so move highlight up by most of the height
+  ctx.fillRect(x, y - height * 0.85, width, height);
 }
 
 interface HighlightRect {
