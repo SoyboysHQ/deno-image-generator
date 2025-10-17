@@ -1,4 +1,9 @@
-import { Canvas, loadImage, SKRSContext2D } from "npm:@napi-rs/canvas@^0.1.52";
+import { Canvas, loadImage, SKRSContext2D, GlobalFonts } from "npm:@napi-rs/canvas@^0.1.52";
+
+// Register fonts
+GlobalFonts.registerFromPath("./Merriweather-Regular.ttf", "Merriweather");
+GlobalFonts.registerFromPath("./Merriweather-Bold.ttf", "Merriweather");
+GlobalFonts.registerFromPath("./Merriweather-Italic.ttf", "Merriweather");
 
 const WIDTH = 1080;
 const HEIGHT = 1350;
