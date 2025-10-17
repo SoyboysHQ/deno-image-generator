@@ -133,40 +133,6 @@ function drawWrappedCenteredText(
   return lines.length * lineHeight;
 }
 
-// Utility: wrap text for list items
-function wrapText(
-  ctx: SKRSContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  font: string,
-  color: string,
-  lineHeight: number,
-): number {
-  ctx.font = font;
-  ctx.fillStyle = color;
-  const words = text.split(" ");
-  const lines: string[] = [];
-  let line = "";
-  for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + " ";
-    const metrics = ctx.measureText(testLine);
-    const testWidth = metrics.width;
-    if (testWidth > maxWidth && n > 0) {
-      lines.push(line.trim());
-      line = words[n] + " ";
-    } else {
-      line = testLine;
-    }
-  }
-  lines.push(line.trim());
-  for (let i = 0; i < lines.length; i++) {
-    ctx.fillText(lines[i], x, y + i * lineHeight);
-  }
-  return lines.length * lineHeight;
-}
-
 // Highlight: simple rectangle (Docker-compatible - NO save/restore/globalAlpha)
 function drawWavyHighlight(
   ctx: SKRSContext2D,
@@ -392,6 +358,36 @@ function drawBalancedCenteredTitleWithHighlight(
   return totalHeight;
 }
 
+// Helper: Calculate how many lines each item will need
+function calculateItemHeights(
+  ctx: SKRSContext2D,
+  points: string[],
+  font: string,
+  maxWidth: number,
+): number[] {
+  ctx.font = font;
+  const heights: number[] = [];
+  for (const text of points) {
+    const words = text.split(" ");
+    let lineCount = 0;
+    let line = "";
+    for (let n = 0; n < words.length; n++) {
+      const testLine = line + words[n] + " ";
+      const metrics = ctx.measureText(testLine);
+      const testWidth = metrics.width;
+      if (testWidth > maxWidth && n > 0) {
+        lineCount++;
+        line = words[n] + " ";
+      } else {
+        line = testLine;
+      }
+    }
+    lineCount++; // Last line
+    heights.push(lineCount);
+  }
+  return heights;
+}
+
 // Main execution
 try {
   // Load background image
@@ -434,9 +430,42 @@ try {
   ctx.stroke();
   currY += 40;
 
-  // List
+  const listStartY = currY;
+
+  // Calculate heights for all items to determine if we need to adjust spacing
   const LIST_FONT = "26px Merriweather";
-  const LIST_LINE_HEIGHT = 47; // 180% of font size
+  const BASE_LINE_HEIGHT = 47;
+  const numWidth = ctx.measureText("20.").width;
+  const itemHeights = calculateItemHeights(
+    ctx,
+    points,
+    LIST_FONT,
+    WIDTH - PAD_X * 2 - numWidth - 12,
+  );
+  
+  // Calculate total needed height
+  const totalLines = itemHeights.reduce((sum, h) => sum + h, 0);
+  const baseItemSpacing = 2;
+  const extraSpacing = 12; // Extra spacing after items 8 and 14
+  const estimatedHeight = totalLines * BASE_LINE_HEIGHT + (20 * baseItemSpacing) + extraSpacing;
+  const availableHeight = HEIGHT - listStartY - 30; // 30px bottom padding
+
+  // Dynamically adjust line height if content is too tall
+  let LIST_LINE_HEIGHT = BASE_LINE_HEIGHT;
+  let itemSpacing = baseItemSpacing;
+  
+  if (estimatedHeight > availableHeight) {
+    // Calculate adjusted line height to fit everything
+    const targetHeight = availableHeight - (20 * itemSpacing) - extraSpacing;
+    LIST_LINE_HEIGHT = Math.floor(targetHeight / totalLines);
+    // Ensure minimum readable line height
+    if (LIST_LINE_HEIGHT < 38) {
+      LIST_LINE_HEIGHT = 38;
+      itemSpacing = 0; // Remove item spacing if still too tight
+    }
+  }
+
+  // List
   for (let i = 0; i < 20; ++i) {
     ctx.font = LIST_FONT;
     ctx.fillStyle = "#222";
@@ -454,7 +483,7 @@ try {
       WIDTH - PAD_X * 2 - numWidth - 12,
       LIST_LINE_HEIGHT,
     );
-    currY += usedHeight + 2;
+    currY += usedHeight + itemSpacing;
     if (i === 7 || i === 13) currY += 6;
   }
 
