@@ -1,0 +1,27 @@
+# Generated images
+*.jpg
+*.jpeg
+*.png
+
+# Font files (user should download these)
+*.ttf
+*.otf
+
+# Deno
+.deno/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+
