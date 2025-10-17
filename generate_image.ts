@@ -420,7 +420,7 @@ try {
   // Author (centered, italic, smaller)
   ctx.font = "italic 20px Merriweather";
   ctx.fillStyle = "#666";
-  const author = "Written by Joel from Compound Habits";
+  const author = "by Compounding Wisdom";
   const authorWidth = ctx.measureText(author).width;
   ctx.fillText(author, (WIDTH - authorWidth) / 2, currY);
   currY += 30;
