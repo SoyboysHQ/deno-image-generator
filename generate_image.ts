@@ -175,9 +175,9 @@ function drawWavyHighlight(
   // Use a semi-transparent color instead
   ctx.fillStyle = "rgba(240, 226, 49, 0.7)"; // #F0E231 at 70% opacity
   
-  // Move highlight UP to appear behind text (not below it)
-  // Text baseline is at y, so move highlight up by most of the height
-  ctx.fillRect(x, y - height * 0.85, width, height);
+  // Position highlight behind text - adjust Y coordinate
+  // Text baseline is at y, move up much less to position lower behind text
+  ctx.fillRect(x, y, width, height);
 }
 
 interface HighlightRect {
