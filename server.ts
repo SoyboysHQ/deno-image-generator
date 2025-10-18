@@ -154,12 +154,22 @@ async function handleGenerateCarousel(req: Request): Promise<Response> {
       console.log(`✅ Generated ${output.slideCount} slides`);
       
       // Read all generated slides
-      const slides: Array<{filename: string, data: number[]}> = [];
+      const slides: Array<{filename: string, base64: string}> = [];
       for (const file of output.files) {
         const imageData = await Deno.readFile(file);
+        
+        // Convert to base64 in chunks to avoid stack overflow
+        const chunkSize = 8192;
+        let binary = '';
+        for (let i = 0; i < imageData.length; i += chunkSize) {
+          const chunk = imageData.slice(i, i + chunkSize);
+          binary += String.fromCharCode(...chunk);
+        }
+        const base64 = btoa(binary);
+        
         slides.push({
           filename: file,
-          data: Array.from(imageData)
+          base64: base64
         });
       }
       
@@ -167,10 +177,7 @@ async function handleGenerateCarousel(req: Request): Promise<Response> {
       const response = {
         success: true,
         slideCount: output.slideCount,
-        slides: slides.map(slide => ({
-          filename: slide.filename,
-          base64: btoa(String.fromCharCode(...slide.data))
-        }))
+        slides: slides
       };
       
       console.log("📤 Sending carousel data\n");
