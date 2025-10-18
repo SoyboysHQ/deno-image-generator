@@ -1,0 +1,49 @@
+{
+  "outputPrefix": "sunday_activities",
+  "slides": [
+    {
+      "type": "title",
+      "title": "<mark>5 Non-Negotiable Sunday Activities</mark> to Make Sure You Win The Week:",
+      "author": "Written by Colby Kultgen"
+    },
+    {
+      "type": "intro",
+      "body": "A successful week starts on <mark>Sunday night.</mark>\n\nWait until Monday to get organized, and you'll spend the week playing catch-up.\n\nHere are <mark>5 things</mark> to do every Sunday to win the week ahead:"
+    },
+    {
+      "type": "point",
+      "number": 1,
+      "title": "<mark>Do a self-review</mark>",
+      "body": "Have a quick solo meeting with yourself.\n\nTake 10 minutes to review:\n• What went well?\n• What didn't?\n• What's one thing to improve?\n\nThese small course corrections make a massive difference in the long run."
+    },
+    {
+      "type": "point",
+      "number": 2,
+      "title": "<mark>Do a quick reset of your space</mark>",
+      "body": "A messy space = a messy mind.\n\nTake 20 minutes to tidy up your home, clean your workspace, and put things back where they belong.\n\nA clear space makes Monday feel less chaotic."
+    },
+    {
+      "type": "point",
+      "number": 3,
+      "title": "<mark>Do something for future you</mark>",
+      "body": "Make Monday easier.\n\nPrep meals.\nLay out your gym clothes.\nWrite your top 3 priorities for next week.\n\nSmall actions on Sunday can save you from big headaches on Monday."
+    },
+    {
+      "type": "point",
+      "number": 4,
+      "title": "<mark>Close open loops</mark>",
+      "body": "That lingering email.\nThat half-finished task.\nThat text you forgot to reply to.\n\nOpen loops drain mental energy.\n\nTake 30 minutes to tie up loose ends so you're not carrying them into Monday."
+    },
+    {
+      "type": "point",
+      "number": 5,
+      "title": "<mark>Do something offline</mark>",
+      "body": "It's hard to recover if you're always plugged in.\n\nGo for a walk.\nRead a book.\nSpend time with a friend.\n\nGiving your brain a break today means showing up sharper for the week ahead."
+    },
+    {
+      "type": "closing",
+      "body": "What did I miss?"
+    }
+  ]
+}
+

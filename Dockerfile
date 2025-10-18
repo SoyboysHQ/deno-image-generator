@@ -20,11 +20,12 @@ COPY background.jpeg ./
 
 # Copy application files
 COPY generate_image.ts ./
+COPY generate_carousel.ts ./
 COPY server.ts ./
 COPY deno.json ./
 
 # Cache the dependencies
-RUN deno cache server.ts generate_image.ts
+RUN deno cache server.ts generate_image.ts generate_carousel.ts
 
 # Expose the server port
 EXPOSE 8000
