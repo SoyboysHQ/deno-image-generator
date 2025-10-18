@@ -1,161 +1,288 @@
-# Instagram Image Generator for Deno
+# Instagram Image Generator
 
-Generate beautiful Instagram carousel images with highlighted text using Deno.
+Generate beautiful Instagram images and carousels with highlighted text using Deno.
 
-## Prerequisites
+## Features
+
+- 🎨 **Single Images** - Generate 1080x1350px Instagram-ready images
+- 📱 **Carousels** - Create multi-slide carousel posts
+- ✨ **Text Highlighting** - Yellow highlight background with `<mark>` tags
+- 🎭 **Custom Fonts** - Beautiful Merriweather typography
+- 🚀 **HTTP API** - Deploy anywhere and integrate with n8n, Make, etc.
+- 🐳 **Docker Ready** - Production-ready containerization
+
+## Quick Start
+
+### Prerequisites
 
 - [Deno](https://deno.land/) installed (v1.40 or higher)
-- Font files (Merriweather family):
-  - `Merriweather-Regular.ttf`
-  - `Merriweather-Bold.ttf`
-  - `Merriweather-Italic.ttf`
+- Font files: `Merriweather-Regular.ttf`, `Merriweather-Bold.ttf`, `Merriweather-Italic.ttf`
 - Background image: `background.jpeg` (1080x1350px recommended)
 
-## Setup
-
-1. **Install Deno** (if not already installed):
-   ```bash
-   curl -fsSL https://deno.land/x/install/install.sh | sh
-   ```
-
-2. **Download Required Fonts**:
-   
-   Download the Merriweather font family from [Google Fonts](https://fonts.google.com/specimen/Merriweather) and place the following files in the project directory:
-   - `Merriweather-Regular.ttf`
-   - `Merriweather-Bold.ttf`
-   - `Merriweather-Italic.ttf`
-
-3. **Add Background Image**:
-   
-   Place your background image named `background.jpeg` in the project directory. The image should ideally be 1080x1350 pixels (Instagram portrait format).
-
-## Project Structure
-
-```
-deno_deploy/
-├── generate_image.ts       # Main script
-├── deno.json              # Deno configuration
-├── example_input.json     # Example input data
-├── background.jpeg        # Background image (you provide)
-├── Merriweather-*.ttf     # Font files (you provide)
-└── README.md              # This file
-```
-
-## Usage
-
-### Basic Usage
-
-Run the script with input data as a JSON string:
+### Installation
 
 ```bash
-deno run --allow-read --allow-write --allow-ffi --allow-sys generate_image.ts '[{"title":"Real Life <mark>Cheat Codes</mark>","list":["<mark>Wake up early</mark> and establish a morning routine"]}]'
+# Clone the repository
+git clone <your-repo-url>
+cd deno_deploy
+
+# Download fonts from Google Fonts
+# https://fonts.google.com/specimen/Merriweather
+# Place the three .ttf files in the project root
+
+# Add your background image as background.jpeg
 ```
 
-**Note:** The `--allow-ffi` and `--allow-sys` flags are required for the canvas library to work with native bindings.
-
-### Using Example Data
-
-Test with the provided example input:
+### Running the Server
 
 ```bash
-deno run --allow-read --allow-write generate_image.ts "$(cat example_input.json)"
+# Start the HTTP server
+deno run --allow-net --allow-read --allow-write --allow-run --allow-ffi --allow-sys --allow-env server.ts
 ```
 
-### Using Deno Task
+Server will be available at `http://localhost:8000`
 
-The project includes a task in `deno.json`:
+## API Endpoints
 
+### `GET /health`
+
+Health check endpoint.
+
+**Response:**
+```json
+{
+  "status": "ok",
+  "message": "Instagram Generator Server is running",
+  "endpoints": { ... },
+  "version": "2.0.0"
+}
+```
+
+### `POST /generate-image`
+
+Generate a single Instagram image.
+
+**Request Body:**
+```json
+{
+  "title": "Real Life <mark>Cheat Codes</mark>",
+  "list": [
+    "<mark>Wake up early</mark> and establish a morning routine",
+    "Practice gratitude daily",
+    ... (20 items total)
+  ]
+}
+```
+
+**Response:** JPEG image file
+
+**Example:**
 ```bash
-deno task generate "$(cat example_input.json)"
+curl -X POST http://localhost:8000/generate-image \
+  -H "Content-Type: application/json" \
+  -d @example_input.json \
+  --output image.jpg
 ```
+
+### `POST /generate-carousel`
+
+Generate a multi-slide carousel.
+
+**Request Body:**
+```json
+{
+  "slides": [
+    {
+      "title": "Slide 1 <mark>Title</mark>",
+      "list": ["Point 1", "Point 2", ...]
+    },
+    {
+      "title": "Slide 2 <mark>Title</mark>",
+      "list": ["Point 1", "Point 2", ...]
+    }
+  ]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "slideCount": 2,
+  "slides": [
+    {
+      "filename": "slide_1.jpg",
+      "base64": "base64-encoded-image-data"
+    },
+    ...
+  ]
+}
+```
+
+**Example:**
+```bash
+curl -X POST http://localhost:8000/generate-carousel \
+  -H "Content-Type: application/json" \
+  -d @example_carousel_input.json
+```
+
+See [CAROUSEL.md](CAROUSEL.md) for detailed carousel documentation.
+
+### `POST /`
+
+Backward compatibility endpoint. Works the same as `/generate-image`.
 
 ## Input Format
 
-The script expects a JSON array with the following structure:
+### Text Highlighting
+
+Use `<mark>` tags to highlight text with a yellow background:
 
 ```json
-[
-  {
-    "title": "Your Title with <mark>highlighted</mark> text",
-    "list": [
-      "First point with <mark>highlight</mark>",
-      "Second point with <mark>another highlight</mark>",
-      "You can have multiple §§§ <mark>separated</mark> points"
-    ]
-  }
-]
+{
+  "title": "This is <mark>highlighted</mark> text",
+  "list": ["<mark>Important point</mark> with normal text"]
+}
 ```
 
-### Key Features
+### Multiple Points Per Line
 
-- **Highlighting**: Wrap text in `<mark>...</mark>` tags to highlight it with a yellow wavy background
-- **Multiple Points**: Separate multiple points in a single list item using `§§§`
-- **20 Points**: The script expects exactly 20 list items (after splitting by `§§§`)
+Use `§§§` to split one list item into multiple points:
 
-## For n8n Integration
+```json
+{
+  "list": [
+    "First point §§§ Second point §§§ Third point"
+  ]
+}
+```
 
-When using this in an n8n workflow:
+This splits into three separate list items.
 
-1. **Code Node**: Use the "Execute Command" node or "HTTP Request" node to call Deno
-2. **Pass JSON**: Format your data as a JSON string and pass it as the first argument
-3. **Read Output**: The generated image will be saved as `real_life_cheat_codes_instagram.jpg`
+### List Length
 
-### Example n8n Setup
+- **Single images**: Expects exactly 20 list items (after splitting by `§§§`)
+- **Carousel slides**: Flexible, but each slide follows the same 20-item rule
 
-In an **Execute Command** node:
+## Local Development
+
+### Generate Single Image
 
 ```bash
-cd /path/to/deno_deploy && deno run --allow-read --allow-write --allow-ffi --allow-sys generate_image.ts '{{$json["inputData"]}}'
+deno run --allow-read --allow-write --allow-ffi --allow-sys generate_image.ts '[{
+  "title": "Your <mark>Title</mark>",
+  "list": ["Point 1", "Point 2", ...]
+}]'
 ```
 
-Where `inputData` is your JSON string from a previous node.
+### Generate Carousel
 
-### Example n8n Function Node to Format Data
+```bash
+deno run --allow-read --allow-write --allow-ffi --allow-sys generate_carousel.ts '{
+  "slides": [...]
+}'
+```
 
+### Test the Server
+
+```bash
+# In one terminal
+deno run --allow-net --allow-read --allow-write --allow-run server.ts
+
+# In another terminal
+./test_multi_endpoints.sh
+```
+
+## Docker Deployment
+
+### Build and Run
+
+```bash
+# Build
+docker build -t instagram-generator .
+
+# Run
+docker run -p 8000:8000 instagram-generator
+
+# Test
+curl http://localhost:8000/health
+```
+
+### Deploy to Railway
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment instructions.
+
+## Customization
+
+Edit `generate_image.ts` to customize:
+
+- `WIDTH` and `HEIGHT` - Canvas dimensions (default: 1080x1350)
+- `TITLE_FONT` - Title font size and weight
+- `LIST_FONT` - List item font size
+- `PAD_X` - Horizontal padding
+- Colors - Search for `#F0E231` (highlight), `#222` (text), etc.
+
+## n8n Integration
+
+Use the HTTP Request node in n8n:
+
+**Configuration:**
+- **URL**: `http://your-server:8000/generate-image`
+- **Method**: `POST`
+- **Body Content Type**: `JSON`
+- **Body**: Your JSON data with `<mark>` tags
+- **Response Format**: `File` (for images) or `JSON` (for carousels)
+
+**Example Function Node:**
 ```javascript
-const items = $input.all();
-
-const formattedData = [{
-  title: items[0].json.title,
-  list: items[0].json.list
-}];
-
-return {
-  json: {
-    inputData: JSON.stringify(formattedData)
-  }
+const formattedData = {
+  title: $json.title,
+  list: $json.list
 };
+
+return { json: formattedData };
 ```
 
 ## Output
 
-The script generates:
-- `real_life_cheat_codes_instagram.jpg` - A 1080x1350px JPEG image ready for Instagram
+Generated files:
+- Single image: `real_life_cheat_codes_instagram.jpg` (1080x1350px)
+- Carousel: `slide_1.jpg`, `slide_2.jpg`, etc.
 
-## Customization
-
-You can customize the following in `generate_image.ts`:
-
-- `WIDTH` and `HEIGHT`: Canvas dimensions
-- `TITLE_FONT`: Title font size and weight
-- `LIST_FONT`: List item font size
-- `PAD_X`: Horizontal padding
-- Colors: Search for `#F0E231` (highlight color), `#222` (text color), etc.
+All images are JPEG format at 95% quality, optimized for Instagram.
 
 ## Troubleshooting
 
 ### "Failed to load image" error
 - Ensure `background.jpeg` exists in the project directory
-- Check that the image is a valid JPEG file
+- Verify the image is a valid JPEG file
 
 ### Font rendering issues
 - Verify all three Merriweather font files are present
 - Ensure font files are valid TTF format
 
 ### Permission denied errors
-- Make sure you're running with `--allow-read` and `--allow-write` flags
+- Make sure you're running with all required flags: `--allow-read`, `--allow-write`, `--allow-ffi`, `--allow-sys`, `--allow-env`
+
+### Docker: Highlights not showing
+- This has been fixed. If you encounter issues, ensure you're using the latest version of the Dockerfile.
+
+## Project Structure
+
+```
+deno_deploy/
+├── generate_image.ts          # Single image generator
+├── generate_carousel.ts       # Carousel generator
+├── server.ts                  # HTTP API server
+├── Dockerfile                 # Docker configuration
+├── deno.json                  # Deno configuration
+├── example_input.json         # Example single image input
+├── example_carousel_input.json # Example carousel input
+├── background.jpeg            # Background image
+├── Merriweather-*.ttf         # Font files
+└── README.md                  # This file
+```
 
 ## License
 
 MIT
-

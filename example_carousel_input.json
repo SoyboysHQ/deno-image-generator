@@ -1,49 +1,47 @@
 {
-  "outputPrefix": "sunday_activities",
+  "outputPrefix": "focus_micro_boundaries",
   "slides": [
     {
       "type": "title",
-      "title": "<mark>5 Non-Negotiable Sunday Activities</mark> to Make Sure You Win The Week:",
-      "author": "Written by Colby Kultgen"
+      "title": "<mark>5 Micro-Boundaries</mark> to Protect Your Focus This Week"
     },
     {
       "type": "intro",
-      "body": "A successful week starts on <mark>Sunday night.</mark>\n\nWait until Monday to get organized, and you'll spend the week playing catch-up.\n\nHere are <mark>5 things</mark> to do every Sunday to win the week ahead:"
+      "body": "Focus is a gate, not a faucet.\n\nSmall boundaries keep the noise out.\n\nHere are <mark>5 micro-boundaries</mark> you can set in 5 minutes:"
     },
     {
       "type": "point",
       "number": 1,
-      "title": "<mark>Do a self-review</mark>",
-      "body": "Have a quick solo meeting with yourself.\n\nTake 10 minutes to review:\n• What went well?\n• What didn't?\n• What's one thing to improve?\n\nThese small course corrections make a massive difference in the long run."
+      "title": "<mark>Silence your top distraction</mark>",
+      "body": "Phone? Email? Slack? Choose one channel to mute for an hour.\n\nLet it buzz later."
     },
     {
       "type": "point",
       "number": 2,
-      "title": "<mark>Do a quick reset of your space</mark>",
-      "body": "A messy space = a messy mind.\n\nTake 20 minutes to tidy up your home, clean your workspace, and put things back where they belong.\n\nA clear space makes Monday feel less chaotic."
+      "title": "<mark>Script your 'no, thank you'</mark>",
+      "body": "Have a default polite reply ready for meeting invites and ask-for-favors.\n\nSpeed + clarity beats waffling."
     },
     {
       "type": "point",
       "number": 3,
-      "title": "<mark>Do something for future you</mark>",
-      "body": "Make Monday easier.\n\nPrep meals.\nLay out your gym clothes.\nWrite your top 3 priorities for next week.\n\nSmall actions on Sunday can save you from big headaches on Monday."
+      "title": "<mark>Close tabs with a purpose</mark>",
+      "body": "If a tab isn't linked to your 3 outcomes today, close it.\n\nContext switching is attention tax."
     },
     {
       "type": "point",
       "number": 4,
-      "title": "<mark>Close open loops</mark>",
-      "body": "That lingering email.\nThat half-finished task.\nThat text you forgot to reply to.\n\nOpen loops drain mental energy.\n\nTake 30 minutes to tie up loose ends so you're not carrying them into Monday."
+      "title": "<mark>Do a 2-minute reset</mark>",
+      "body": "Stand up. Breathe. Straighten your desk. Sip water.\n\nTiny rituals reboot better than caffeine."
     },
     {
       "type": "point",
       "number": 5,
-      "title": "<mark>Do something offline</mark>",
-      "body": "It's hard to recover if you're always plugged in.\n\nGo for a walk.\nRead a book.\nSpend time with a friend.\n\nGiving your brain a break today means showing up sharper for the week ahead."
+      "title": "<mark>Block your next step</mark>",
+      "body": "End your work session by writing down the first 2 sentences or clicks for tomorrow.\n\nFuture you will thank you."
     },
     {
       "type": "closing",
-      "body": "What did I miss?"
+      "body": "Which micro-boundary will you set today?"
     }
   ]
 }
-

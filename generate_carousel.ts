@@ -167,6 +167,8 @@ async function generateTitleSlide(
 ): Promise<void> {
   const canvas = new Canvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext("2d");
+
+  slide.author = "Written by Compounding Wisdom";
   
   // Draw background
   ctx.drawImage(bgImage, 0, 0, WIDTH, HEIGHT);
