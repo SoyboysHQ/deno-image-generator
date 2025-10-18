@@ -1,10 +1,15 @@
-import { Canvas, loadImage, SKRSContext2D, GlobalFonts } from "npm:@napi-rs/canvas@^0.1.52";
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import {
+  Canvas,
+  loadImage,
+  SKRSContext2D,
+  GlobalFonts,
+} from 'npm:@napi-rs/canvas@^0.1.52';
+import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 
 // Register fonts
-GlobalFonts.registerFromPath("./Merriweather-Regular.ttf", "Merriweather");
-GlobalFonts.registerFromPath("./Merriweather-Bold.ttf", "Merriweather");
-GlobalFonts.registerFromPath("./Merriweather-Italic.ttf", "Merriweather");
+GlobalFonts.registerFromPath('./Merriweather-Regular.ttf', 'Merriweather');
+GlobalFonts.registerFromPath('./Merriweather-Bold.ttf', 'Merriweather');
+GlobalFonts.registerFromPath('./Merriweather-Italic.ttf', 'Merriweather');
 
 const WIDTH = 1080;
 const HEIGHT = 1350;
@@ -19,7 +24,7 @@ interface ParsedText {
 }
 
 interface CarouselSlide {
-  type: "title" | "intro" | "point" | "closing";
+  type: 'title' | 'intro' | 'point' | 'closing';
   title?: string;
   subtitle?: string;
   body?: string;
@@ -36,7 +41,7 @@ interface CarouselInput {
 function parseMarkedText(markedText: string): ParsedText {
   const regex = /<mark>(.*?)<\/mark>/g;
   const highlights: HighlightItem[] = [];
-  let cleanText = "";
+  let cleanText = '';
   let lastIndex = 0;
   let match;
   while ((match = regex.exec(markedText)) !== null) {
@@ -81,18 +86,23 @@ function drawHighlight(
 }
 
 // Wrap text into lines
-function wrapText(ctx: SKRSContext2D, text: string, maxWidth: number, font: string): string[] {
+function wrapText(
+  ctx: SKRSContext2D,
+  text: string,
+  maxWidth: number,
+  font: string,
+): string[] {
   ctx.font = font;
-  const words = text.split(" ");
+  const words = text.split(' ');
   const lines: string[] = [];
-  let line = "";
-  
+  let line = '';
+
   for (let n = 0; n < words.length; n++) {
-    const testLine = line + words[n] + " ";
+    const testLine = line + words[n] + ' ';
     const metrics = ctx.measureText(testLine);
     if (metrics.width > maxWidth && n > 0) {
       lines.push(line.trim());
-      line = words[n] + " ";
+      line = words[n] + ' ';
     } else {
       line = testLine;
     }
@@ -113,25 +123,34 @@ function drawTextWithHighlights(
   highlightColor: string,
   maxWidth: number,
   lineHeight: number,
-  align: "left" | "center" = "left"
+  align: 'left' | 'center' = 'left',
 ): number {
-  const lines = wrapText(ctx, text, maxWidth, font);
-  let currY = y;
+  // Split by newlines first to respect explicit line breaks
+  const textSegments = text.split('\n');
+  const allLines: string[] = [];
   
-  for (const line of lines) {
+  // Wrap each segment separately
+  for (const segment of textSegments) {
+    const wrappedLines = wrapText(ctx, segment, maxWidth, font);
+    allLines.push(...wrappedLines);
+  }
+  
+  let currY = y;
+
+  for (const line of allLines) {
     ctx.font = font;
     const lineWidth = ctx.measureText(line).width;
-    const lineX = align === "center" ? x + (maxWidth - lineWidth) / 2 : x;
-    
+    const lineX = align === 'center' ? x + (maxWidth - lineWidth) / 2 : x;
+
     // Find highlights in this line
     const lineHighlights: PhraseIndex[] = [];
     for (const hi of highlights) {
       const matches = findAllPhraseIndices(line, hi.phrase);
       lineHighlights.push(...matches);
     }
-    
+
     // Draw highlight backgrounds
-    const fontSize = parseInt(font, 10) || 26;
+    const fontSize = parseInt(font.match(/\d+/)?.[0] || '26', 10);
     for (const hi of lineHighlights) {
       const prefix = line.slice(0, hi.start);
       const highlightText = line.slice(hi.start, hi.end);
@@ -149,38 +168,38 @@ function drawTextWithHighlights(
         highlightColor
       );
     }
-    
+
     // Draw text
     ctx.fillStyle = textColor;
     ctx.fillText(line, lineX, currY);
     currY += lineHeight;
   }
-  
-  return lines.length * lineHeight;
+
+  return allLines.length * lineHeight;
 }
 
 // Generate title slide
 async function generateTitleSlide(
   slide: CarouselSlide,
   bgImage: any,
-  outputPath: string
+  outputPath: string,
 ): Promise<void> {
   const canvas = new Canvas(WIDTH, HEIGHT);
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext('2d');
 
-  slide.author = "Written by Compounding Wisdom";
-  
+  slide.author = 'Written by Compounding Wisdom';
+
   // Draw background
   ctx.drawImage(bgImage, 0, 0, WIDTH, HEIGHT);
-  
+
   // Parse title with highlights
-  const parsed = parseMarkedText(slide.title || "");
-  
+  const parsed = parseMarkedText(slide.title || '');
+
   // Draw title (large, bold, with highlights)
-  const titleFont = "bold 70px Merriweather";
+  const titleFont = 'bold 70px Merriweather';
   const titleLineHeight = 90;
   const padding = 80;
-  
+
   const titleY = HEIGHT / 2 - 100;
   drawTextWithHighlights(
     ctx,
@@ -189,23 +208,23 @@ async function generateTitleSlide(
     titleY,
     parsed.highlights,
     titleFont,
-    "#222",
-    "rgba(240, 226, 49, 0.85)",
+    '#222',
+    'rgba(240, 226, 49, 0.85)',
     WIDTH - padding * 2,
     titleLineHeight,
-    "left"
+    'left',
   );
-  
+
   // Draw author/subtitle at bottom
   if (slide.author) {
-    ctx.font = "italic 24px Merriweather";
-    ctx.fillStyle = "#666";
+    ctx.font = 'italic 24px Merriweather';
+    ctx.fillStyle = '#666';
     const authorY = HEIGHT - 200;
     ctx.fillText(slide.author, padding, authorY);
   }
-  
+
   // Save
-  const buffer = await canvas.encode("jpeg", 95);
+  const buffer = await canvas.encode('jpeg', 95);
   await Deno.writeFile(outputPath, buffer);
 }
 
@@ -213,24 +232,24 @@ async function generateTitleSlide(
 async function generateIntroSlide(
   slide: CarouselSlide,
   bgImage: any,
-  outputPath: string
+  outputPath: string,
 ): Promise<void> {
   const canvas = new Canvas(WIDTH, HEIGHT);
-  const ctx = canvas.getContext("2d");
-  
+  const ctx = canvas.getContext('2d');
+
   ctx.drawImage(bgImage, 0, 0, WIDTH, HEIGHT);
-  
+
   const padding = 100;
   let currY = HEIGHT / 2 - 200;
-  
+
   // Split body by newlines
-  const paragraphs = (slide.body || "").split("\n\n");
-  
+  const paragraphs = (slide.body || '').split('\n\n');
+
   for (const para of paragraphs) {
     const parsed = parseMarkedText(para);
-    const font = "28px Merriweather";
+    const font = '28px Merriweather';
     const lineHeight = 50;
-    
+
     const height = drawTextWithHighlights(
       ctx,
       parsed.text,
@@ -238,17 +257,17 @@ async function generateIntroSlide(
       currY,
       parsed.highlights,
       font,
-      "#222",
-      "rgba(255, 165, 0, 0.75)",
+      '#222',
+      'rgba(255, 165, 0, 0.75)',
       WIDTH - padding * 2,
       lineHeight,
-      "left"
+      'left',
     );
-    
+
     currY += height + 30;
   }
-  
-  const buffer = await canvas.encode("jpeg", 95);
+
+  const buffer = await canvas.encode('jpeg', 95);
   await Deno.writeFile(outputPath, buffer);
 }
 
@@ -256,22 +275,22 @@ async function generateIntroSlide(
 async function generatePointSlide(
   slide: CarouselSlide,
   bgImage: any,
-  outputPath: string
+  outputPath: string,
 ): Promise<void> {
   const canvas = new Canvas(WIDTH, HEIGHT);
-  const ctx = canvas.getContext("2d");
-  
+  const ctx = canvas.getContext('2d');
+
   ctx.drawImage(bgImage, 0, 0, WIDTH, HEIGHT);
-  
+
   const padding = 100;
   let currY = 400;
-  
+
   // Draw numbered title
-  const titleText = `${slide.number}. ${slide.title || ""}`;
+  const titleText = `${slide.number}. ${slide.title || ''}`;
   const parsed = parseMarkedText(titleText);
-  const titleFont = "bold 48px Merriweather";
+  const titleFont = 'bold 48px Merriweather';
   const titleLineHeight = 65;
-  
+
   const titleHeight = drawTextWithHighlights(
     ctx,
     parsed.text,
@@ -279,23 +298,23 @@ async function generatePointSlide(
     currY,
     parsed.highlights,
     titleFont,
-    "#222",
-    "rgba(255, 165, 0, 0.85)",
+    '#222',
+    'rgba(255, 165, 0, 0.85)',
     WIDTH - padding * 2,
     titleLineHeight,
-    "left"
+    'left',
   );
-  
+
   currY += titleHeight + 40;
-  
+
   // Draw body text
-  const bodyParagraphs = (slide.body || "").split("\n\n");
-  
+  const bodyParagraphs = (slide.body || '').split('\n\n');
+
   for (const para of bodyParagraphs) {
     const bodyParsed = parseMarkedText(para);
-    const bodyFont = "26px Merriweather";
+    const bodyFont = '26px Merriweather';
     const bodyLineHeight = 45;
-    
+
     const bodyHeight = drawTextWithHighlights(
       ctx,
       bodyParsed.text,
@@ -303,17 +322,17 @@ async function generatePointSlide(
       currY,
       bodyParsed.highlights,
       bodyFont,
-      "#222",
-      "rgba(255, 165, 0, 0.75)",
+      '#222',
+      'rgba(255, 165, 0, 0.75)',
       WIDTH - padding * 2,
       bodyLineHeight,
-      "left"
+      'left',
     );
-    
+
     currY += bodyHeight + 25;
   }
-  
-  const buffer = await canvas.encode("jpeg", 95);
+
+  const buffer = await canvas.encode('jpeg', 95);
   await Deno.writeFile(outputPath, buffer);
 }
 
@@ -321,32 +340,32 @@ async function generatePointSlide(
 async function generateClosingSlide(
   slide: CarouselSlide,
   bgImage: any,
-  outputPath: string
+  outputPath: string,
 ): Promise<void> {
   const canvas = new Canvas(WIDTH, HEIGHT);
-  const ctx = canvas.getContext("2d");
-  
+  const ctx = canvas.getContext('2d');
+
   ctx.drawImage(bgImage, 0, 0, WIDTH, HEIGHT);
-  
+
   // Draw centered text
-  const text = slide.body || slide.title || "";
-  const font = "32px Merriweather";
+  const text = slide.body || slide.title || '';
+  const font = '32px Merriweather';
   ctx.font = font;
-  ctx.fillStyle = "#222";
-  
+  ctx.fillStyle = '#222';
+
   const textWidth = ctx.measureText(text).width;
   const x = (WIDTH - textWidth) / 2;
   const y = HEIGHT / 2;
-  
+
   ctx.fillText(text, x, y);
-  
-  const buffer = await canvas.encode("jpeg", 95);
+
+  const buffer = await canvas.encode('jpeg', 95);
   await Deno.writeFile(outputPath, buffer);
 }
 
 // Main execution
 if (!Deno.args[0]) {
-  console.error("Error: No input JSON provided");
+  console.error('Error: No input JSON provided');
   Deno.exit(1);
 }
 
@@ -354,54 +373,54 @@ let input: CarouselInput;
 try {
   input = JSON.parse(Deno.args[0]);
 } catch (e) {
-  console.error("Failed to parse input JSON:", e);
+  console.error('Failed to parse input JSON:', e);
   Deno.exit(1);
 }
 
 try {
   // Load background image
-  const bgImage = await loadImage("./background.jpeg");
-  
-  const outputPrefix = input.outputPrefix || "carousel";
+  const bgImage = await loadImage('./background.jpeg');
+
+  const outputPrefix = input.outputPrefix || 'carousel';
   const outputs: string[] = [];
-  
+
   // Generate each slide
   for (let i = 0; i < input.slides.length; i++) {
     const slide = input.slides[i];
     const outputPath = `${outputPrefix}_slide_${i + 1}.jpg`;
-    
+
     console.error(`Generating slide ${i + 1}/${input.slides.length}...`);
-    
+
     switch (slide.type) {
-      case "title":
+      case 'title':
         await generateTitleSlide(slide, bgImage, outputPath);
         break;
-      case "intro":
+      case 'intro':
         await generateIntroSlide(slide, bgImage, outputPath);
         break;
-      case "point":
+      case 'point':
         await generatePointSlide(slide, bgImage, outputPath);
         break;
-      case "closing":
+      case 'closing':
         await generateClosingSlide(slide, bgImage, outputPath);
         break;
       default:
         console.error(`Unknown slide type: ${slide.type}`);
         continue;
     }
-    
+
     outputs.push(outputPath);
   }
-  
+
   // Output result
-  console.log(JSON.stringify({
-    success: true,
-    slideCount: outputs.length,
-    files: outputs
-  }));
-  
+  console.log(
+    JSON.stringify({
+      success: true,
+      slideCount: outputs.length,
+      files: outputs,
+    }),
+  );
 } catch (error) {
-  console.error("Error generating carousel:", error);
+  console.error('Error generating carousel:', error);
   Deno.exit(1);
 }
-
