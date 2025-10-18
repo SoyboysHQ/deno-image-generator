@@ -153,35 +153,41 @@ async function handleGenerateCarousel(req: Request): Promise<Response> {
       
       console.log(`✅ Generated ${output.slideCount} slides`);
       
-      // Read all generated slides
-      const slides: Array<{filename: string, base64: string}> = [];
-      for (const file of output.files) {
-        const imageData = await Deno.readFile(file);
-        
-        // Convert to base64 in chunks to avoid stack overflow
-        const chunkSize = 8192;
-        let binary = '';
-        for (let i = 0; i < imageData.length; i += chunkSize) {
-          const chunk = imageData.slice(i, i + chunkSize);
-          binary += String.fromCharCode(...chunk);
-        }
-        const base64 = btoa(binary);
-        
-        slides.push({
-          filename: file,
-          base64: base64
-        });
+      // Create a ZIP file with all slides
+      const zipFileName = `carousel_${Date.now()}.zip`;
+      const zipCommand = new Deno.Command("zip", {
+        args: ["-j", zipFileName, ...output.files],
+        stdout: "piped",
+        stderr: "piped",
+      });
+      
+      console.log("📦 Creating ZIP file...");
+      const { code: zipCode } = await zipCommand.output();
+      
+      if (zipCode !== 0) {
+        return errorResponse("Failed to create ZIP file");
       }
       
-      // Return as JSON with base64 encoded images
-      const response = {
-        success: true,
-        slideCount: output.slideCount,
-        slides: slides
-      };
+      // Read the ZIP file
+      const zipData = await Deno.readFile(zipFileName);
+      const zipSize = (zipData.length / 1024).toFixed(2);
+      console.log(`📤 Sending ZIP file (${zipSize} KB)\n`);
       
-      console.log("📤 Sending carousel data\n");
-      return jsonResponse(response);
+      // Clean up generated files
+      for (const file of output.files) {
+        await Deno.remove(file).catch(() => {}); // Ignore errors
+      }
+      await Deno.remove(zipFileName).catch(() => {}); // Ignore errors
+      
+      return new Response(zipData, {
+        status: 200,
+        headers: {
+          "Content-Type": "application/zip",
+          "Content-Disposition": 'attachment; filename="carousel_slides.zip"',
+          "Content-Length": zipData.length.toString(),
+          ...corsHeaders(),
+        },
+      });
       
     } else {
       const errorText = new TextDecoder().decode(stderr);
