@@ -378,8 +378,9 @@ try {
 }
 
 try {
-  // Load background image
-  const bgImage = await loadImage('./background.jpeg');
+  // Load both background images
+  const bgImage1 = await loadImage('./bg-1.jpeg');
+  const bgImage2 = await loadImage('./bg-2.jpg');
 
   const outputPrefix = input.outputPrefix || 'carousel';
   const outputs: string[] = [];
@@ -388,6 +389,9 @@ try {
   for (let i = 0; i < input.slides.length; i++) {
     const slide = input.slides[i];
     const outputPath = `${outputPrefix}_slide_${i + 1}.jpg`;
+
+    // Alternate between the two background images
+    const bgImage = i % 2 === 0 ? bgImage1 : bgImage2;
 
     console.error(`Generating slide ${i + 1}/${input.slides.length}...`);
 

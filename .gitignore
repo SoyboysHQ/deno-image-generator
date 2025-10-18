@@ -4,6 +4,8 @@
 *.png
 # But keep the background and test outputs for reference
 !background.jpeg
+!bg-1.jpeg
+!bg-2.jpg
 !*_test*.jpg
 
 # Font files - IMPORTANT: Don't ignore these if deploying with Docker!
