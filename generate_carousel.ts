@@ -72,7 +72,7 @@ function findAllPhraseIndices(line: string, phrase: string): PhraseIndex[] {
   return indices;
 }
 
-// Draw highlight background
+// Draw highlight background with squiggly effect
 function drawHighlight(
   ctx: SKRSContext2D,
   x: number,
@@ -82,7 +82,50 @@ function drawHighlight(
   color: string,
 ): void {
   ctx.fillStyle = color;
-  ctx.fillRect(x, y, width, height);
+  
+  // Create a squiggly path
+  ctx.beginPath();
+  
+  const waveAmplitude = 1; // How much the waves go up/down
+  const waveFrequency = 25; // Distance between wave peaks
+  
+  // Start at top-left with a slight wave
+  ctx.moveTo(x, y + Math.sin(0) * waveAmplitude);
+  
+  // Draw top edge with waves
+  for (let i = 0; i <= width; i += waveFrequency / 2) {
+    const progress = i / waveFrequency;
+    const waveY = y + Math.sin(progress) * waveAmplitude;
+    const nextX = Math.min(x + i, x + width);
+    ctx.lineTo(nextX, waveY);
+  }
+  
+  // Draw right edge with waves
+  for (let i = 0; i <= height; i += waveFrequency / 2) {
+    const progress = i / waveFrequency;
+    const waveX = x + width + Math.cos(progress) * waveAmplitude;
+    const nextY = Math.min(y + i, y + height);
+    ctx.lineTo(waveX, nextY);
+  }
+  
+  // Draw bottom edge with waves
+  for (let i = width; i >= 0; i -= waveFrequency / 2) {
+    const progress = i / waveFrequency;
+    const waveY = y + height + Math.sin(progress) * waveAmplitude;
+    const nextX = Math.max(x + i, x);
+    ctx.lineTo(nextX, waveY);
+  }
+  
+  // Draw left edge with waves
+  for (let i = height; i >= 0; i -= waveFrequency / 2) {
+    const progress = i / waveFrequency;
+    const waveX = x + Math.cos(progress) * waveAmplitude;
+    const nextY = Math.max(y + i, y);
+    ctx.lineTo(waveX, nextY);
+  }
+  
+  ctx.closePath();
+  ctx.fill();
 }
 
 // Wrap text into lines
@@ -209,7 +252,7 @@ async function generateTitleSlide(
     parsed.highlights,
     titleFont,
     '#222',
-    'rgba(240, 226, 49, 0.85)',
+    'rgba(240, 226, 49, 0.65)',
     WIDTH - padding * 2,
     titleLineHeight,
     'left',
@@ -258,7 +301,7 @@ async function generateIntroSlide(
       parsed.highlights,
       font,
       '#222',
-      'rgba(255, 165, 0, 0.75)',
+      'rgba(255, 165, 0, 0.55)',
       WIDTH - padding * 2,
       lineHeight,
       'left',
@@ -299,7 +342,7 @@ async function generatePointSlide(
     parsed.highlights,
     titleFont,
     '#222',
-    'rgba(255, 165, 0, 0.85)',
+    'rgba(255, 165, 0, 0.65)',
     WIDTH - padding * 2,
     titleLineHeight,
     'left',
@@ -323,7 +366,7 @@ async function generatePointSlide(
       bodyParsed.highlights,
       bodyFont,
       '#222',
-      'rgba(255, 165, 0, 0.75)',
+      'rgba(255, 165, 0, 0.55)',
       WIDTH - padding * 2,
       bodyLineHeight,
       'left',
