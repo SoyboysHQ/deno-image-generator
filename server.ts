@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import JSZip from "npm:jszip@3.10.1";
 
 console.log("🚀 Instagram Generator Server running on http://localhost:8000");
 console.log("📝 Available endpoints:");
@@ -153,23 +154,24 @@ async function handleGenerateCarousel(req: Request): Promise<Response> {
       
       console.log(`✅ Generated ${output.slideCount} slides`);
       
-      // Create a ZIP file with all slides
-      const zipFileName = `carousel_${Date.now()}.zip`;
-      const zipCommand = new Deno.Command("zip", {
-        args: ["-j", zipFileName, ...output.files],
-        stdout: "piped",
-        stderr: "piped",
-      });
-      
+      // Create a ZIP file with all slides using JSZip
       console.log("📦 Creating ZIP file...");
-      const { code: zipCode } = await zipCommand.output();
+      const zip = new JSZip();
       
-      if (zipCode !== 0) {
-        return errorResponse("Failed to create ZIP file");
+      // Add each image to the ZIP
+      for (const file of output.files) {
+        const imageData = await Deno.readFile(file);
+        const fileName = file.split('/').pop() || file;
+        zip.file(fileName, imageData);
       }
       
-      // Read the ZIP file
-      const zipData = await Deno.readFile(zipFileName);
+      // Generate the ZIP file as a Uint8Array
+      const zipData = await zip.generateAsync({ 
+        type: "uint8array",
+        compression: "DEFLATE",
+        compressionOptions: { level: 6 }
+      });
+      
       const zipSize = (zipData.length / 1024).toFixed(2);
       console.log(`📤 Sending ZIP file (${zipSize} KB)\n`);
       
@@ -177,7 +179,6 @@ async function handleGenerateCarousel(req: Request): Promise<Response> {
       for (const file of output.files) {
         await Deno.remove(file).catch(() => {}); // Ignore errors
       }
-      await Deno.remove(zipFileName).catch(() => {}); // Ignore errors
       
       return new Response(zipData, {
         status: 200,
