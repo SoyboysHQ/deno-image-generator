@@ -6,10 +6,11 @@ import {
 } from 'npm:@napi-rs/canvas@^0.1.52';
 import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 
-// Register fonts
-GlobalFonts.registerFromPath('./Merriweather-Regular.ttf', 'Merriweather');
-GlobalFonts.registerFromPath('./Merriweather-Bold.ttf', 'Merriweather');
-GlobalFonts.registerFromPath('./Merriweather-Italic.ttf', 'Merriweather');
+// Register fonts with absolute paths
+const fontDir = Deno.cwd();
+GlobalFonts.registerFromPath(join(fontDir, 'Merriweather-Regular.ttf'), 'Merriweather');
+GlobalFonts.registerFromPath(join(fontDir, 'Merriweather-Bold.ttf'), 'Merriweather');
+GlobalFonts.registerFromPath(join(fontDir, 'Merriweather-Italic.ttf'), 'Merriweather');
 
 const WIDTH = 1080;
 const HEIGHT = 1350;
@@ -428,9 +429,10 @@ try {
 }
 
 try {
-  // Load both background images
-  const bgImage1 = await loadImage('./bg-1.jpeg');
-  const bgImage2 = await loadImage('./bg-2.jpg');
+  // Load both background images with absolute paths
+  const currentDir = Deno.cwd();
+  const bgImage1 = await loadImage(join(currentDir, 'bg-1.jpeg'));
+  const bgImage2 = await loadImage(join(currentDir, 'bg-2.jpg'));
 
   const outputPrefix = input.outputPrefix || 'carousel';
   const outputs: string[] = [];
