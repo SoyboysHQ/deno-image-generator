@@ -1,6 +1,8 @@
 # Generated images
 *.jpg
 !background.jpeg
+!bg-1.jpeg
+!bg-2.jpg
 
 # Node modules (not needed in Deno)
 node_modules/
