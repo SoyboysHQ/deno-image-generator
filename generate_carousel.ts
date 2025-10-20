@@ -8,9 +8,18 @@ import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 
 // Register fonts with absolute paths
 const fontDir = Deno.cwd();
-GlobalFonts.registerFromPath(join(fontDir, 'Merriweather-Regular.ttf'), 'Merriweather');
-GlobalFonts.registerFromPath(join(fontDir, 'Merriweather-Bold.ttf'), 'Merriweather');
-GlobalFonts.registerFromPath(join(fontDir, 'Merriweather-Italic.ttf'), 'Merriweather');
+GlobalFonts.registerFromPath(
+  join(fontDir, 'Merriweather-Regular.ttf'),
+  'Merriweather',
+);
+GlobalFonts.registerFromPath(
+  join(fontDir, 'Merriweather-Bold.ttf'),
+  'Merriweather',
+);
+GlobalFonts.registerFromPath(
+  join(fontDir, 'Merriweather-Italic.ttf'),
+  'Merriweather',
+);
 
 const WIDTH = 1080;
 const HEIGHT = 1350;
@@ -84,48 +93,50 @@ function drawHighlight(
 ): void {
   ctx.save();
   ctx.beginPath();
-  
+
   const waveAmp = 1 + Math.random() * 0.5; // very subtle wave
   const waveLen = 18;
   const radius = 8;
-  
+
   // Top edge (wavy)
   ctx.moveTo(x + radius, y);
   for (let i = 0; i <= width - 2 * radius; i += waveLen) {
     ctx.lineTo(
       x + radius + i,
-      y + Math.sin((i / (width - 2 * radius)) * Math.PI * 2) * waveAmp
+      y + Math.sin((i / (width - 2 * radius)) * Math.PI * 2) * waveAmp,
     );
   }
   ctx.lineTo(x + width - radius, y);
-  
+
   // Top-right corner
   ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-  
+
   // Right edge
   ctx.lineTo(x + width, y + height - radius);
-  
+
   // Bottom-right corner
   ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-  
+
   // Bottom edge (wavy)
   for (let i = width - 2 * radius; i >= 0; i -= waveLen) {
     ctx.lineTo(
       x + radius + i,
-      y + height + Math.sin((i / (width - 2 * radius)) * Math.PI * 2 + Math.PI) * waveAmp
+      y +
+        height +
+        Math.sin((i / (width - 2 * radius)) * Math.PI * 2 + Math.PI) * waveAmp,
     );
   }
   ctx.lineTo(x + radius, y + height);
-  
+
   // Bottom-left corner
   ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
-  
+
   // Left edge
   ctx.lineTo(x, y + radius);
-  
+
   // Top-left corner
   ctx.quadraticCurveTo(x, y, x + radius, y);
-  
+
   ctx.closePath();
   ctx.fillStyle = color;
   ctx.globalAlpha = 0.7;
@@ -178,13 +189,13 @@ function drawTextWithHighlights(
   // Split by newlines first to respect explicit line breaks
   const textSegments = text.split('\n');
   const allLines: string[] = [];
-  
+
   // Wrap each segment separately
   for (const segment of textSegments) {
     const wrappedLines = wrapText(ctx, segment, maxWidth, font);
     allLines.push(...wrappedLines);
   }
-  
+
   let currY = y;
 
   for (const line of allLines) {
@@ -202,7 +213,7 @@ function drawTextWithHighlights(
     // Draw highlight backgrounds
     const fontSize = parseInt(font.match(/\d+/)?.[0] || '26', 10);
     const halfChar = ctx.measureText(' ').width / 2;
-    
+
     for (const hi of lineHighlights) {
       const prefix = line.slice(0, hi.start);
       const highlightText = line.slice(hi.start, hi.end);
@@ -210,30 +221,34 @@ function drawTextWithHighlights(
       const highlightWidth = ctx.measureText(highlightText).width;
       const padX = 10;
       const padY = 0;
-      
+
       drawHighlight(
         ctx,
         lineX + prefixWidth - padX + halfChar,
         currY - fontSize * 0.85 - padY,
         highlightWidth + padX * 2 - halfChar * 2,
         fontSize,
-        highlightColor
+        highlightColor,
       );
     }
 
     // Draw text
     ctx.fillStyle = textColor;
-    
+
     if (boldHighlights && lineHighlights.length > 0) {
       // Draw text in segments with bold for highlighted parts
-      const boldFont = font.includes('bold') ? font : font.replace(/^/, 'bold ');
-      
+      const boldFont = font.includes('bold')
+        ? font
+        : font.replace(/^/, 'bold ');
+
       // Sort highlights by start position
-      const sortedHighlights = [...lineHighlights].sort((a, b) => a.start - b.start);
-      
+      const sortedHighlights = [...lineHighlights].sort(
+        (a, b) => a.start - b.start,
+      );
+
       let currentX = lineX;
       let lastEnd = 0;
-      
+
       for (const hi of sortedHighlights) {
         // Draw non-highlighted text before this highlight
         if (hi.start > lastEnd) {
@@ -242,16 +257,16 @@ function drawTextWithHighlights(
           ctx.fillText(beforeText, currentX, currY);
           currentX += ctx.measureText(beforeText).width;
         }
-        
+
         // Draw highlighted text in bold
         const highlightText = line.slice(hi.start, hi.end);
         ctx.font = boldFont;
         ctx.fillText(highlightText, currentX, currY);
         currentX += ctx.measureText(highlightText).width;
-        
+
         lastEnd = hi.end;
       }
-      
+
       // Draw any remaining non-highlighted text
       if (lastEnd < line.length) {
         const afterText = line.slice(lastEnd);
@@ -262,7 +277,7 @@ function drawTextWithHighlights(
       // Draw text normally (non-bold highlights)
       ctx.fillText(line, lineX, currY);
     }
-    
+
     currY += lineHeight;
   }
 
