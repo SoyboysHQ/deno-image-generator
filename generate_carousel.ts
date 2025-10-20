@@ -173,6 +173,7 @@ function drawTextWithHighlights(
   maxWidth: number,
   lineHeight: number,
   align: 'left' | 'center' = 'left',
+  boldHighlights: boolean = false,
 ): number {
   // Split by newlines first to respect explicit line breaks
   const textSegments = text.split('\n');
@@ -222,7 +223,46 @@ function drawTextWithHighlights(
 
     // Draw text
     ctx.fillStyle = textColor;
-    ctx.fillText(line, lineX, currY);
+    
+    if (boldHighlights && lineHighlights.length > 0) {
+      // Draw text in segments with bold for highlighted parts
+      const boldFont = font.includes('bold') ? font : font.replace(/^/, 'bold ');
+      
+      // Sort highlights by start position
+      const sortedHighlights = [...lineHighlights].sort((a, b) => a.start - b.start);
+      
+      let currentX = lineX;
+      let lastEnd = 0;
+      
+      for (const hi of sortedHighlights) {
+        // Draw non-highlighted text before this highlight
+        if (hi.start > lastEnd) {
+          const beforeText = line.slice(lastEnd, hi.start);
+          ctx.font = font;
+          ctx.fillText(beforeText, currentX, currY);
+          currentX += ctx.measureText(beforeText).width;
+        }
+        
+        // Draw highlighted text in bold
+        const highlightText = line.slice(hi.start, hi.end);
+        ctx.font = boldFont;
+        ctx.fillText(highlightText, currentX, currY);
+        currentX += ctx.measureText(highlightText).width;
+        
+        lastEnd = hi.end;
+      }
+      
+      // Draw any remaining non-highlighted text
+      if (lastEnd < line.length) {
+        const afterText = line.slice(lastEnd);
+        ctx.font = font;
+        ctx.fillText(afterText, currentX, currY);
+      }
+    } else {
+      // Draw text normally (non-bold highlights)
+      ctx.fillText(line, lineX, currY);
+    }
+    
     currY += lineHeight;
   }
 
@@ -313,6 +353,7 @@ async function generateIntroSlide(
       WIDTH - padding * 2,
       lineHeight,
       'left',
+      true, // boldHighlights
     );
 
     currY += height + 30;
