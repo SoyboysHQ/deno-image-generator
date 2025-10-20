@@ -298,8 +298,8 @@ async function generateIntroSlide(
 
   for (const para of paragraphs) {
     const parsed = parseMarkedText(para);
-    const font = '28px Merriweather';
-    const lineHeight = 50;
+    const font = '34px Merriweather';
+    const lineHeight = 55;
 
     const height = drawTextWithHighlights(
       ctx,
@@ -363,8 +363,8 @@ async function generatePointSlide(
 
   for (const para of bodyParagraphs) {
     const bodyParsed = parseMarkedText(para);
-    const bodyFont = '26px Merriweather';
-    const bodyLineHeight = 45;
+    const bodyFont = '32px Merriweather';
+    const bodyLineHeight = 52;
 
     const bodyHeight = drawTextWithHighlights(
       ctx,
@@ -400,7 +400,7 @@ async function generateClosingSlide(
 
   // Draw centered text
   const text = slide.body || slide.title || '';
-  const font = '32px Merriweather';
+  const font = '38px Merriweather';
   ctx.font = font;
   ctx.fillStyle = '#222';
 
