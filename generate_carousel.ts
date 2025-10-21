@@ -454,17 +454,61 @@ async function generateClosingSlide(
 
   ctx.drawImage(bgImage, 0, 0, WIDTH, HEIGHT);
 
-  // Draw centered text
+  // Parse text for highlights
   const text = slide.body || slide.title || '';
+  const parsed = parseMarkedText(text);
+  
   const font = '38px Merriweather';
-  ctx.font = font;
-  ctx.fillStyle = '#222';
+  const lineHeight = 60;
+  const padding = 100;
+  const maxWidth = WIDTH - padding * 2;
 
-  const textWidth = ctx.measureText(text).width;
-  const x = (WIDTH - textWidth) / 2;
-  const y = HEIGHT / 2;
+  // Wrap text to fit within padding
+  const lines = wrapText(ctx, parsed.text, maxWidth, font);
+  
+  // Calculate starting Y position to center the text block
+  const totalHeight = lines.length * lineHeight;
+  let currY = (HEIGHT - totalHeight) / 2 + lineHeight * 0.8;
 
-  ctx.fillText(text, x, y);
+  // Draw each line centered with highlights
+  for (const line of lines) {
+    ctx.font = font;
+    const lineWidth = ctx.measureText(line).width;
+    const lineX = (WIDTH - lineWidth) / 2;
+
+    // Find highlights in this line
+    const lineHighlights: PhraseIndex[] = [];
+    for (const hi of parsed.highlights) {
+      const matches = findAllPhraseIndices(line, hi.phrase);
+      lineHighlights.push(...matches);
+    }
+
+    // Draw highlight backgrounds
+    const fontSize = 38;
+    const halfChar = ctx.measureText(' ').width / 2;
+
+    for (const hi of lineHighlights) {
+      const prefix = line.slice(0, hi.start);
+      const highlightText = line.slice(hi.start, hi.end);
+      const prefixWidth = ctx.measureText(prefix).width;
+      const highlightWidth = ctx.measureText(highlightText).width;
+      const padX = 10;
+
+      drawHighlight(
+        ctx,
+        lineX + prefixWidth - padX + halfChar,
+        currY - fontSize * 0.85,
+        highlightWidth + padX * 2 - halfChar * 2,
+        fontSize,
+        '#F0E231',
+      );
+    }
+
+    // Draw text
+    ctx.fillStyle = '#222';
+    ctx.fillText(line, lineX, currY);
+    currY += lineHeight;
+  }
 
   const buffer = await canvas.encode('jpeg', 95);
   await Deno.writeFile(outputPath, buffer);
