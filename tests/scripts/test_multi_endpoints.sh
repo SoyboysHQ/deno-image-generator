@@ -15,7 +15,7 @@ echo "2️⃣ Testing /generate-image endpoint..."
 echo "   Generating and saving image..."
 curl -s -X POST http://localhost:8000/generate-image \
   -H "Content-Type: application/json" \
-  -d @example_input.json \
+  -d @tests/fixtures/example_input.json \
   --output test_generated_image.jpg
 if [ -f test_generated_image.jpg ]; then
   SIZE=$(du -h test_generated_image.jpg | cut -f1)
@@ -31,7 +31,7 @@ echo "3️⃣ Testing /generate-carousel endpoint..."
 echo "   Generating carousel (getting metadata only)..."
 RESPONSE=$(curl -s -X POST http://localhost:8000/generate-carousel \
   -H "Content-Type: application/json" \
-  -d @example_carousel_input.json)
+  -d @tests/fixtures/example_carousel_input.json)
 
 # Extract just the metadata (without base64 data)
 echo "$RESPONSE" | jq '{success: .success, slideCount: .slideCount, slides: [.slides[] | {filename: .filename, size: (.base64 | length)}]}'
@@ -43,7 +43,7 @@ echo "4️⃣ Testing backward compatibility (POST /)..."
 echo "   Using root endpoint (should work like /generate-image)..."
 curl -s -X POST http://localhost:8000/ \
   -H "Content-Type: application/json" \
-  -d @example_input.json \
+  -d @tests/fixtures/example_input.json \
   --output test_root_endpoint.jpg
 if [ -f test_root_endpoint.jpg ]; then
   SIZE=$(du -h test_root_endpoint.jpg | cut -f1)

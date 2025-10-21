@@ -7,8 +7,8 @@ echo ""
 # Test locally
 echo "Testing carousel generation locally..."
 deno run --allow-read --allow-write --allow-ffi --allow-sys --allow-env \
-  generate_carousel.ts \
-  "$(cat example_carousel_input.json)"
+  src/generators/carousel.ts \
+  "$(cat tests/fixtures/example_carousel_input.json)"
 
 if [ $? -eq 0 ]; then
   echo ""

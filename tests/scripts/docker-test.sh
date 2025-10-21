@@ -85,7 +85,7 @@ echo ""
 echo -e "${BLUE}🎨 Testing image generation...${NC}"
 curl -X POST http://localhost:8000 \
     -H "Content-Type: application/json" \
-    -d @example_input.json \
+    -d @tests/fixtures/example_input.json \
     --output docker_test_output.jpg \
     -s -w "HTTP Status: %{http_code}\n"
 

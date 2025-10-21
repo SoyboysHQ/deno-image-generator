@@ -21,7 +21,7 @@ echo ""
 echo "Sending carousel generation request..."
 curl -X POST http://localhost:8000/generate-carousel \
   -H "Content-Type: application/json" \
-  -d @example_carousel_input.json \
+  -d @tests/fixtures/example_carousel_input.json \
   --output carousel_test.zip \
   --silent \
   --show-error \

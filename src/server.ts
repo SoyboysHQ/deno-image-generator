@@ -1,3 +1,5 @@
+// HTTP server for Instagram image generation
+
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 
 console.log("🚀 Instagram Generator Server running on http://localhost:8000");
@@ -67,7 +69,7 @@ async function handleGenerateImage(req: Request): Promise<Response> {
         "--allow-ffi",
         "--allow-sys",
         "--allow-env",
-        "generate_image.ts",
+        "src/generators/image.ts",
         JSON.stringify(inputData)
       ],
       cwd: Deno.cwd(),
@@ -133,7 +135,7 @@ async function handleGenerateCarousel(req: Request): Promise<Response> {
         "--allow-ffi",
         "--allow-sys",
         "--allow-env",
-        "generate_carousel.ts",
+        "src/generators/carousel.ts",
         JSON.stringify(inputData)
       ],
       cwd: Deno.cwd(),

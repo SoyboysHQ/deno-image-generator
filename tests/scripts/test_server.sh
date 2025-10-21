@@ -32,7 +32,7 @@ echo "2️⃣  Testing image generation..."
 # Test image generation
 curl -X POST http://localhost:8000 \
   -H "Content-Type: application/json" \
-  -d @example_input.json \
+  -d @tests/fixtures/example_input.json \
   --output test_server_output.jpg \
   -w "\n   HTTP Status: %{http_code}\n" \
   -s

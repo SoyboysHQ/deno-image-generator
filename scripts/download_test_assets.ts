@@ -56,18 +56,18 @@ if (hasMagick.success) {
       "-size",
       "1080x1350",
       "gradient:#667eea-#764ba2",
-      "background.jpeg",
+      "assets/images/background.jpeg",
     ],
     stdout: "inherit",
     stderr: "inherit",
   });
   await p.status();
-  console.log("✅ Created background.jpeg with gradient\n");
+  console.log("✅ Created assets/images/background.jpeg with gradient\n");
 } else {
   console.log("   ⚠️  ImageMagick not found, creating placeholder...");
   // Create a simple placeholder file
-  await Deno.writeFile("background.jpeg", jpegData);
-  console.log("✅ Created background.jpeg (placeholder)\n");
+  await Deno.writeFile("assets/images/background.jpeg", jpegData);
+  console.log("✅ Created assets/images/background.jpeg (placeholder)\n");
   console.log("   Note: For better results, replace with a 1080x1350px image\n");
 }
 
@@ -76,15 +76,15 @@ console.log("🔤 Downloading Merriweather fonts...");
 
 const fontUrls = [
   {
-    name: "Merriweather-Regular.ttf",
+    name: "assets/fonts/Merriweather-Regular.ttf",
     url: "https://github.com/SorkinType/Merriweather/raw/master/fonts/ttf/Merriweather-Regular.ttf",
   },
   {
-    name: "Merriweather-Bold.ttf",
+    name: "assets/fonts/Merriweather-Bold.ttf",
     url: "https://github.com/SorkinType/Merriweather/raw/master/fonts/ttf/Merriweather-Bold.ttf",
   },
   {
-    name: "Merriweather-Italic.ttf",
+    name: "assets/fonts/Merriweather-Italic.ttf",
     url: "https://github.com/SorkinType/Merriweather/raw/master/fonts/ttf/Merriweather-Italic.ttf",
   },
 ];
@@ -119,4 +119,4 @@ console.log("🎉 Setup complete!\n");
 console.log("Run this to verify:");
 console.log("   deno task test-setup\n");
 console.log("Then generate your image:");
-console.log('   deno task generate "$(cat example_input.json)"');
+console.log('   deno task generate "$(cat tests/fixtures/example_input.json)"');

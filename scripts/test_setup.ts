@@ -1,11 +1,11 @@
 // Test script to check if all requirements are met
 
 const requiredFiles = [
-  { name: "Merriweather-Regular.ttf", type: "font" },
-  { name: "Merriweather-Bold.ttf", type: "font" },
-  { name: "Merriweather-Italic.ttf", type: "font" },
-  { name: "background.jpeg", type: "image" },
-  { name: "example_input.json", type: "data" },
+  { name: "assets/fonts/Merriweather-Regular.ttf", type: "font" },
+  { name: "assets/fonts/Merriweather-Bold.ttf", type: "font" },
+  { name: "assets/fonts/Merriweather-Italic.ttf", type: "font" },
+  { name: "assets/images/background.jpeg", type: "image" },
+  { name: "tests/fixtures/example_input.json", type: "data" },
 ];
 
 console.log("🔍 Checking setup requirements...\n");
@@ -36,14 +36,14 @@ if (!allPresent) {
   console.log("   You can use any solid color or gradient image\n");
   
   console.log("💡 Quick test option:");
-  console.log("   Run: deno run --allow-net --allow-write download_test_assets.ts");
-  console.log("   (I can create this script to download sample assets)\n");
+  console.log("   Run: deno run --allow-net --allow-write scripts/download_test_assets.ts");
+  console.log("   (This script will download sample assets)\n");
 } else {
   console.log("🎉 All required files are present!\n");
   console.log("Ready to generate images. Run:");
-  console.log('   deno run --allow-read --allow-write generate_image.ts "$(cat example_input.json)"');
-  console.log("\nOr use the task:");
-  console.log('   deno task generate "$(cat example_input.json)"');
+  console.log('   deno task generate "$(cat tests/fixtures/example_input.json)"');
+  console.log("\nOr start the server:");
+  console.log('   deno task server');
 }
 
 

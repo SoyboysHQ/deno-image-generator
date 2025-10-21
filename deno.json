@@ -1,9 +1,10 @@
 {
   "tasks": {
-    "test-setup": "deno run --allow-read test_setup.ts",
-    "download-assets": "deno run --allow-net --allow-write download_test_assets.ts",
-    "generate": "deno run --allow-read --allow-write --allow-ffi --allow-sys generate_image.ts",
-    "server": "deno run --allow-net --allow-read --allow-write --allow-run --allow-ffi --allow-sys --allow-env server.ts"
+    "test-setup": "deno run --allow-read scripts/test_setup.ts",
+    "download-assets": "deno run --allow-net --allow-write scripts/download_test_assets.ts",
+    "generate": "deno run --allow-read --allow-write --allow-ffi --allow-sys --allow-env src/generators/image.ts",
+    "generate-carousel": "deno run --allow-read --allow-write --allow-ffi --allow-sys --allow-env src/generators/carousel.ts",
+    "server": "deno run --allow-net --allow-read --allow-write --allow-run --allow-ffi --allow-sys --allow-env src/server.ts"
   },
   "compilerOptions": {
     "strict": true,
