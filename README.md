@@ -1,15 +1,13 @@
-# Instagram Content Generator
+# Instagram Image Generator
 
-Generate beautiful Instagram images, carousels, and video reels using Deno.
+Generate beautiful Instagram images and carousels with highlighted text using Deno.
 
 ## Features
 
 - 🎨 **Single Images** - Generate 1080x1350px Instagram-ready images
 - 📱 **Carousels** - Create multi-slide carousel posts
-- 🎬 **Video Reels** - Generate quote videos with background music (9:16 format)
 - ✨ **Text Highlighting** - Yellow highlight background with `<mark>` tags
 - 🎭 **Custom Fonts** - Beautiful Merriweather typography
-- 🎵 **Background Music** - Add audio to video reels
 - 🚀 **HTTP API** - Deploy anywhere and integrate with n8n, Make, etc.
 - 🐳 **Docker Ready** - Production-ready containerization
 
@@ -18,9 +16,8 @@ Generate beautiful Instagram images, carousels, and video reels using Deno.
 ### Prerequisites
 
 - [Deno](https://deno.land/) installed (v1.40 or higher)
-- [FFmpeg](https://ffmpeg.org/) (required for video reel generation)
 - Font files: `Merriweather-Regular.ttf`, `Merriweather-Bold.ttf`, `Merriweather-Italic.ttf`
-- Background image: `background.jpeg` (1080x1350px for images, 1080x1920px for reels)
+- Background image: `background.jpeg` (1080x1350px recommended)
 
 ### Installation
 
@@ -131,38 +128,6 @@ curl -X POST http://localhost:8000/generate-carousel \
 
 See [CAROUSEL.md](CAROUSEL.md) for detailed carousel documentation.
 
-### `POST /generate-reel`
-
-Generate an Instagram Reel (video) with a quote on a background image.
-
-**Request Body:**
-```json
-{
-  "quote": "The fool doth think he is wise, but the wise man knows himself to be a fool.",
-  "author": "William Shakespeare",
-  "duration": 10,
-  "backgroundImage": "background.jpeg",
-  "musicPath": "path/to/music.mp3"
-}
-```
-
-**Fields:**
-- `quote` (required): The quote text to display
-- `author` (optional): Attribution for the quote
-- `duration` (optional): Video duration in seconds (default: 10)
-- `backgroundImage` (optional): Path to background image (default: "background.jpeg")
-- `musicPath` (optional): Path to background music file
-
-**Response:** MP4 video file (1080x1920px, 9:16 aspect ratio)
-
-**Example:**
-```bash
-curl -X POST http://localhost:8000/generate-reel \
-  -H "Content-Type: application/json" \
-  -d @example_reel_input.json \
-  --output reel.mp4
-```
-
 ### `POST /`
 
 Backward compatibility endpoint. Works the same as `/generate-image`.
@@ -218,24 +183,14 @@ deno run --allow-read --allow-write --allow-ffi --allow-sys generate_carousel.ts
 }'
 ```
 
-### Generate Reel
-
-```bash
-deno run --allow-read --allow-write --allow-run --allow-ffi --allow-sys --allow-env generate_reel.ts '{
-  "quote": "Your quote here",
-  "author": "Author Name"
-}'
-```
-
 ### Test the Server
 
 ```bash
 # In one terminal
-deno run --allow-net --allow-read --allow-write --allow-run --allow-ffi --allow-sys --allow-env server.ts
+deno run --allow-net --allow-read --allow-write --allow-run server.ts
 
 # In another terminal
 ./test_multi_endpoints.sh
-./test_server_reel.sh  # Test reel generation
 ```
 
 ## Docker Deployment
@@ -259,25 +214,13 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for complete deployment instructions.
 
 ## Customization
 
-### Images and Carousels
-
-Edit `generate_image.ts` or `generate_carousel.ts` to customize:
+Edit `generate_image.ts` to customize:
 
 - `WIDTH` and `HEIGHT` - Canvas dimensions (default: 1080x1350)
 - `TITLE_FONT` - Title font size and weight
 - `LIST_FONT` - List item font size
 - `PAD_X` - Horizontal padding
 - Colors - Search for `#F0E231` (highlight), `#222` (text), etc.
-
-### Video Reels
-
-Edit `generate_reel.ts` to customize:
-
-- `WIDTH` and `HEIGHT` - Video dimensions (default: 1080x1920 for 9:16)
-- `QUOTE_FONT` - Quote font size and weight (default: bold 72px)
-- `AUTHOR_FONT` - Author font size and style (default: italic 36px)
-- Colors - Adjust text and highlight colors
-- Video quality - Modify FFmpeg parameters in the `generateVideo` function
 
 ## n8n Integration
 
@@ -305,9 +248,8 @@ return { json: formattedData };
 Generated files:
 - Single image: `real_life_cheat_codes_instagram.jpg` (1080x1350px)
 - Carousel: `slide_1.jpg`, `slide_2.jpg`, etc.
-- Video reel: `instagram_reel.mp4` (1080x1920px, 9:16 aspect ratio)
 
-All images are JPEG format at 95% quality, and videos are MP4 format with H.264 encoding, optimized for Instagram.
+All images are JPEG format at 95% quality, optimized for Instagram.
 
 ## Troubleshooting
 
@@ -321,11 +263,6 @@ All images are JPEG format at 95% quality, and videos are MP4 format with H.264 
 
 ### Permission denied errors
 - Make sure you're running with all required flags: `--allow-read`, `--allow-write`, `--allow-ffi`, `--allow-sys`, `--allow-env`
-- For video generation, also add `--allow-run` (needed for FFmpeg)
-
-### FFmpeg not found error
-- Install FFmpeg: `brew install ffmpeg` (macOS) or `apt-get install ffmpeg` (Linux)
-- Verify installation: `ffmpeg -version`
 
 ### Docker: Highlights not showing
 - This has been fixed. If you encounter issues, ensure you're using the latest version of the Dockerfile.
@@ -336,14 +273,11 @@ All images are JPEG format at 95% quality, and videos are MP4 format with H.264 
 deno_deploy/
 ├── generate_image.ts          # Single image generator
 ├── generate_carousel.ts       # Carousel generator
-├── generate_reel.ts           # Video reel generator
 ├── server.ts                  # HTTP API server
 ├── Dockerfile                 # Docker configuration
 ├── deno.json                  # Deno configuration
 ├── example_input.json         # Example single image input
 ├── example_carousel_input.json # Example carousel input
-├── example_reel_input.json    # Example reel input
-├── test_server_reel.sh        # Test script for reels
 ├── background.jpeg            # Background image
 ├── Merriweather-*.ttf         # Font files
 └── README.md                  # This file

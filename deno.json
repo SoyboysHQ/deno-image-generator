@@ -3,7 +3,6 @@
     "test-setup": "deno run --allow-read test_setup.ts",
     "download-assets": "deno run --allow-net --allow-write download_test_assets.ts",
     "generate": "deno run --allow-read --allow-write --allow-ffi --allow-sys generate_image.ts",
-    "generate-reel": "deno run --allow-read --allow-write --allow-run --allow-ffi --allow-sys --allow-env generate_reel.ts",
     "server": "deno run --allow-net --allow-read --allow-write --allow-run --allow-ffi --allow-sys --allow-env server.ts"
   },
   "compilerOptions": {

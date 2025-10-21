@@ -5,7 +5,6 @@ console.log("📝 Available endpoints:");
 console.log("  GET  /health - Health check");
 console.log("  POST /generate-image - Generate single Instagram image");
 console.log("  POST /generate-carousel - Generate Instagram carousel");
-console.log("  POST /generate-reel - Generate Instagram reel/video");
 console.log("  POST / - Generate image (backward compatibility)\n");
 
 // Helper function for CORS headers
@@ -207,82 +206,6 @@ async function handleGenerateCarousel(req: Request): Promise<Response> {
   }
 }
 
-// Handler for reel generation endpoint
-async function handleGenerateReel(req: Request): Promise<Response> {
-  console.log("📥 Received reel generation request");
-  
-  try {
-    const inputData = await req.json();
-    console.log("✅ Parsed input data");
-    
-    // Validate input structure
-    if (!inputData.quote) {
-      return errorResponse(
-        "Invalid input format. Expected object with 'quote' field.",
-        { received: inputData },
-        400
-      );
-    }
-    
-    // Run the reel generator
-    const command = new Deno.Command("deno", {
-      args: [
-        "run",
-        "--allow-read",
-        "--allow-write",
-        "--allow-run",
-        "--allow-ffi",
-        "--allow-sys",
-        "--allow-env",
-        "generate_reel.ts",
-        JSON.stringify(inputData)
-      ],
-      cwd: Deno.cwd(),
-      stdout: "piped",
-      stderr: "piped",
-    });
-    
-    console.log("🎬 Generating reel video...");
-    const { code, stdout, stderr } = await command.output();
-    
-    if (code === 0) {
-      const stderrOutput = new TextDecoder().decode(stderr);
-      
-      if (stderrOutput) {
-        console.log("Debug output:", stderrOutput);
-      }
-      
-      console.log("✅ Reel video generated successfully");
-      
-      // Read the generated video
-      const video = await Deno.readFile("instagram_reel.mp4");
-      const videoSize = (video.length / 1024 / 1024).toFixed(2);
-      console.log(`📤 Sending video (${videoSize} MB)\n`);
-      
-      // Clean up the video file after sending
-      await Deno.remove("instagram_reel.mp4").catch(() => {});
-      
-      return new Response(video, {
-        status: 200,
-        headers: {
-          "Content-Type": "video/mp4",
-          "Content-Disposition": 'attachment; filename="instagram_reel.mp4"',
-          "Content-Length": video.length.toString(),
-          ...corsHeaders(),
-        },
-      });
-    } else {
-      const errorText = new TextDecoder().decode(stderr);
-      console.error("❌ Error generating reel:", errorText);
-      return errorResponse("Failed to generate reel", errorText);
-    }
-  } catch (error) {
-    const err = error as Error;
-    console.error("❌ Error:", err.message);
-    return errorResponse(err.message, err.stack);
-  }
-}
-
 // Main server
 serve(async (req) => {
   const url = new URL(req.url);
@@ -304,10 +227,9 @@ serve(async (req) => {
         health: "GET /health",
         generateImage: "POST /generate-image",
         generateCarousel: "POST /generate-carousel",
-        generateReel: "POST /generate-reel",
         root: "POST / (backward compatibility)",
       },
-      version: "2.1.0"
+      version: "2.0.0"
     });
   }
   
@@ -320,9 +242,6 @@ serve(async (req) => {
       case "/generate-carousel":
         return handleGenerateCarousel(req);
       
-      case "/generate-reel":
-        return handleGenerateReel(req);
-      
       // Backward compatibility: keep root endpoint working
       case "/":
         return handleGenerateImage(req);
@@ -334,7 +253,6 @@ serve(async (req) => {
             availableEndpoints: [
               "POST /generate-image",
               "POST /generate-carousel",
-              "POST /generate-reel",
               "POST /",
               "GET /health"
             ]
