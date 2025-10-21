@@ -191,15 +191,17 @@ async function generateFrame(): Promise<string> {
   }
 }
 
-// Generate video using FFmpeg
+// Generate video using FFmpeg with timeout
 async function generateVideo(framePath: string): Promise<string> {
   const outputPath = 'instagram_reel.mp4';
   
   try {
     console.log('Generating video with FFmpeg...');
     
-    // Build FFmpeg command
+    // Build FFmpeg command with additional flags to prevent hanging
     const ffmpegArgs = [
+      '-hide_banner', // Reduce output noise
+      '-loglevel', 'error', // Only show errors
       '-nostdin', // Disable interaction - prevents hanging
       '-y', // Overwrite output file (must be before inputs)
       '-loop', '1',
@@ -207,17 +209,19 @@ async function generateVideo(framePath: string): Promise<string> {
       '-t', duration.toString(), // Duration BEFORE input for loop to work correctly
       '-i', framePath,
       '-c:v', 'libx264',
+      '-tune', 'stillimage', // Optimize for static image
       '-pix_fmt', 'yuv420p',
-      '-vf', 'scale=1080:1920',
+      '-vf', 'scale=1080:1920:flags=bicubic',
       '-r', '30',
       '-preset', 'ultrafast', // Fast encoding preset for server use
       '-crf', '23', // Quality level
       '-movflags', '+faststart', // Enable streaming
+      '-max_muxing_queue_size', '1024', // Prevent queue overflow
     ];
     
     // If music is provided, add audio input and mixing
     if (input.musicPath) {
-      ffmpegArgs.splice(6, 0, '-i', input.musicPath);
+      ffmpegArgs.splice(8, 0, '-i', input.musicPath);
       ffmpegArgs.push(
         '-c:a', 'aac',
         '-b:a', '192k',
@@ -227,21 +231,45 @@ async function generateVideo(framePath: string): Promise<string> {
     
     ffmpegArgs.push(outputPath);
     
+    console.log('FFmpeg command:', 'ffmpeg', ffmpegArgs.join(' '));
+    
+    // Create a timeout promise (30 seconds)
+    const timeoutMs = 30000;
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('FFmpeg timeout after 30s')), timeoutMs);
+    });
+    
+    // Create FFmpeg process
     const command = new Deno.Command('ffmpeg', {
       args: ffmpegArgs,
       stdout: 'piped',
       stderr: 'piped',
     });
     
-    const { code, stderr } = await command.output();
+    // Race between FFmpeg and timeout
+    const result = await Promise.race([
+      command.output(),
+      timeoutPromise
+    ]) as Deno.CommandOutput;
     
-    if (code !== 0) {
-      const errorText = new TextDecoder().decode(stderr);
-      console.error('FFmpeg error:', errorText);
-      throw new Error('Failed to generate video with FFmpeg');
+    if (result.code !== 0) {
+      const errorText = new TextDecoder().decode(result.stderr);
+      const stdoutText = new TextDecoder().decode(result.stdout);
+      console.error('FFmpeg stderr:', errorText);
+      console.error('FFmpeg stdout:', stdoutText);
+      throw new Error(`FFmpeg failed with code ${result.code}`);
     }
     
-    console.log(`Video generated: ${outputPath}`);
+    // Verify output file exists and has content
+    try {
+      const stat = await Deno.stat(outputPath);
+      if (stat.size === 0) {
+        throw new Error('Generated video file is empty');
+      }
+      console.log(`Video generated successfully: ${outputPath} (${(stat.size / 1024 / 1024).toFixed(2)} MB)`);
+    } catch (e) {
+      throw new Error(`Output file verification failed: ${e}`);
+    }
     
     // Clean up temporary frame
     await Deno.remove(framePath).catch(() => {});
@@ -249,6 +277,8 @@ async function generateVideo(framePath: string): Promise<string> {
     return outputPath;
   } catch (error) {
     console.error('Error generating video:', error);
+    // Clean up frame on error
+    await Deno.remove(framePath).catch(() => {});
     throw error;
   }
 }
