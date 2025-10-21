@@ -20,6 +20,10 @@ GlobalFonts.registerFromPath(
   join(fontDir, 'Merriweather-Italic.ttf'),
   'Merriweather',
 );
+GlobalFonts.registerFromPath(
+  join(fontDir, 'Merriweather_120pt-ExtraBold.ttf'),
+  'Merriweather ExtraBold',
+);
 
 const WIDTH = 1080;
 const HEIGHT = 1350;
@@ -226,7 +230,7 @@ function drawTextWithHighlights(
         ctx,
         lineX + prefixWidth - padX + halfChar,
         currY - fontSize * 0.85 - padY,
-        highlightWidth + padX * 2 - halfChar * 2,
+        highlightWidth + padX * 2 - halfChar,
         fontSize,
         highlightColor,
       );
@@ -300,19 +304,34 @@ async function generateTitleSlide(
 
   // Parse title with highlights
   const parsed = parseMarkedText(slide.title || '');
+  parsed.text = parsed.text.replace('-', ' ');
 
   // Draw title (large, bold, with highlights)
-  const titleFont = 'bold 70px Merriweather';
-  const titleLineHeight = 90;
+  const titleFont = '120px "Merriweather ExtraBold"';
+  const titleLineHeight = 140;
   const padding = 80;
 
-  const titleY = HEIGHT / 2 - 100;
+  // Add letter-spacing (tracking) for title
+  ctx.letterSpacing = '2px';
+  
+  // Get all lines that will be displayed so we can highlight each one
+  const titleLines = wrapText(ctx, parsed.text, WIDTH - padding * 2, titleFont);
+  
+  // Create highlights for each complete line
+  const allHighlights: HighlightItem[] = [...parsed.highlights];
+  for (const line of titleLines) {
+    // Add each line as a highlight phrase
+    allHighlights.push({ phrase: line });
+  }
+
+  const titleY = HEIGHT / 2 - 200;
+  
   drawTextWithHighlights(
     ctx,
     parsed.text,
     padding,
     titleY,
-    parsed.highlights,
+    allHighlights,
     titleFont,
     '#222',
     '#F0E231',
@@ -320,6 +339,9 @@ async function generateTitleSlide(
     titleLineHeight,
     'left',
   );
+  
+  // Reset letter-spacing
+  ctx.letterSpacing = '0px';
 
   // Draw author/subtitle at bottom
   if (slide.author) {
@@ -457,7 +479,7 @@ async function generateClosingSlide(
   // Parse text for highlights
   const text = slide.body || slide.title || '';
   const parsed = parseMarkedText(text);
-  
+
   const font = '38px Merriweather';
   const lineHeight = 60;
   const padding = 100;
@@ -465,7 +487,7 @@ async function generateClosingSlide(
 
   // Wrap text to fit within padding
   const lines = wrapText(ctx, parsed.text, maxWidth, font);
-  
+
   // Calculate starting Y position to center the text block
   const totalHeight = lines.length * lineHeight;
   let currY = (HEIGHT - totalHeight) / 2 + lineHeight * 0.8;
