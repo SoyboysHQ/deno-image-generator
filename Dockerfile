@@ -10,10 +10,12 @@ RUN apt-get update && apt-get install -y \
     fontconfig \
     fonts-liberation \
     libfontconfig1 \
+    zip \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy font files
 COPY Merriweather-*.ttf ./
+COPY Merriweather_120pt-ExtraBold.ttf ./
 
 # Copy background images
 COPY background.jpeg ./
