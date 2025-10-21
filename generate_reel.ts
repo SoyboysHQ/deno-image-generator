@@ -200,19 +200,22 @@ async function generateVideo(framePath: string): Promise<string> {
     
     // Build FFmpeg command
     const ffmpegArgs = [
+      '-y', // Overwrite output file (must be before inputs)
       '-loop', '1',
+      '-framerate', '30', // Input framerate
       '-i', framePath,
       '-c:v', 'libx264',
       '-t', duration.toString(),
       '-pix_fmt', 'yuv420p',
       '-vf', 'scale=1080:1920',
       '-r', '30',
-      '-y', // Overwrite output file
+      '-preset', 'medium', // Encoding preset
+      '-crf', '23', // Quality level
     ];
     
     // If music is provided, add audio input and mixing
     if (input.musicPath) {
-      ffmpegArgs.splice(2, 0, '-i', input.musicPath);
+      ffmpegArgs.splice(4, 0, '-i', input.musicPath);
       ffmpegArgs.push(
         '-c:a', 'aac',
         '-b:a', '192k',
@@ -226,6 +229,7 @@ async function generateVideo(framePath: string): Promise<string> {
       args: ffmpegArgs,
       stdout: 'piped',
       stderr: 'piped',
+      stdin: 'null', // Prevent interactive mode
     });
     
     const { code, stderr } = await command.output();
