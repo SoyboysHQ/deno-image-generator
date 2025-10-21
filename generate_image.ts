@@ -4,11 +4,22 @@ import {
   SKRSContext2D,
   GlobalFonts,
 } from 'npm:@napi-rs/canvas@^0.1.52';
+import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 
-// Register fonts
-GlobalFonts.registerFromPath('./Merriweather-Regular.ttf', 'Merriweather');
-GlobalFonts.registerFromPath('./Merriweather-Bold.ttf', 'Merriweather');
-GlobalFonts.registerFromPath('./Merriweather-Italic.ttf', 'Merriweather');
+// Register fonts with absolute paths
+const fontDir = Deno.cwd();
+GlobalFonts.registerFromPath(
+  join(fontDir, 'Merriweather-Regular.ttf'),
+  'Merriweather',
+);
+GlobalFonts.registerFromPath(
+  join(fontDir, 'Merriweather-Bold.ttf'),
+  'Merriweather',
+);
+GlobalFonts.registerFromPath(
+  join(fontDir, 'Merriweather-Italic.ttf'),
+  'Merriweather',
+);
 
 const WIDTH = 1080;
 const HEIGHT = 1350;
@@ -409,8 +420,9 @@ function calculateItemHeights(
 
 // Main execution
 try {
-  // Load background image
-  const bg = await loadImage('./background.jpeg');
+  // Load background image with absolute path
+  const currentDir = Deno.cwd();
+  const bg = await loadImage(join(currentDir, 'background.jpeg'));
   ctx.drawImage(bg, 0, 0, WIDTH, HEIGHT);
 
   // Padding

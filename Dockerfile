@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y \
 COPY Merriweather-*.ttf ./
 
 # Copy background images
+COPY background.jpeg ./
 COPY bg-1.jpeg ./
 COPY bg-2.jpg ./
 
