@@ -27,21 +27,21 @@ serve(async (req) => {
 
   // Health check endpoint
   if (url.pathname === "/health" && req.method === "GET") {
-    return handleHealthCheck(req);
+    return await handleHealthCheck(req);
   }
 
   // Route to different endpoints
   if (req.method === "POST") {
     switch (url.pathname) {
       case "/generate-image":
-        return handleGenerateImage(req);
+        return await handleGenerateImage(req);
 
       case "/generate-carousel":
-        return handleGenerateCarousel(req);
+        return await handleGenerateCarousel(req);
 
       // Backward compatibility: keep root endpoint working
       case "/":
-        return handleGenerateImage(req);
+        return await handleGenerateImage(req);
 
       default:
         return errorResponse(
