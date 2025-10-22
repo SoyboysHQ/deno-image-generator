@@ -18,8 +18,15 @@ COPY deno.json ./
 COPY src/ ./src/
 COPY assets/ ./assets/
 
-# Cache the dependencies
-RUN deno cache src/server.ts src/generators/image.ts src/generators/carousel.ts
+# Cache the dependencies (includes all new modules)
+RUN deno cache src/server.ts \
+    src/generators/image.ts \
+    src/generators/carousel.ts \
+    src/handlers/index.ts \
+    src/services/generatorService.ts \
+    src/services/fileService.ts \
+    src/middleware/cors.ts \
+    src/utils/response.ts
 
 # Expose the server port
 EXPOSE 8000
