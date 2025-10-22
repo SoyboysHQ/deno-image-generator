@@ -211,54 +211,19 @@ deno task server
 ./tests/scripts/test_multi_endpoints.sh
 ```
 
-**Docker testing:**
-```bash
-# Build and start container
-make docker-build && make docker-start
-
-# Run tests
-make docker-test
-```
-
 ## Docker Deployment
 
-### Using Makefile (Recommended)
-
-```bash
-# Build and start Docker container
-make docker-build
-make docker-start
-
-# Run tests inside Docker
-make docker-test
-
-# View logs
-make docker-logs
-
-# Stop container
-make docker-stop
-
-# Clean up everything
-make clean
-
-# See all available commands
-make help
-```
-
-### Manual Docker Commands
+### Build and Run
 
 ```bash
 # Build
 docker build -t instagram-generator .
 
 # Run
-docker run -d --name instagram-generator-app -p 8000:8000 instagram-generator
+docker run -p 8000:8000 instagram-generator
 
 # Test
 curl http://localhost:8000/health
-
-# Stop
-docker stop instagram-generator-app
 ```
 
 ### Deploy to Railway
@@ -352,7 +317,6 @@ deno_deploy/
 │   └── DEPLOYMENT.md          # Deployment instructions
 ├── output/                    # Generated images
 ├── Dockerfile                 # Docker configuration
-├── Makefile                   # Docker commands & automation
 ├── deno.json                  # Deno tasks & config
 └── README.md                  # This file
 ```
