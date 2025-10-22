@@ -42,7 +42,7 @@ export async function runGenerator(
       } catch (e) {
         console.error("[Generator] Failed to kill process:", e);
       }
-    }, 30000); // 30 second timeout
+    }, 120000); // 120 second timeout (2 minutes) for complex images
     
     const { code, stdout, stderr } = await child.output();
     clearTimeout(timeout);
