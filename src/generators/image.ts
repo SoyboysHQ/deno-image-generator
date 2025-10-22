@@ -123,7 +123,7 @@ export async function generateImage(
   }
 
   // List
-  for (let i = 0; i < 20; ++i) {
+  for (let i = 0; i < points.length; ++i) {
     ctx.font = LIST_FONT;
     ctx.fillStyle = '#222';
     const numStr = i + 1 + '.';
