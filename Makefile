@@ -72,7 +72,17 @@ docker-stop:
 	fi
 
 # Restart Docker container (rebuilds image to pick up code changes)
-docker-restart: docker-stop docker-build-fresh docker-start
+docker-restart: docker-stop clean-container docker-build-fresh docker-start
+
+# Remove container only (keeps image)
+clean-container:
+	@echo "🗑️  Removing container..."
+	@if [ "$$(docker ps -aq -f name=$(DOCKER_CONTAINER))" ]; then \
+		docker rm $(DOCKER_CONTAINER); \
+		echo "✅ Container removed"; \
+	else \
+		echo "⚠️  No container to remove"; \
+	fi
 
 # Run tests inside Docker container
 docker-test:

@@ -4,7 +4,7 @@ import { GlobalFonts } from 'npm:@napi-rs/canvas@^0.1.52';
 import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 
 /**
- * Register all Merriweather fonts from the assets directory
+ * Register all Merriweather fonts from assets directory
  */
 export function registerFonts(): void {
   const fontDir = join(Deno.cwd(), 'assets', 'fonts');

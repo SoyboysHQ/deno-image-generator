@@ -75,7 +75,7 @@ async function generateTitleSlide(
   }
 
   // Save
-  const buffer = await canvas.encode('jpeg', 95);
+  const buffer = canvas.toBuffer('image/jpeg', 95);
   await Deno.writeFile(outputPath, buffer);
 }
 
@@ -121,7 +121,7 @@ async function generateIntroSlide(
     currY += height + 30;
   }
 
-  const buffer = await canvas.encode('jpeg', 95);
+  const buffer = canvas.toBuffer('image/jpeg', 95);
   await Deno.writeFile(outputPath, buffer);
 }
 
@@ -188,7 +188,7 @@ async function generatePointSlide(
     currY += bodyHeight + 25;
   }
 
-  const buffer = await canvas.encode('jpeg', 95);
+  const buffer = canvas.toBuffer('image/jpeg', 95);
   await Deno.writeFile(outputPath, buffer);
 }
 
@@ -266,7 +266,7 @@ async function generateClosingSlide(
     currY += lineHeight;
   }
 
-  const buffer = await canvas.encode('jpeg', 95);
+  const buffer = canvas.toBuffer('image/jpeg', 95);
   await Deno.writeFile(outputPath, buffer);
 }
 

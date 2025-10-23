@@ -24,6 +24,7 @@ export async function generateImage(
   input: InputItem[],
   outputPath: string = 'real_life_cheat_codes_instagram.jpg',
 ): Promise<void> {
+  
   // Register fonts
   registerFonts();
 
@@ -123,7 +124,8 @@ export async function generateImage(
   }
 
   // List
-  for (let i = 0; i < 20; ++i) {
+  const itemCount = Math.min(20, points.length);
+  for (let i = 0; i < itemCount; ++i) {
     ctx.font = LIST_FONT;
     ctx.fillStyle = '#222';
     const numStr = i + 1 + '.';
@@ -147,9 +149,8 @@ export async function generateImage(
   }
 
   // Export image as JPEG
-  const outputBuffer = await canvas.encode('jpeg', 95);
+  const outputBuffer = canvas.toBuffer('image/jpeg', 95);
   await Deno.writeFile(outputPath, outputBuffer);
-  console.log(`Image generated as ${outputPath}`);
 }
 
 /**

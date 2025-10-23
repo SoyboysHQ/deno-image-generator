@@ -40,10 +40,10 @@ if (!allPresent) {
   console.log("   (I can create this script to download sample assets)\n");
 } else {
   console.log("🎉 All required files are present!\n");
-  console.log("Ready to generate images. Run:");
-  console.log('   deno run --allow-read --allow-write generate_image.ts "$(cat example_input.json)"');
-  console.log("\nOr use the task:");
-  console.log('   deno task generate "$(cat example_input.json)"');
+  console.log("Ready to generate images. Start the server:");
+  console.log('   deno task server');
+  console.log("\nOr run with Docker:");
+  console.log('   make docker-start');
 }
 
 

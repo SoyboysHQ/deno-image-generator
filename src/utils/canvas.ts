@@ -128,28 +128,39 @@ export function drawTextWithHighlightWrapped(
   lineHeight: number,
 ): number {
   ctx.font = normalFont;
-  const lines = wrapText(ctx, text, maxWidth, normalFont);
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let line = '';
   const lineStartIndices: number[] = [];
-  
   let charCount = 0;
-  for (const line of lines) {
-    lineStartIndices.push(charCount);
-    charCount += line.length + 1; // +1 for space
+  for (let n = 0; n < words.length; n++) {
+    const testLine = line + words[n] + ' ';
+    const metrics = ctx.measureText(testLine);
+    const testWidth = metrics.width;
+    if (testWidth > maxWidth && n > 0) {
+      lines.push(line.trim());
+      lineStartIndices.push(charCount);
+      charCount += line.length;
+      line = words[n] + ' ';
+    } else {
+      line = testLine;
+    }
   }
+  lines.push(line.trim());
+  lineStartIndices.push(charCount);
 
   let currY = y;
-  
   for (let l = 0; l < lines.length; l++) {
     const line = lines[l];
+    const lineStart = lineStartIndices[l];
+    const lineEnd = lineStart + line.length;
     const currX = x;
-    
-    // Collect highlight rects for this line
+    // --- Collect highlight rects for this line ---
     const highlightRects: HighlightRect[] = [];
-    
+    // For each phrase, find all matches in this line
     for (const hi of highlights || []) {
       const phrase = hi.phrase;
       const matches = findAllPhraseIndices(line, phrase);
-      
       for (const match of matches) {
         const prefix = line.slice(0, match.start);
         const highlightText = line.slice(match.start, match.end);
@@ -158,8 +169,8 @@ export function drawTextWithHighlightWrapped(
         const fontSize = parseInt(normalFont, 10) || 26;
         const padY = 0;
         const padX = 10;
+        // Calculate half a character width (space character)
         const halfChar = ctx.measureText(' ').width / 2;
-        
         highlightRects.push({
           x: currX + prefixWidth - padX + halfChar,
           y: currY - fontSize * 0.85 - padY,
@@ -168,7 +179,6 @@ export function drawTextWithHighlightWrapped(
         });
       }
     }
-    
     // Draw all highlight rects first
     for (const rect of highlightRects) {
       drawWavyHighlight(
@@ -180,14 +190,12 @@ export function drawTextWithHighlightWrapped(
         highlightColor,
       );
     }
-    
     // Now draw the text
     ctx.font = normalFont;
     ctx.fillStyle = '#222';
     ctx.fillText(line, currX, currY);
     currY += lineHeight;
   }
-  
   return lines.length * lineHeight;
 }
 

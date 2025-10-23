@@ -1,12 +1,11 @@
 # Generated images
-*.jpg
-*.jpeg
-*.png
-# But keep the background and test outputs for reference
-!background.jpeg
-!bg-1.jpeg
-!bg-2.jpg
+# *.jpg
+# *.jpeg
+# *.png
+# But keep test outputs for reference
 !*_test*.jpg
+# Keep assets directory
+!assets/**
 
 # Font files - IMPORTANT: Don't ignore these if deploying with Docker!
 # For local dev: Download fonts manually
@@ -19,9 +18,9 @@
 .deno/
 
 # Docker
-docker_test_output.jpg
-test_output.jpg
-tunnel_test.jpg
+# docker_test_output.jpg
+# test_output.jpg
+# tunnel_test.jpg
 
 # OS
 .DS_Store

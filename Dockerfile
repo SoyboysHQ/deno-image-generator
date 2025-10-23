@@ -1,5 +1,5 @@
-# Use official Deno image (explicitly for linux/amd64)
-FROM --platform=linux/amd64 denoland/deno:1.40.0
+# Use official Deno image with ARM64 support
+FROM denoland/deno:2.0.6
 
 # Set working directory
 WORKDIR /app
@@ -13,23 +13,15 @@ RUN apt-get update && apt-get install -y \
     zip \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy font files
-COPY Merriweather-*.ttf ./
-COPY Merriweather_120pt-ExtraBold.ttf ./
-
-# Copy background images
-COPY background.jpeg ./
-COPY bg-1.jpeg ./
-COPY bg-2.jpg ./
+# Copy assets directory (fonts and images)
+COPY assets/ ./assets/
 
 # Copy application files
-COPY generate_image.ts ./
-COPY generate_carousel.ts ./
-COPY server.ts ./
+COPY src/ ./src/
 COPY deno.json ./
 
-# Cache the dependencies
-RUN deno cache server.ts generate_image.ts generate_carousel.ts
+# Cache the dependencies (this layer will rebuild when source files change)
+RUN deno cache --reload src/server.ts src/generators/image.ts src/generators/carousel.ts
 
 # Expose the server port
 EXPOSE 8000
@@ -42,5 +34,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD deno eval "fetch('http://localhost:8000/health').then(r => r.ok ? Deno.exit(0) : Deno.exit(1))"
 
 # Run the server
-CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-write", "--allow-run", "--allow-ffi", "--allow-sys", "--allow-env", "server.ts"]
+CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-write", "--allow-run", "--allow-ffi", "--allow-sys", "--allow-env", "src/server.ts"]
 
