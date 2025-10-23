@@ -1,0 +1,47 @@
+{
+  "outputPrefix": "focus_micro_boundaries",
+  "slides": [
+    {
+      "type": "title",
+      "title": "<mark>5 Micro-Boundaries</mark> to Protect Your Focus This Week"
+    },
+    {
+      "type": "intro",
+      "body": "Tiny fences stop giant distractions.\n\nSay clearly once. Prevent repeated interruptions.\n\nHere are <mark>5 micro-boundaries</mark> you can set today:"
+    },
+    {
+      "type": "point",
+      "number": 1,
+      "title": "<mark>Link closes at 6 p.m.</mark>",
+      "body": "End work by leaving the doc in draft.\n\nRename with 'v0.1' + date. Stage comments. Close the tab.\n\nClosed loops protect your evening and reset focus for tomorrow."
+    },
+    {
+      "type": "point",
+      "number": 2,
+      "title": "<mark>Camera off until agenda</mark>",
+      "body": "Meet with intention.\n\nDefault to audio unless purpose and outcomes are shared. Request agenda 1 hour before. Decline fuzzy invites.\n\nClear expectations save attention and prevent meeting drift."
+    },
+    {
+      "type": "point",
+      "number": 3,
+      "title": "<mark>Phone silent in focus blocks</mark>",
+      "body": "Create noise-canceling windows.\n\nCalendar the block. Turn on DND. Whitelist true emergencies. Notify contacts.\n\nTemporary silence yields lasting progress."
+    },
+    {
+      "type": "point",
+      "number": 4,
+      "title": "<mark>Reply windows</mark>",
+      "body": "Contain the inbox.\n\nCheck messages at set times: 10 a.m., 2 p.m., 5 p.m. Use quick templates. Disable badges in between.\n\nYou decide when attention goes there, not the ping."
+    },
+    {
+      "type": "point",
+      "number": 5,
+      "title": "<mark>Workspace reset</mark>",
+      "body": "Start and end the day with order.\n\nClear the desk. Stage water and the current project. Close unrelated tabs.\n\nA tidy zone cues focus and invites calm."
+    },
+    {
+      "type": "closing",
+      "body": "Which micro-boundary will you say once to save hours later?"
+    }
+  ]
+}

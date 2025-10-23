@@ -13,13 +13,23 @@ RUN apt-get update && apt-get install -y \
     zip \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy project structure
+# Copy font files
+COPY Merriweather-*.ttf ./
+COPY Merriweather_120pt-ExtraBold.ttf ./
+
+# Copy background images
+COPY background.jpeg ./
+COPY bg-1.jpeg ./
+COPY bg-2.jpg ./
+
+# Copy application files
+COPY generate_image.ts ./
+COPY generate_carousel.ts ./
+COPY server.ts ./
 COPY deno.json ./
-COPY src/ ./src/
-COPY assets/ ./assets/
 
 # Cache the dependencies
-RUN deno cache src/server.ts src/generators/image.ts src/generators/carousel.ts
+RUN deno cache server.ts generate_image.ts generate_carousel.ts
 
 # Expose the server port
 EXPOSE 8000
@@ -32,5 +42,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD deno eval "fetch('http://localhost:8000/health').then(r => r.ok ? Deno.exit(0) : Deno.exit(1))"
 
 # Run the server
-CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-write", "--allow-run", "--allow-ffi", "--allow-sys", "--allow-env", "src/server.ts"]
+CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-write", "--allow-run", "--allow-ffi", "--allow-sys", "--allow-env", "server.ts"]
 
