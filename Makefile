@@ -1,6 +1,6 @@
 # Makefile for Instagram Image Generator
 
-.PHONY: help docker-build docker-build-fresh docker-start docker-stop docker-restart docker-test docker-logs docker-shell clean docker-rebuild
+.PHONY: help docker-build docker-build-fresh docker-start docker-stop docker-restart docker-test docker-test-all docker-test-health docker-test-image docker-test-carousel docker-test-reel docker-test-setup docker-test-cleanup docker-logs docker-shell clean docker-rebuild
 
 # Default target - show help
 help:
@@ -8,21 +8,32 @@ help:
 	@echo "============================================="
 	@echo ""
 	@echo "Available targets:"
-	@echo "  make docker-build       - Build Docker image (uses cache)"
-	@echo "  make docker-build-fresh - Build Docker image (no cache, fresh build)"
-	@echo "  make docker-start       - Start Docker container"
-	@echo "  make docker-stop        - Stop Docker container"
-	@echo "  make docker-restart     - Restart with fresh build (no cache)"
-	@echo "  make docker-rebuild     - Clean, rebuild fresh, and start"
-	@echo "  make docker-test        - Run tests inside Docker container"
-	@echo "  make docker-logs        - Show Docker container logs"
-	@echo "  make docker-shell       - Open shell inside running container"
-	@echo "  make clean              - Clean up Docker images and containers"
+	@echo "  make docker-build         - Build Docker image (uses cache)"
+	@echo "  make docker-build-fresh   - Build Docker image (no cache, fresh build)"
+	@echo "  make docker-start         - Start Docker container"
+	@echo "  make docker-stop          - Stop Docker container"
+	@echo "  make docker-restart       - Restart with fresh build (no cache)"
+	@echo "  make docker-rebuild       - Clean, rebuild fresh, and start"
+	@echo ""
+	@echo "Docker Testing (NEW):"
+	@echo "  make docker-test-setup    - Build and start test container"
+	@echo "  make docker-test-all      - Test all endpoints"
+	@echo "  make docker-test-health   - Test health endpoint"
+	@echo "  make docker-test-image    - Test image generation"
+	@echo "  make docker-test-carousel - Test carousel generation"
+	@echo "  make docker-test-reel     - Test reel generation"
+	@echo "  make docker-test-cleanup  - Stop and cleanup test container"
+	@echo "  make docker-test          - Legacy: Run all tests (kept for compatibility)"
+	@echo ""
+	@echo "Other:"
+	@echo "  make docker-logs          - Show Docker container logs"
+	@echo "  make docker-shell         - Open shell inside running container"
+	@echo "  make clean                - Clean up Docker images and containers"
 	@echo ""
 	@echo "Quick start:"
-	@echo "  make docker-build && make docker-start  # Fast (uses cache)"
-	@echo "  make docker-rebuild                      # Clean rebuild (no cache)"
-	@echo "  make docker-test                         # Test the container"
+	@echo "  make docker-test-setup && make docker-test-all  # Test suite"
+	@echo "  make docker-build && make docker-start          # Production"
+	@echo "  make docker-rebuild                             # Clean rebuild"
 
 # Docker configuration
 DOCKER_IMAGE = instagram-generator
@@ -177,5 +188,44 @@ clean:
 docker-rebuild: clean docker-build-fresh docker-start
 	@echo ""
 	@echo "🎉 Rebuild complete!"
+
+# ============================================
+# New Docker Testing Suite
+# ============================================
+
+# Build and start test container
+docker-test-setup:
+	@echo "🐳 Setting up Docker test environment..."
+	@./docker-test-build.sh
+
+# Test all endpoints
+docker-test-all:
+	@echo "🧪 Running all endpoint tests..."
+	@./docker-test-all.sh
+
+# Test health endpoint
+docker-test-health:
+	@echo "🔍 Testing health endpoint..."
+	@./docker-test-health.sh
+
+# Test image generation
+docker-test-image:
+	@echo "🎨 Testing image generation..."
+	@./docker-test-image.sh
+
+# Test carousel generation
+docker-test-carousel:
+	@echo "📱 Testing carousel generation..."
+	@./docker-test-carousel.sh
+
+# Test reel generation
+docker-test-reel:
+	@echo "🎬 Testing reel generation..."
+	@./docker-test-reel.sh
+
+# Cleanup test container and files
+docker-test-cleanup:
+	@echo "🧹 Cleaning up test environment..."
+	@./docker-test-cleanup.sh
 
 

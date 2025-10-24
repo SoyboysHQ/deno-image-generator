@@ -6,16 +6,20 @@ Generate beautiful Instagram images and carousels with highlighted text using De
 
 - 🎨 **Single Images** - Generate 1080x1350px Instagram-ready images
 - 📱 **Carousels** - Create multi-slide carousel posts
+- 🎬 **Instagram Reels** - Create 5-second vertical videos (1080x1920) from images with background music
 - ✨ **Text Highlighting** - Yellow highlight background with `<mark>` tags
 - 🎭 **Custom Fonts** - Beautiful Merriweather typography
 - 🚀 **HTTP API** - Deploy anywhere and integrate with n8n, Make, etc.
-- 🐳 **Docker Ready** - Production-ready containerization
+- 🐳 **Docker Ready** - Production-ready containerization with FFmpeg support
 
 ## Quick Start
 
 ### Prerequisites
 
 - [Deno](https://deno.land/) installed (v1.40 or higher)
+- [FFmpeg](https://ffmpeg.org/) installed (for reel generation)
+  - macOS: `brew install ffmpeg`
+  - Linux: `sudo apt-get install ffmpeg`
 - Font files: `Merriweather-Regular.ttf`, `Merriweather-Bold.ttf`, `Merriweather-Italic.ttf`
 - Background image: `background.jpeg` (1080x1350px recommended)
 
@@ -128,6 +132,36 @@ curl -X POST http://localhost:8000/generate-carousel \
 
 See [CAROUSEL.md](CAROUSEL.md) for detailed carousel documentation.
 
+### `POST /generate-reel`
+
+Generate an Instagram Reel (vertical video) from an image.
+
+**Request Body:**
+```json
+{
+  "imagePath": "assets/images/background.jpeg",
+  "audioPath": "assets/audio/music.mp3",
+  "duration": 5
+}
+```
+
+**Fields:**
+- `imagePath` (required): Path to the image file
+- `audioPath` (optional): Path to background music file (MP3, WAV, AAC, M4A, OGG)
+- `duration` (optional): Video duration in seconds (default: 5)
+
+**Response:** MP4 video file (1080x1920, 30fps)
+
+**Example:**
+```bash
+curl -X POST http://localhost:8000/generate-reel \
+  -H "Content-Type: application/json" \
+  -d @example_reel_input.json \
+  --output reel.mp4
+```
+
+**Note:** If no `audioPath` is provided, the reel will be generated without audio. Place audio files in `assets/audio/` directory. See [assets/audio/README.md](assets/audio/README.md) for more information on finding royalty-free music.
+
 ### `POST /`
 
 Backward compatibility endpoint. Works the same as `/generate-image`.
@@ -187,10 +221,20 @@ deno run --allow-read --allow-write --allow-ffi --allow-sys generate_carousel.ts
 
 ```bash
 # In one terminal
-deno run --allow-net --allow-read --allow-write --allow-run server.ts
+deno run --allow-net --allow-read --allow-write --allow-run --allow-ffi --allow-sys --allow-env src/server.ts
 
 # In another terminal
 ./test_multi_endpoints.sh
+```
+
+### Test Reel Generation
+
+```bash
+# Test reel generator directly
+./test_reel.sh
+
+# Test reel generation via server (start server first)
+./test_server_reel.sh
 ```
 
 ## Docker Deployment
@@ -207,6 +251,29 @@ docker run -p 8000:8000 instagram-generator
 # Test
 curl http://localhost:8000/health
 ```
+
+### Docker Testing Suite
+
+Test all endpoints in Docker with dedicated test scripts:
+
+```bash
+# 1. Build and start container
+./docker-test-build.sh
+
+# 2. Test individual endpoints
+./docker-test-health.sh      # Health check
+./docker-test-image.sh        # Image generation
+./docker-test-carousel.sh     # Carousel generation
+./docker-test-reel.sh         # Reel generation
+
+# 3. Or test all at once
+./docker-test-all.sh
+
+# 4. Cleanup
+./docker-test-cleanup.sh
+```
+
+See [docs/DOCKER_TESTING.md](docs/DOCKER_TESTING.md) for complete Docker testing guide.
 
 ### Deploy to Railway
 
@@ -248,8 +315,9 @@ return { json: formattedData };
 Generated files:
 - Single image: `real_life_cheat_codes_instagram.jpg` (1080x1350px)
 - Carousel: `slide_1.jpg`, `slide_2.jpg`, etc.
+- Reel: `instagram_reel.mp4` (1080x1920, MP4/H.264)
 
-All images are JPEG format at 95% quality, optimized for Instagram.
+All images are JPEG format at 95% quality, optimized for Instagram. Videos are MP4 format with H.264 codec at 30fps.
 
 ## Troubleshooting
 

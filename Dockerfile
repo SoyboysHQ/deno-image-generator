@@ -4,13 +4,14 @@ FROM denoland/deno:2.0.6
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies for canvas (skia)
-# These are needed for the native canvas bindings
+# Install system dependencies for canvas (skia) and video generation
+# These are needed for the native canvas bindings and FFmpeg
 RUN apt-get update && apt-get install -y \
     fontconfig \
     fonts-liberation \
     libfontconfig1 \
     zip \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy assets directory (fonts and images)
@@ -21,7 +22,7 @@ COPY src/ ./src/
 COPY deno.json ./
 
 # Cache the dependencies (this layer will rebuild when source files change)
-RUN deno cache --reload src/server.ts src/generators/image.ts src/generators/carousel.ts
+RUN deno cache --reload src/server.ts src/generators/image.ts src/generators/carousel.ts src/generators/reel.ts
 
 # Expose the server port
 EXPOSE 8000

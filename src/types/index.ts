@@ -46,3 +46,16 @@ export interface CarouselOutput {
   files: string[];
 }
 
+export interface ReelInput {
+  imagePath: string;
+  audioPath?: string;
+  duration?: number; // Duration in seconds, default 5
+  outputPath?: string;
+}
+
+export interface ReelOutput {
+  success: boolean;
+  file: string;
+  duration: number;
+}
+

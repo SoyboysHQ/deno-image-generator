@@ -1,7 +1,8 @@
-# Generated images
+# Generated images and videos
 # *.jpg
 # *.jpeg
 # *.png
+# *.mp4
 # But keep test outputs for reference
 !*_test*.jpg
 # Keep assets directory

@@ -1,0 +1,72 @@
+╔════════════════════════════════════════════════════════════════╗
+║          DOCKER TEST SUITE - QUICK REFERENCE                  ║
+╚════════════════════════════════════════════════════════════════╝
+
+📦 SETUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ./docker-test-build.sh      Build image & start container
+  make docker-test-setup       Alternative using Make
+
+🧪 TEST INDIVIDUAL ENDPOINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ./docker-test-health.sh      Test GET /health
+  ./docker-test-image.sh       Test POST /generate-image
+  ./docker-test-carousel.sh    Test POST /generate-carousel
+  ./docker-test-reel.sh        Test POST /generate-reel
+
+  Or with Make:
+  make docker-test-health
+  make docker-test-image
+  make docker-test-carousel
+  make docker-test-reel
+
+🎯 TEST ALL ENDPOINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ./docker-test-all.sh         Run all 4 endpoint tests
+  make docker-test-all         Alternative using Make
+
+🧹 CLEANUP
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ./docker-test-cleanup.sh     Stop container & remove files
+  make docker-test-cleanup     Alternative using Make
+
+⚡ QUICK COMMANDS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  # Complete test suite
+  ./docker-test-build.sh && ./docker-test-all.sh
+
+  # Test one endpoint
+  ./docker-test-build.sh && ./docker-test-image.sh
+
+  # Full cycle with cleanup
+  ./docker-test-build.sh && ./docker-test-all.sh && ./docker-test-cleanup.sh
+
+📊 TEST OUTPUTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  docker_test_image.jpg        Single image (1080x1350)
+  docker_test_slide_*.jpg      Carousel slides
+  docker_test_reel.mp4         Instagram reel (1080x1920)
+
+📖 DOCUMENTATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  DOCKER_TESTS_QUICKSTART.md  Quick reference
+  docs/DOCKER_TESTING.md       Comprehensive guide
+  Makefile                     All make targets
+
+🎯 TYPICAL WORKFLOW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  1. ./docker-test-build.sh    (Build once)
+  2. ./docker-test-image.sh    (Test many times)
+  3. ./docker-test-cleanup.sh  (Cleanup when done)
+
+💡 PRO TIPS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  • Keep container running for fast testing
+  • View logs: docker logs -f image-generator-test
+  • Run 'make' or 'make help' to see all targets
+  • Check docs/DOCKER_TESTING.md for troubleshooting
+
+╔════════════════════════════════════════════════════════════════╗
+║  Ready? Run: ./docker-test-build.sh && ./docker-test-all.sh  ║
+╚════════════════════════════════════════════════════════════════╝
+
