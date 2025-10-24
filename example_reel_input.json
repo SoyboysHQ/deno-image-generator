@@ -1,5 +1,7 @@
 {
-  "imagePath": "assets/images/background.jpeg",
-  "duration": 5
+  "quote": "You're going to realize it one day- that happiness was never about your job or your degree or being in a relationship.\n\nOne day, you will understand that happiness was always about learning how to live with yourself, that your happiness was never in the hands of others. It was always about you.",
+  "author": "Bianca Sparacino",
+  "duration": 5,
+  "_comment": "To add music, place an MP3 file in assets/audio/ and add: \"audioPath\": \"assets/audio/your-music.mp3\""
 }
 

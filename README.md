@@ -6,8 +6,9 @@ Generate beautiful Instagram images and carousels with highlighted text using De
 
 - 🎨 **Single Images** - Generate 1080x1350px Instagram-ready images
 - 📱 **Carousels** - Create multi-slide carousel posts
-- 🎬 **Instagram Reels** - Create 5-second vertical videos (1080x1920) from images with background music
-- ✨ **Text Highlighting** - Yellow highlight background with `<mark>` tags
+- 🎬 **Quote Reels** - Create stunning quote videos with full text highlighting and author attribution
+- 🎵 **Background Music** - Add royalty-free music to your reels for maximum engagement
+- ✨ **Text Highlighting** - Full-line yellow highlight backgrounds for quotes
 - 🎭 **Custom Fonts** - Beautiful Merriweather typography
 - 🚀 **HTTP API** - Deploy anywhere and integrate with n8n, Make, etc.
 - 🐳 **Docker Ready** - Production-ready containerization with FFmpeg support
@@ -134,9 +135,19 @@ See [CAROUSEL.md](CAROUSEL.md) for detailed carousel documentation.
 
 ### `POST /generate-reel`
 
-Generate an Instagram Reel (vertical video) from an image.
+Generate an Instagram Reel (vertical video) from a quote or image.
 
-**Request Body:**
+**Request Body (Quote):**
+```json
+{
+  "quote": "You're going to realize it one day- that happiness was never about your job or your degree...",
+  "author": "Bianca Sparacino",
+  "audioPath": "assets/audio/music.mp3",
+  "duration": 5
+}
+```
+
+**Request Body (Image):**
 ```json
 {
   "imagePath": "assets/images/background.jpeg",
@@ -146,21 +157,56 @@ Generate an Instagram Reel (vertical video) from an image.
 ```
 
 **Fields:**
-- `imagePath` (required): Path to the image file
+- `quote` (optional): Quote text. All text will be highlighted with yellow background. If provided, a quote image will be generated
+- `author` (optional): Author attribution for the quote (default: "Anonymous")
+- `imagePath` (optional): Path to a custom image file (used if no quote provided)
 - `audioPath` (optional): Path to background music file (MP3, WAV, AAC, M4A, OGG)
 - `duration` (optional): Video duration in seconds (default: 5)
 
+**Note:** Either `quote` or `imagePath` must be provided.
+
 **Response:** MP4 video file (1080x1920, 30fps)
 
-**Example:**
+**Example (Quote - Default):**
 ```bash
 curl -X POST http://localhost:8000/generate-reel \
   -H "Content-Type: application/json" \
   -d @example_reel_input.json \
+  --output quote_reel.mp4
+```
+
+**Example (Custom Image):**
+```bash
+curl -X POST http://localhost:8000/generate-reel \
+  -H "Content-Type: application/json" \
+  -d '{"imagePath": "assets/images/background.jpeg", "duration": 5}' \
   --output reel.mp4
 ```
 
-**Note:** If no `audioPath` is provided, the reel will be generated without audio. Place audio files in `assets/audio/` directory. See [assets/audio/README.md](assets/audio/README.md) for more information on finding royalty-free music.
+**Adding Music:**
+
+To add background music to your reels:
+
+1. Place MP3 file in `assets/audio/` directory
+2. Add `"audioPath": "assets/audio/your-music.mp3"` to your request
+3. Generate reel as usual
+
+```bash
+# Example with music
+curl -X POST http://localhost:8000/generate-reel \
+  -H "Content-Type: application/json" \
+  -d '{
+    "quote": "Your quote here...",
+    "author": "Author Name",
+    "audioPath": "assets/audio/background-music.mp3",
+    "duration": 5
+  }' \
+  --output reel_with_music.mp4
+```
+
+**📖 See [ADDING_MUSIC.md](ADDING_MUSIC.md) for a complete guide on adding music to your reels.**
+
+**Note:** If no `audioPath` is provided, the reel will be generated without audio. See [assets/audio/README.md](assets/audio/README.md) for information on finding royalty-free music.
 
 ### `POST /`
 
@@ -230,8 +276,11 @@ deno run --allow-net --allow-read --allow-write --allow-run --allow-ffi --allow-
 ### Test Reel Generation
 
 ```bash
-# Test reel generator directly
+# Test reel generator with custom image
 ./test_reel.sh
+
+# Test reel with quote generation
+./test_reel_quote.sh
 
 # Test reel generation via server (start server first)
 ./test_server_reel.sh
@@ -339,15 +388,24 @@ All images are JPEG format at 95% quality, optimized for Instagram. Videos are M
 
 ```
 deno_deploy/
-├── generate_image.ts          # Single image generator
-├── generate_carousel.ts       # Carousel generator
-├── server.ts                  # HTTP API server
+├── src/
+│   ├── generators/            # Image, carousel, and reel generators
+│   ├── handlers/              # API endpoint handlers
+│   ├── middleware/            # CORS and other middleware
+│   ├── services/              # File and generator services
+│   ├── types/                 # TypeScript type definitions
+│   └── utils/                 # Canvas, text, and font utilities
+├── assets/
+│   ├── images/                # Background images
+│   ├── fonts/                 # Merriweather font files
+│   └── audio/                 # Background music (optional)
+├── docs/                      # Documentation
+├── tests/                     # Test scripts and fixtures
 ├── Dockerfile                 # Docker configuration
 ├── deno.json                  # Deno configuration
 ├── example_input.json         # Example single image input
 ├── example_carousel_input.json # Example carousel input
-├── background.jpeg            # Background image
-├── Merriweather-*.ttf         # Font files
+├── example_reel_input.json    # Example quote reel input
 └── README.md                  # This file
 ```
 

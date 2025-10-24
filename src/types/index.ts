@@ -47,7 +47,9 @@ export interface CarouselOutput {
 }
 
 export interface ReelInput {
-  imagePath: string;
+  quote?: string; // Quote text with optional <mark> tags for highlights
+  author?: string; // Author attribution
+  imagePath?: string; // Optional custom image path (if not generating quote)
   audioPath?: string;
   duration?: number; // Duration in seconds, default 5
   outputPath?: string;

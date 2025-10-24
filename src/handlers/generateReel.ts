@@ -4,17 +4,22 @@ import { errorResponse, binaryResponse } from "../utils/response.ts";
 import type { ReelInput } from "../types/index.ts";
 
 interface ReelRequestInput {
-  imagePath: string;
+  quote?: string;
+  author?: string;
+  imagePath?: string;
   audioPath?: string;
   duration?: number;
 }
 
 function validateReelInput(data: unknown): data is ReelRequestInput {
+  const input = data as ReelRequestInput;
   return (
     typeof data === "object" &&
     data !== null &&
-    "imagePath" in data &&
-    typeof (data as ReelRequestInput).imagePath === "string"
+    (
+      (typeof input.quote === "string") ||
+      (typeof input.imagePath === "string")
+    )
   );
 }
 
@@ -28,7 +33,7 @@ export async function handleGenerateReel(req: Request): Promise<Response> {
     // Validate input structure
     if (!validateReelInput(inputData)) {
       return errorResponse(
-        "Invalid input format. Expected object with 'imagePath' field (string).",
+        "Invalid input format. Expected object with either 'quote' (string) or 'imagePath' (string) field.",
         { received: inputData },
         400
       );
@@ -39,6 +44,8 @@ export async function handleGenerateReel(req: Request): Promise<Response> {
 
     // Build the generator input
     const generatorInput: ReelInput = {
+      quote: inputData.quote,
+      author: inputData.author,
       imagePath: inputData.imagePath,
       audioPath: inputData.audioPath,
       duration: duration,
@@ -54,6 +61,9 @@ export async function handleGenerateReel(req: Request): Promise<Response> {
         "--allow-read",
         "--allow-write",
         "--allow-run",
+        "--allow-ffi",
+        "--allow-sys",
+        "--allow-env",
         "src/generators/reel.ts",
         JSON.stringify(generatorInput),
       ],
