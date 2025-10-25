@@ -160,7 +160,7 @@ Generate an Instagram Reel (vertical video) from a quote or image.
 - `quote` (optional): Quote text. All text will be highlighted with yellow background. If provided, a quote image will be generated
 - `author` (optional): Author attribution for the quote (default: "Anonymous")
 - `imagePath` (optional): Path to a custom image file (used if no quote provided)
-- `audioPath` (optional): Path to background music file (MP3, WAV, AAC, M4A, OGG)
+- `audioPath` (optional): Path to background music file (MP3, WAV, AAC, M4A, OGG). **If not provided, a random background music will be auto-selected from available files**
 - `duration` (optional): Video duration in seconds (default: 5)
 
 **Note:** Either `quote` or `imagePath` must be provided.
@@ -187,18 +187,19 @@ curl -X POST http://localhost:8000/generate-reel \
 
 To add background music to your reels:
 
-1. Place MP3 file in `assets/audio/` directory
-2. Add `"audioPath": "assets/audio/your-music.mp3"` to your request
-3. Generate reel as usual
+1. Place MP3 files in `assets/audio/` directory with names:
+   - `background-music-1.mp3` 
+   - `background-music-2.mp3`
+2. Music will be **automatically and randomly selected** if no `audioPath` is specified
+3. To use a specific song, add `"audioPath": "assets/audio/your-music.mp3"` to your request
 
 ```bash
-# Example with music
+# Example with auto-selected music (just add music files, no code changes needed)
 curl -X POST http://localhost:8000/generate-reel \
   -H "Content-Type: application/json" \
   -d '{
     "quote": "Your quote here...",
     "author": "Author Name",
-    "audioPath": "assets/audio/background-music.mp3",
     "duration": 5
   }' \
   --output reel_with_music.mp4
@@ -206,7 +207,7 @@ curl -X POST http://localhost:8000/generate-reel \
 
 **📖 See [ADDING_MUSIC.md](ADDING_MUSIC.md) for a complete guide on adding music to your reels.**
 
-**Note:** If no `audioPath` is provided, the reel will be generated without audio. See [assets/audio/README.md](assets/audio/README.md) for information on finding royalty-free music.
+**Note:** If no music files are found in `assets/audio/`, the reel will be generated without audio. The system automatically tries to add background music by randomly selecting between `background-music-1.mp3` and `background-music-2.mp3`. See [assets/audio/README.md](assets/audio/README.md) for information on finding royalty-free music.
 
 ### `POST /`
 

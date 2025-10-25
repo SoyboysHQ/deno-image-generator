@@ -2,6 +2,16 @@
 
 Place your background music files here for use in Instagram Reels.
 
+## 🎵 Automatic Music Selection
+
+**New Feature:** Background music is **automatically and randomly selected** if you don't specify an `audioPath`!
+
+Simply add music files named:
+- `background-music-1.mp3`
+- `background-music-2.mp3`
+
+The system will randomly choose one of these files for each reel you generate.
+
 ## Supported Formats
 - MP3 (recommended)
 - WAV
@@ -11,22 +21,39 @@ Place your background music files here for use in Instagram Reels.
 
 ## Quick Start
 
-### 1. Add a Music File
+### 1. Add Music Files
 
-Download a music file and place it in this directory:
+Download two music files and name them correctly:
 ```bash
-# Example: Download a file and place it here
-cp ~/Downloads/your-music.mp3 assets/audio/background-music.mp3
+# Download your favorite royalty-free music
+cp ~/Downloads/upbeat-music.mp3 assets/audio/background-music-1.mp3
+cp ~/Downloads/calm-music.mp3 assets/audio/background-music-2.mp3
 ```
 
-### 2. Use in Your Reel
+**That's it!** The system will automatically randomly select one of these files for each reel.
 
-**With Quote:**
+### 2. Generate Reels (Music Auto-Selected!)
+
+**Just generate - no audioPath needed:**
+```bash
+curl -X POST http://localhost:8000/generate-reel \
+  -H "Content-Type: application/json" \
+  -d '{
+    "quote": "Your quote here...",
+    "author": "Author Name",
+    "duration": 5
+  }' \
+  --output reel_with_music.mp4
+```
+
+The system will automatically pick one of your music files!
+
+**Or specify a particular file:**
 ```json
 {
   "quote": "Your inspirational quote here...",
   "author": "Author Name",
-  "audioPath": "assets/audio/background-music.mp3",
+  "audioPath": "assets/audio/background-music-1.mp3",
   "duration": 5
 }
 ```

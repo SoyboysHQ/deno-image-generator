@@ -1,6 +1,6 @@
 # Makefile for Instagram Image Generator
 
-.PHONY: help docker-build docker-build-fresh docker-start docker-stop docker-restart docker-test docker-test-all docker-test-health docker-test-image docker-test-carousel docker-test-reel docker-test-setup docker-test-cleanup docker-logs docker-shell clean docker-rebuild
+.PHONY: help docker-build docker-build-fresh docker-start docker-stop docker-restart docker-update docker-test docker-test-all docker-test-health docker-test-image docker-test-carousel docker-test-reel docker-test-setup docker-test-cleanup docker-logs docker-shell clean docker-rebuild
 
 # Default target - show help
 help:
@@ -12,6 +12,7 @@ help:
 	@echo "  make docker-build-fresh   - Build Docker image (no cache, fresh build)"
 	@echo "  make docker-start         - Start Docker container"
 	@echo "  make docker-stop          - Stop Docker container"
+	@echo "  make docker-update        - Quick update with cache (for local dev)"
 	@echo "  make docker-restart       - Restart with fresh build (no cache)"
 	@echo "  make docker-rebuild       - Clean, rebuild fresh, and start"
 	@echo ""
@@ -32,6 +33,7 @@ help:
 	@echo ""
 	@echo "Quick start:"
 	@echo "  make docker-test-setup && make docker-test-all  # Test suite"
+	@echo "  make docker-update                              # Quick local dev updates"
 	@echo "  make docker-build && make docker-start          # Production"
 	@echo "  make docker-rebuild                             # Clean rebuild"
 
@@ -81,6 +83,9 @@ docker-stop:
 	else \
 		echo "⚠️  Container not running"; \
 	fi
+
+# Quick update for local development (uses cache - much faster!)
+docker-update: docker-stop clean-container docker-build docker-start
 
 # Restart Docker container (rebuilds image to pick up code changes)
 docker-restart: docker-stop clean-container docker-build-fresh docker-start

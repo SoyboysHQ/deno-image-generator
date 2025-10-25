@@ -170,3 +170,31 @@ export function calculateItemHeights(
   return heights;
 }
 
+/**
+ * Randomize capitalization of letters within each word
+ * Example: "Hello World" -> "hElLo WoRLd"
+ */
+export function randomizeCapitalization(text: string): string {
+  return text.split(' ').map(word => {
+    return word.split('').map(char => {
+      if (char.match(/[a-zA-Z]/)) {
+        return Math.random() > 0.5 ? char.toUpperCase() : char.toLowerCase();
+      }
+      return char;
+    }).join('');
+  }).join(' ');
+}
+
+/**
+ * Transform quote text for handwritten style
+ * - Randomizes capitalization per word
+ * - Replaces dashes with semicolons
+ */
+export function transformQuoteText(text: string): string {
+  // Replace all dashes with semicolons
+  const withSemicolons = text.replace(/-/g, ';');
+  
+  // Randomize capitalization
+  return randomizeCapitalization(withSemicolons);
+}
+

@@ -1,10 +1,5 @@
 # Generated images and videos
-# *.jpg
-# *.jpeg
-# *.png
-# *.mp4
-# But keep test outputs for reference
-!*_test*.jpg
+
 # Keep assets directory
 !assets/**
 
@@ -40,17 +35,4 @@ Thumbs.db
 # Environment files
 .env
 .env.local
-
-# Temporary quote images
-quote_image_temp.jpg
-
-# Audio files (users should add their own)
-assets/audio/*.mp3
-assets/audio/*.wav
-assets/audio/*.m4a
-assets/audio/*.aac
-assets/audio/*.ogg
-!assets/audio/.gitkeep
-!assets/audio/README.md
-
 

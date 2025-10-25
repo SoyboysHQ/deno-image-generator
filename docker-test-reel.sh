@@ -83,6 +83,9 @@ if [ -f "$OUTPUT_FILE" ]; then
     
     echo ""
     echo -e "${GREEN}🎉 Reel generation test passed!${NC}"
+    echo ""
+    echo -e "${YELLOW}Container logs (last 30 lines):${NC}"
+    docker logs --tail 30 $CONTAINER_NAME
 else
     echo -e "${RED}❌ Reel generation failed${NC}"
     echo ""

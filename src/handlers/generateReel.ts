@@ -68,11 +68,11 @@ export async function handleGenerateReel(req: Request): Promise<Response> {
         JSON.stringify(generatorInput),
       ],
       cwd: Deno.cwd(),
-      stdout: "piped",
-      stderr: "piped",
+      stdout: "inherit", // Changed from "piped" to "inherit" to see logs
+      stderr: "inherit", // Changed from "piped" to "inherit" to see logs
     });
 
-    const { code, stdout, stderr } = await command.output();
+    const { code } = await command.output();
 
     if (code === 0) {
       console.log("✅ Reel generated successfully");
@@ -84,9 +84,8 @@ export async function handleGenerateReel(req: Request): Promise<Response> {
 
       return binaryResponse(video, "video/mp4", "instagram_reel.mp4");
     } else {
-      const errorText = new TextDecoder().decode(stderr);
-      console.error("❌ Error generating reel:", errorText);
-      return errorResponse("Failed to generate reel", errorText);
+      console.error("❌ Error generating reel - check logs above");
+      return errorResponse("Failed to generate reel", { exitCode: code });
     }
   } catch (error) {
     const err = error as Error;

@@ -4,8 +4,9 @@ import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 import { Canvas, loadImage } from 'npm:@napi-rs/canvas@^0.1.52';
 import type { ReelInput } from '../types/index.ts';
 import { parseMarkedText, wrapText } from '../utils/text.ts';
-import { drawWavyHighlight } from '../utils/canvas.ts';
+import { drawHighlight } from '../utils/canvas.ts';
 import { registerFonts } from '../utils/fonts.ts';
+import { getRandomBackgroundMusicPath } from '../utils/audio.ts';
 
 const DEFAULT_DURATION = 5; // 5 seconds
 const REEL_WIDTH = 1080;
@@ -38,19 +39,35 @@ async function generateQuoteImage(
   // Styling constants
   const PADDING_X = 80;
   const PADDING_Y = 100;
-  const QUOTE_FONT = '48px Merriweather';
-  const LINE_HEIGHT = 72;
+  const FONT_SIZE = 42; // Quote font size in pixels
+  const QUOTE_FONT = `${FONT_SIZE}px Merriweather`;
+  const LINE_HEIGHT = 60;
+  const PARAGRAPH_SPACING = 80; // Extra spacing between paragraphs
   const AUTHOR_FONT = '32px Merriweather';
 
   // Calculate available space for quote
   const maxWidth = REEL_WIDTH - PADDING_X * 2;
   
-  // Wrap the quote text
+  // Split by paragraphs first (double newlines)
+  const paragraphs = quoteText.split('\n\n').filter(p => p.trim());
+  
+  // Wrap each paragraph separately
   ctx.font = QUOTE_FONT;
-  const lines = wrapText(ctx, quoteText, maxWidth, QUOTE_FONT);
+  const allLines: { text: string; isParagraphEnd: boolean }[] = [];
+  
+  for (let i = 0; i < paragraphs.length; i++) {
+    const paragraphLines = wrapText(ctx, paragraphs[i], maxWidth, QUOTE_FONT);
+    paragraphLines.forEach((line, idx) => {
+      allLines.push({
+        text: line,
+        isParagraphEnd: idx === paragraphLines.length - 1 && i < paragraphs.length - 1
+      });
+    });
+  }
   
   // Calculate total height needed for quote
-  const quoteHeight = lines.length * LINE_HEIGHT;
+  const paragraphBreaks = allLines.filter(l => l.isParagraphEnd).length;
+  const quoteHeight = allLines.length * LINE_HEIGHT + paragraphBreaks * PARAGRAPH_SPACING;
   const authorHeight = 80;
   const totalHeight = quoteHeight + authorHeight;
   
@@ -58,21 +75,20 @@ async function generateQuoteImage(
   let currY = (REEL_HEIGHT - totalHeight) / 2 + 50;
 
   // Draw each line with full highlight background
-  for (const line of lines) {
+  for (const lineObj of allLines) {
+    const line = lineObj.text;
     const lineWidth = ctx.measureText(line).width;
     const lineX = PADDING_X;
 
-    // Draw highlight background for the entire line
-    const fontSize = 48;
-    const padX = 10;
-    const halfChar = ctx.measureText(' ').width / 2;
+    // Draw highlight background for the entire line with better padding
+    const padX = 15; // Increased padding
     
-    drawWavyHighlight(
+    drawHighlight(
       ctx,
-      lineX - padX + halfChar,
-      currY - fontSize * 0.85,
-      lineWidth + padX * 2 - halfChar,
-      fontSize,
+      lineX - padX,
+      currY - FONT_SIZE * 0.85,
+      lineWidth + padX * 2,
+      FONT_SIZE,
       '#F0E231',
     );
 
@@ -82,10 +98,15 @@ async function generateQuoteImage(
     ctx.fillText(line, lineX, currY);
     
     currY += LINE_HEIGHT;
+    
+    // Add extra spacing after paragraph end
+    if (lineObj.isParagraphEnd) {
+      currY += PARAGRAPH_SPACING;
+    }
   }
 
   // Add spacing before author
-  currY += 40;
+  currY += 140;
 
   // Draw author attribution
   ctx.font = AUTHOR_FONT;
@@ -107,6 +128,11 @@ export async function generateReel(
   input: ReelInput,
   outputPath: string = 'instagram_reel.mp4',
 ): Promise<void> {
+  console.log('[Reel] ========================================');
+  console.log('[Reel] Starting reel generation...');
+  console.log('[Reel] Input:', JSON.stringify(input, null, 2));
+  console.log('[Reel] ========================================');
+  
   const duration = input.duration || DEFAULT_DURATION;
   const currentDir = Deno.cwd();
   
@@ -128,6 +154,26 @@ export async function generateReel(
     throw new Error('Either quote or imagePath must be provided');
   }
   
+  // Auto-select random background music if not provided
+  console.log('[Reel] ========================================');
+  console.log('[Reel] Checking for audio...');
+  console.log('[Reel] input.audioPath:', input.audioPath);
+  let audioPath: string | undefined = input.audioPath;
+  if (!audioPath) {
+    console.log('[Reel] No audioPath provided, selecting random music...');
+    const selectedMusicPath = await getRandomBackgroundMusicPath(currentDir);
+    console.log('[Reel] Selected music path:', selectedMusicPath);
+    if (selectedMusicPath) {
+      audioPath = selectedMusicPath;
+      console.log('[Reel] ✅ Using audio:', audioPath);
+    } else {
+      console.log('[Reel] No background music found, generating without audio');
+    }
+  } else {
+    console.log('[Reel] Using provided audioPath:', audioPath);
+  }
+  console.log('[Reel] ========================================');
+  
   const finalOutputPath = input.outputPath || outputPath;
   
   console.log(`[Reel] Generating ${duration}s video from image: ${imagePath}`);
@@ -139,13 +185,13 @@ export async function generateReel(
     '-i', imagePath,                 // Input image
   ];
 
-  // Add audio if provided
-  if (input.audioPath) {
-    const audioPath = input.audioPath.startsWith('/') 
-      ? input.audioPath 
-      : join(currentDir, input.audioPath);
-    console.log(`[Reel] Adding audio: ${audioPath}`);
-    ffmpegArgs.push('-i', audioPath);
+  // Add audio if provided or auto-selected
+  if (audioPath) {
+    const resolvedAudioPath = audioPath.startsWith('/') 
+      ? audioPath 
+      : join(currentDir, audioPath);
+    console.log(`[Reel] Adding audio: ${resolvedAudioPath}`);
+    ffmpegArgs.push('-i', resolvedAudioPath);
   }
 
   // Video filters and output options
@@ -161,7 +207,7 @@ export async function generateReel(
   );
 
   // Audio options
-  if (input.audioPath) {
+  if (audioPath) {
     ffmpegArgs.push(
       '-c:a', 'aac',                 // AAC audio codec
       '-b:a', '128k',                // Audio bitrate
