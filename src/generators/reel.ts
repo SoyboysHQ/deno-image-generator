@@ -207,12 +207,14 @@ export async function generateReel(
   ffmpegArgs.push(
     '-vf', `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}`,
     '-c:v', 'libx264',               // H.264 codec
-    '-preset', 'medium',             // Encoding speed/quality balance
+    '-preset', 'faster',             // Faster preset for lower memory usage
     '-tune', 'stillimage',           // Optimize for still images
     '-crf', '23',                    // Quality (lower = better, 23 is good)
     '-pix_fmt', 'yuv420p',          // Pixel format for compatibility
     '-r', '30',                      // Frame rate
     '-t', duration.toString(),       // Duration
+    '-threads', '4',                 // Limit threads to reduce memory usage
+    '-max_muxing_queue_size', '1024', // Limit muxing queue size
   );
 
   // Audio options
