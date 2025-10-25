@@ -51,18 +51,27 @@ async function generateQuoteImage(
   // Split by paragraphs first (double newlines)
   const paragraphs = quoteText.split('\n\n').filter(p => p.trim());
   
-  // Wrap each paragraph separately
+  // Wrap each paragraph separately, handling single newlines within paragraphs
   ctx.font = QUOTE_FONT;
   const allLines: { text: string; isParagraphEnd: boolean }[] = [];
   
   for (let i = 0; i < paragraphs.length; i++) {
-    const paragraphLines = wrapText(ctx, paragraphs[i], maxWidth, QUOTE_FONT);
-    paragraphLines.forEach((line, idx) => {
-      allLines.push({
-        text: line,
-        isParagraphEnd: idx === paragraphLines.length - 1 && i < paragraphs.length - 1
+    // Split each paragraph by single newlines to preserve explicit line breaks
+    const explicitLines = paragraphs[i].split('\n').filter(l => l.trim());
+    
+    // Wrap each explicit line separately
+    for (let j = 0; j < explicitLines.length; j++) {
+      const wrappedLines = wrapText(ctx, explicitLines[j], maxWidth, QUOTE_FONT);
+      wrappedLines.forEach((line, idx) => {
+        const isLastLineOfParagraph = (j === explicitLines.length - 1) && 
+                                       (idx === wrappedLines.length - 1) && 
+                                       (i < paragraphs.length - 1);
+        allLines.push({
+          text: line,
+          isParagraphEnd: isLastLineOfParagraph
+        });
       });
-    });
+    }
   }
   
   // Calculate total height needed for quote

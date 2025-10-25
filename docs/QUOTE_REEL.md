@@ -29,7 +29,9 @@ The reel generator now supports creating videos from quotes with highlighted tex
 
 ### Fields
 
-- **quote** (required): The quote text. All text will be highlighted with yellow background. Use `\n` for line breaks between paragraphs.
+- **quote** (required): The quote text. All text will be highlighted with yellow background. Supports:
+  - `\n` or `<br>` - Single line break (new line, same paragraph)
+  - `\n\n` or `<br><br>` - Paragraph break (extra spacing between paragraphs)
 - **author** (optional): Author name. Will be displayed as "- {author}" at the bottom. Default: "Anonymous"
 - **audioPath** (optional): Path to background music file (MP3, WAV, AAC, M4A, OGG)
 - **duration** (optional): Video duration in seconds. Default: 5
@@ -106,6 +108,15 @@ curl -X POST http://localhost:8000/generate-reel \
 {
   "quote": "The best time to plant a tree was 20 years ago. The second best time is now.",
   "author": "Chinese Proverb"
+}
+```
+
+### Quote with BR Tags
+
+```json
+{
+  "quote": "Do not go where the path may lead,<br>go instead where there is no path<br>and leave a trail.",
+  "author": "Ralph Waldo Emerson"
 }
 ```
 

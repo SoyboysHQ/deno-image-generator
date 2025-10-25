@@ -4,21 +4,25 @@ import type { ParsedText, HighlightItem, PhraseIndex } from '../types/index.ts';
 
 /**
  * Parse text with <mark> tags and extract highlighted phrases
+ * Also handles <br> and <br/> tags by converting them to newlines
  */
 export function parseMarkedText(markedText: string): ParsedText {
+  // First, replace <br> and <br/> tags with newlines
+  let processedText = markedText.replace(/<br\s*\/?>/gi, '\n');
+  
   const regex = /<mark>(.*?)<\/mark>/g;
   const highlights: HighlightItem[] = [];
   let cleanText = '';
   let lastIndex = 0;
   let match;
   
-  while ((match = regex.exec(markedText)) !== null) {
-    cleanText += markedText.slice(lastIndex, match.index);
+  while ((match = regex.exec(processedText)) !== null) {
+    cleanText += processedText.slice(lastIndex, match.index);
     highlights.push({ phrase: match[1] });
     cleanText += match[1];
     lastIndex = match.index + match[0].length;
   }
-  cleanText += markedText.slice(lastIndex);
+  cleanText += processedText.slice(lastIndex);
   
   return { text: cleanText, highlights };
 }

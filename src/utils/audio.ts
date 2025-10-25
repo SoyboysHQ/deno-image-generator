@@ -9,6 +9,11 @@ const AVAILABLE_BACKGROUND_MUSIC = [
   'background-music-2.mp3',
   'background-music-3.mp3',
   'background-music-4.mp3',
+  'background-music-5.mp3',
+  'background-music-6.mp3',
+  'background-music-7.mp3',
+  'background-music-8.mp3',
+  'background-music-9.mp3',
 ];
 
 /**
