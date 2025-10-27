@@ -6,7 +6,7 @@ import type { ReelInput } from '../types/index.ts';
 import { parseMarkedText, wrapText } from '../utils/text.ts';
 import { drawHighlight } from '../utils/canvas.ts';
 import { registerFonts } from '../utils/fonts.ts';
-import { getRandomBackgroundMusicPath } from '../utils/audio.ts';
+import { getRandomBackgroundMusicPath, getAudioDuration } from '../utils/audio.ts';
 
 const DEFAULT_DURATION = 5; // 5 seconds
 const REEL_WIDTH = 1080;
@@ -142,7 +142,6 @@ export async function generateReel(
   console.log('[Reel] Input:', JSON.stringify(input, null, 2));
   console.log('[Reel] ========================================');
   
-  const duration = input.duration || DEFAULT_DURATION;
   const currentDir = Deno.cwd();
   
   let imagePath: string;
@@ -179,9 +178,32 @@ export async function generateReel(
       console.log('[Reel] No background music found, generating without audio');
     }
   } else {
+    // Resolve relative paths to absolute
+    audioPath = audioPath.startsWith('/') 
+      ? audioPath 
+      : join(currentDir, audioPath);
     console.log('[Reel] Using provided audioPath:', audioPath);
   }
   console.log('[Reel] ========================================');
+  
+  // Determine duration: use provided duration, or if not provided and audio exists, use audio duration
+  let duration = input.duration;
+  if (!duration && audioPath) {
+    console.log('[Reel] No duration provided, getting audio file duration...');
+    const audioDuration = await getAudioDuration(audioPath);
+    if (audioDuration) {
+      duration = audioDuration;
+      console.log(`[Reel] ✅ Using audio file duration: ${duration.toFixed(2)}s`);
+    } else {
+      duration = DEFAULT_DURATION;
+      console.log(`[Reel] ⚠️  Could not determine audio duration, using default: ${duration}s`);
+    }
+  } else if (!duration) {
+    duration = DEFAULT_DURATION;
+    console.log(`[Reel] Using default duration: ${duration}s`);
+  } else {
+    console.log(`[Reel] Using provided duration: ${duration}s`);
+  }
   
   const finalOutputPath = input.outputPath || outputPath;
   
@@ -196,11 +218,8 @@ export async function generateReel(
 
   // Add audio if provided or auto-selected
   if (audioPath) {
-    const resolvedAudioPath = audioPath.startsWith('/') 
-      ? audioPath 
-      : join(currentDir, audioPath);
-    console.log(`[Reel] Adding audio: ${resolvedAudioPath}`);
-    ffmpegArgs.push('-i', resolvedAudioPath);
+    console.log(`[Reel] Adding audio: ${audioPath}`);
+    ffmpegArgs.push('-i', audioPath);
   }
 
   // Video filters and output options
@@ -222,7 +241,6 @@ export async function generateReel(
     ffmpegArgs.push(
       '-c:a', 'aac',                 // AAC audio codec
       '-b:a', '128k',                // Audio bitrate
-      '-shortest',                   // End when shortest input ends
     );
   } else {
     // No audio track

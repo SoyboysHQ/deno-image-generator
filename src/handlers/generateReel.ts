@@ -40,7 +40,6 @@ export async function handleGenerateReel(req: Request): Promise<Response> {
     }
 
     const outputPath = "instagram_reel.mp4";
-    const duration = inputData.duration || 5;
 
     // Build the generator input
     const generatorInput: ReelInput = {
@@ -48,7 +47,7 @@ export async function handleGenerateReel(req: Request): Promise<Response> {
       author: inputData.author,
       imagePath: inputData.imagePath,
       audioPath: inputData.audioPath,
-      duration: duration,
+      duration: inputData.duration, // Pass through undefined to let generator handle audio duration
       outputPath: outputPath,
     };
 

@@ -59,3 +59,47 @@ export function getAvailableBackgroundMusic(): string[] {
   return [...AVAILABLE_BACKGROUND_MUSIC];
 }
 
+/**
+ * Gets the duration of an audio file in seconds using FFprobe
+ * @param audioPath The path to the audio file
+ * @returns The duration in seconds, or null if unable to determine
+ */
+export async function getAudioDuration(audioPath: string): Promise<number | null> {
+  try {
+    console.log("[Audio] Getting duration for:", audioPath);
+    
+    const command = new Deno.Command('ffprobe', {
+      args: [
+        '-v', 'error',
+        '-show_entries', 'format=duration',
+        '-of', 'default=noprint_wrappers=1:nokey=1',
+        audioPath,
+      ],
+      stdout: 'piped',
+      stderr: 'piped',
+    });
+
+    const { code, stdout, stderr } = await command.output();
+
+    if (code !== 0) {
+      const errorText = new TextDecoder().decode(stderr);
+      console.error('[Audio] FFprobe error:', errorText);
+      return null;
+    }
+
+    const output = new TextDecoder().decode(stdout).trim();
+    const duration = parseFloat(output);
+    
+    if (isNaN(duration)) {
+      console.error('[Audio] Unable to parse duration:', output);
+      return null;
+    }
+    
+    console.log(`[Audio] ✅ Audio duration: ${duration.toFixed(2)}s`);
+    return duration;
+  } catch (error) {
+    console.error('[Audio] Error getting audio duration:', error);
+    return null;
+  }
+}
+
