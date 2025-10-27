@@ -7,6 +7,7 @@ Generate beautiful Instagram images and carousels with highlighted text using De
 - 🎨 **Single Images** - Generate 1080x1350px Instagram-ready images
 - 📱 **Carousels** - Create multi-slide carousel posts
 - 🎬 **Quote Reels** - Create stunning quote videos with full text highlighting and author attribution
+- 🎥 **Two-Image Reels** - Create engaging listicle reels with a title slide + content slide
 - 🎵 **Background Music** - Add royalty-free music to your reels for maximum engagement
 - ✨ **Text Highlighting** - Full-line yellow highlight backgrounds for quotes
 - 🎭 **Custom Fonts** - Beautiful Merriweather typography
@@ -209,6 +210,45 @@ curl -X POST http://localhost:8000/generate-reel \
 
 **Note:** If no music files are found in `assets/audio/`, the reel will be generated without audio. The system automatically tries to add background music by randomly selecting between `background-music-1.mp3` and `background-music-2.mp3`. See [assets/audio/README.md](assets/audio/README.md) for information on finding royalty-free music.
 
+### `POST /generate-two-image-reel`
+
+Generate an Instagram Reel with two images: a title slide (0.5s) followed by a list slide (remaining duration).
+
+**Request Body:**
+```json
+{
+  "title": "<mark>20 Real-Life Cheat Codes</mark>",
+  "items": [
+    "Read 30 minutes daily - <mark>Compound knowledge over time</mark>",
+    "Wake up at 5 AM - <mark>Own your morning, own your day</mark>",
+    "Exercise 3x per week - <mark>Energy amplifier</mark>"
+  ],
+  "audioPath": "assets/audio/music.mp3",
+  "duration": 15
+}
+```
+
+**Fields:**
+- `title` (required): Title text for the first slide (shows for 0.5 seconds). Supports `<mark>` tags
+- `items` (required): Array of list items for the second slide. Each item supports `<mark>` tags
+- `audioPath` (optional): Path to background music file. **If not provided, random music will be auto-selected**
+- `duration` (optional): Total video duration in seconds. If not provided and audio exists, uses audio duration (default: 5)
+
+**Response:** MP4 video file (1080x1920, 30fps)
+
+**Example:**
+```bash
+curl -X POST http://localhost:8000/generate-two-image-reel \
+  -H "Content-Type: application/json" \
+  -d @example_two_image_reel_input.json \
+  --output two_image_reel.mp4
+
+# Or use the test script
+./test_two_image_reel.sh
+```
+
+**📖 See [docs/TWO_IMAGE_REEL.md](docs/TWO_IMAGE_REEL.md) for complete documentation.**
+
 ### `POST /`
 
 Backward compatibility endpoint. Works the same as `/generate-image`.
@@ -285,6 +325,9 @@ deno run --allow-net --allow-read --allow-write --allow-run --allow-ffi --allow-
 
 # Test reel generation via server (start server first)
 ./test_server_reel.sh
+
+# Test two-image reel generation
+./test_two_image_reel.sh
 ```
 
 ## Docker Deployment
@@ -407,6 +450,7 @@ deno_deploy/
 ├── example_input.json         # Example single image input
 ├── example_carousel_input.json # Example carousel input
 ├── example_reel_input.json    # Example quote reel input
+├── example_two_image_reel_input.json # Example two-image reel input
 └── README.md                  # This file
 ```
 

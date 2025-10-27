@@ -2,6 +2,7 @@
 
 export interface HighlightItem {
   phrase: string;
+  color?: string; // Optional color for the highlight, defaults to yellow
 }
 
 export interface ParsedText {
@@ -56,6 +57,20 @@ export interface ReelInput {
 }
 
 export interface ReelOutput {
+  success: boolean;
+  file: string;
+  duration: number;
+}
+
+export interface TwoImageReelInput {
+  title: string; // Title for first image with optional <mark> tags
+  items: string[]; // List items for second image with optional <mark> tags
+  audioPath?: string; // Optional audio path, will auto-select if not provided
+  duration?: number; // Duration in seconds, will use audio duration if not provided
+  outputPath?: string;
+}
+
+export interface TwoImageReelOutput {
   success: boolean;
   file: string;
   duration: number;

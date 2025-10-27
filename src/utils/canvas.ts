@@ -306,11 +306,17 @@ export function drawTextWithHighlights(
     const lineWidth = ctx.measureText(line).width;
     const lineX = align === 'center' ? x + (maxWidth - lineWidth) / 2 : x;
 
-    // Find highlights in this line
-    const lineHighlights: PhraseIndex[] = [];
+    // Find highlights in this line with their colors
+    const lineHighlights: Array<{ start: number; end: number; color: string }> = [];
     for (const hi of highlights) {
       const matches = findAllPhraseIndices(line, hi.phrase);
-      lineHighlights.push(...matches);
+      for (const match of matches) {
+        lineHighlights.push({
+          start: match.start,
+          end: match.end,
+          color: hi.color || highlightColor,
+        });
+      }
     }
 
     // Draw highlight backgrounds
@@ -331,7 +337,7 @@ export function drawTextWithHighlights(
         currY - fontSize * 0.85 - padY,
         highlightWidth + padX * 2 - halfChar,
         fontSize,
-        highlightColor,
+        hi.color,
       );
     }
 
