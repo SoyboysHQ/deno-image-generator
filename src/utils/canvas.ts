@@ -16,11 +16,28 @@ export function drawWavyHighlight(
 ): void {
   // Docker canvas doesn't handle save/restore or globalAlpha properly
   // Use a semi-transparent color instead
-  ctx.fillStyle = 'rgba(240, 226, 49, 0.7)'; // #F0E231 at 70% opacity
+  // Convert hex color to rgba with 70% opacity
+  const rgba = hexToRgba(color, 0.7);
+  ctx.fillStyle = rgba;
   
   // Position highlight behind text - adjust Y coordinate
   // Text baseline is at y, move up much less to position lower behind text
   ctx.fillRect(x, y, width, height);
+}
+
+/**
+ * Convert hex color to rgba with opacity
+ */
+function hexToRgba(hex: string, opacity: number): string {
+  // Remove # if present
+  hex = hex.replace('#', '');
+  
+  // Parse hex to RGB
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  
+  return `rgba(${r}, ${g}, ${b}, ${opacity})`;
 }
 
 /**
@@ -220,19 +237,23 @@ export function drawBalancedCenteredTitleWithHighlight(
     const line = lines[i];
     const lw = ctx.measureText(line).width;
     
-    // Find highlights for this line
-    const lineHighlights: PhraseIndex[] = [];
+    // Find highlights for this line with their colors
+    const lineHighlights: Array<{ start: number; end: number; color: string }> = [];
     for (const hi of highlights || []) {
       const phrase = hi.phrase;
       const matches = findAllPhraseIndices(line, phrase);
       for (const match of matches) {
-        lineHighlights.push({ start: match.start, end: match.end });
+        lineHighlights.push({
+          start: match.start,
+          end: match.end,
+          color: hi.color || highlightColor,
+        });
       }
     }
     
     // Draw highlight rects
     const currX = x + (maxWidth - lw) / 2;
-    const highlightRects: HighlightRect[] = [];
+    const highlightRects: Array<{ x: number; y: number; width: number; height: number; color: string }> = [];
     
     for (const hi of lineHighlights) {
       const prefix = line.slice(0, hi.start);
@@ -249,6 +270,7 @@ export function drawBalancedCenteredTitleWithHighlight(
         y: currY - fontSize * 0.85 - padY,
         width: highlightWidth + padX * 2 - halfChar * 4,
         height: fontSize,
+        color: hi.color,
       });
     }
     
@@ -259,7 +281,7 @@ export function drawBalancedCenteredTitleWithHighlight(
         rect.y,
         rect.width,
         rect.height,
-        highlightColor,
+        rect.color,
       );
     }
     

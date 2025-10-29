@@ -190,10 +190,16 @@ async function generateListImage(
   const canvas = new Canvas(REEL_WIDTH, REEL_HEIGHT);
   const ctx = canvas.getContext('2d');
 
-  // Load background image
+  // Load background image (same as title page but mirrored)
   const currentDir = Deno.cwd();
-  const bg = await loadImage(join(currentDir, 'assets', 'images', 'background.jpeg'));
+  const bg = await loadImage(join(currentDir, 'assets', 'images', 'bg-1.jpeg'));
+  
+  // Mirror the background horizontally
+  ctx.save();
+  ctx.translate(REEL_WIDTH, 0);
+  ctx.scale(-1, 1);
   ctx.drawImage(bg, 0, 0, REEL_WIDTH, REEL_HEIGHT);
+  ctx.restore();
 
   // Padding
   const PAD_X = 60;
@@ -246,14 +252,27 @@ async function generateListImage(
   // Pre-wrap title to determine line breaks for highlight handling
   const titleLines = balancedWrapText(ctx, titleText, REEL_WIDTH - PAD_X * 2, TITLE_FONT);
   
-  // Convert highlights to include default color
-  const titleHighlightWithColor = titleHighlight.map(h => ({ 
-    phrase: h.phrase, 
-    color: h.color || '#F0E231' 
-  }));
+  // Create highlights with specific colors: first mark yellow, second orange
+  // (same pattern as title page)
+  const originalHighlights: Array<{ phrase: string; color: string }> = [];
+  
+  // Add first mark highlight (yellow)
+  if (titleHighlight[0]) {
+    originalHighlights.push({ phrase: titleHighlight[0].phrase, color: '#F0E231' });
+  }
+  
+  // Add second mark highlight (orange)
+  if (titleHighlight[1]) {
+    originalHighlights.push({ phrase: titleHighlight[1].phrase, color: '#FFA500' });
+  }
+  
+  // Add remaining mark highlights if any (yellow)
+  for (let i = 2; i < titleHighlight.length; i++) {
+    originalHighlights.push({ phrase: titleHighlight[i].phrase, color: '#F0E231' });
+  }
   
   // Split highlights across line breaks (like we do for the first image)
-  const titleHighlightProcessed = splitHighlightsAcrossLines(titleText, titleHighlightWithColor, titleLines);
+  const titleHighlightProcessed = splitHighlightsAcrossLines(titleText, originalHighlights, titleLines);
   
   const titleHeight = drawBalancedCenteredTitleWithHighlight(
     ctx,
@@ -271,7 +290,7 @@ async function generateListImage(
   // Author (centered, italic, smaller)
   ctx.font = 'italic 20px Merriweather';
   ctx.fillStyle = '#666';
-  const author = 'by Compounding Wisdom';
+  const author = 'by @compounding.wisdom';
   const authorWidth = ctx.measureText(author).width;
   ctx.fillText(author, (REEL_WIDTH - authorWidth) / 2, currY);
   currY += 30;
