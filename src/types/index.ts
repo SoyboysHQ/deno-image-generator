@@ -76,3 +76,15 @@ export interface TwoImageReelOutput {
   duration: number;
 }
 
+export interface WatermarkInput {
+  targetImage: string; // Base64 encoded image data
+  opacity?: number; // 0-1, default 1.0
+  scale?: number; // 0-1, watermark size relative to image width, default 0.12
+  padding?: number; // Padding from edges in pixels, default 10
+}
+
+export interface WatermarkOutput {
+  success: boolean;
+  file: string;
+}
+

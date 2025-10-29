@@ -8,6 +8,7 @@ Generate beautiful Instagram images and carousels with highlighted text using De
 - 📱 **Carousels** - Create multi-slide carousel posts
 - 🎬 **Quote Reels** - Create stunning quote videos with full text highlighting and author attribution
 - 🎥 **Two-Image Reels** - Create engaging listicle reels with a title slide + content slide
+- 🖼️ **Watermark** - Add customizable watermarks to any image
 - 🎵 **Background Music** - Add royalty-free music to your reels for maximum engagement
 - ✨ **Text Highlighting** - Full-line yellow highlight backgrounds for quotes
 - 🎭 **Custom Fonts** - Beautiful Merriweather typography
@@ -248,6 +249,44 @@ curl -X POST http://localhost:8000/generate-two-image-reel \
 ```
 
 **📖 See [docs/TWO_IMAGE_REEL.md](docs/TWO_IMAGE_REEL.md) for complete documentation.**
+
+### `POST /generate-watermark`
+
+Add a watermark to any image with customizable positioning and appearance.
+
+**Request Body:**
+```json
+{
+  "targetImage": "data:image/png;base64,YOUR_BASE64_IMAGE_HERE"
+}
+```
+
+**Fields:**
+- `targetImage` (required): Base64-encoded image data (with or without data URL prefix)
+- `opacity` (optional): Watermark opacity from 0-1 (default: 1.0 - fully opaque)
+- `scale` (optional): Watermark size relative to image width, 0-1 (default: 0.12)
+- `padding` (optional): Distance from edges in pixels (default: 10)
+
+**Watermark Image:** `assets/images/watermark.png`
+
+**Response:** JPEG image file with watermark in bottom-right corner
+
+**Example:**
+```bash
+# Using the helper script to convert image to base64
+deno run --allow-read --allow-write scripts/convert_to_base64.ts your_image.png
+
+# Send request with generated JSON
+curl -X POST http://localhost:8000/generate-watermark \
+  -H "Content-Type: application/json" \
+  -d @watermark_input_generated.json \
+  -o watermarked_output.jpg
+
+# Or use the test script
+./test_server_watermark.sh
+```
+
+**📖 See [docs/WATERMARK.md](docs/WATERMARK.md) for complete documentation.**
 
 ### `POST /`
 

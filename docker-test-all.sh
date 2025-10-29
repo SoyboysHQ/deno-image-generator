@@ -43,7 +43,7 @@ TESTS_FAILED=0
 
 # Test 1: Health
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Test 1/5: Health Endpoint   ║${NC}"
+echo -e "${BLUE}║  Test 1/6: Health Endpoint   ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -60,7 +60,7 @@ echo ""
 
 # Test 2: Image Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Test 2/5: Image Generation  ║${NC}"
+echo -e "${BLUE}║  Test 2/6: Image Generation  ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -77,7 +77,7 @@ echo ""
 
 # Test 3: Carousel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║ Test 3/5: Carousel Generation║${NC}"
+echo -e "${BLUE}║ Test 3/6: Carousel Generation║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -94,7 +94,7 @@ echo ""
 
 # Test 4: Reel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Test 4/5: Reel Generation   ║${NC}"
+echo -e "${BLUE}║  Test 4/6: Reel Generation   ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -111,7 +111,7 @@ echo ""
 
 # Test 5: Two-Image Reel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║Test 5/5: Two-Image Reel Gen  ║${NC}"
+echo -e "${BLUE}║Test 5/6: Two-Image Reel Gen  ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -126,12 +126,29 @@ fi
 echo ""
 echo ""
 
+# Test 6: Watermark Generation
+echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
+echo -e "${BLUE}║Test 6/6: Watermark Generation║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
+echo ""
+
+if ./docker-test-watermark.sh; then
+    echo -e "${GREEN}✅ Watermark generation: PASSED${NC}"
+    ((TESTS_PASSED++))
+else
+    echo -e "${RED}❌ Watermark generation: FAILED${NC}"
+    ((TESTS_FAILED++))
+fi
+
+echo ""
+echo ""
+
 # Summary
 echo -e "${BLUE}═══════════════════════════════${NC}"
 echo -e "${BLUE}       Test Summary            ${NC}"
 echo -e "${BLUE}═══════════════════════════════${NC}"
 echo ""
-echo -e "Total Tests: 5"
+echo -e "Total Tests: 6"
 echo -e "${GREEN}Passed: $TESTS_PASSED${NC}"
 echo -e "${RED}Failed: $TESTS_FAILED${NC}"
 echo ""
@@ -144,6 +161,7 @@ if [ $TESTS_FAILED -eq 0 ]; then
     ls -lh docker_test_slide_*.jpg 2>/dev/null && echo "  ✅ docker_test_slide_*.jpg"
     ls -lh docker_test_reel.mp4 2>/dev/null && echo "  ✅ docker_test_reel.mp4"
     ls -lh docker_test_two_image_reel.mp4 2>/dev/null && echo "  ✅ docker_test_two_image_reel.mp4"
+    ls -lh output/docker_watermark_test.jpg 2>/dev/null && echo "  ✅ output/docker_watermark_test.jpg"
     echo ""
     exit 0
 else
