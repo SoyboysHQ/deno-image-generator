@@ -484,12 +484,13 @@ export async function generateTwoImageReel(
   titleArgs.push(
     '-vf', `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}`,
     '-c:v', 'libx264',
-    '-preset', 'faster',
+    '-preset', 'ultrafast',  // Use ultrafast for lower memory usage
     '-crf', '23',
     '-pix_fmt', 'yuv420p',
     '-r', '30',
     '-t', TITLE_DURATION.toString(),
-    '-threads', '4',
+    '-threads', '2',  // Reduce thread count for memory-constrained environments
+    '-max_muxing_queue_size', '1024',  // Limit muxing queue size
   );
   
   // Add audio encoding if we have audio (silent audio for title)
@@ -536,12 +537,13 @@ export async function generateTwoImageReel(
   listArgs.push(
     '-vf', `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}`,
     '-c:v', 'libx264',
-    '-preset', 'faster',
+    '-preset', 'ultrafast',  // Use ultrafast for lower memory usage
     '-crf', '23',
     '-pix_fmt', 'yuv420p',
     '-r', '30',
     '-t', secondImageDuration.toString(),
-    '-threads', '4',
+    '-threads', '2',  // Reduce thread count for memory-constrained environments
+    '-max_muxing_queue_size', '1024',  // Limit muxing queue size
   );
   
   if (audioPath) {
@@ -580,18 +582,14 @@ export async function generateTwoImageReel(
     '-f', 'concat',
     '-safe', '0',
     '-i', concatFilePath,
-    '-c:v', 'libx264', // Re-encode video for compatibility
-    '-preset', 'faster',
-    '-crf', '23',
-    '-pix_fmt', 'yuv420p',
+    '-c:v', 'copy',  // Use copy codec to avoid re-encoding (much lower memory usage)
+    '-threads', '2',  // Limit threads for memory-constrained environments
+    '-max_muxing_queue_size', '1024',  // Limit muxing queue size
   ];
   
-  // Add audio encoding if we have audio
+  // Add audio codec - use copy if we have audio
   if (audioPath) {
-    concatArgs.push(
-      '-c:a', 'aac',
-      '-b:a', '128k',
-    );
+    concatArgs.push('-c:a', 'copy');  // Copy audio instead of re-encoding
   }
   
   concatArgs.push('-y', finalOutputPath);
