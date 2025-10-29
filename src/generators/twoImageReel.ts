@@ -199,9 +199,48 @@ async function generateListImage(
   const PAD_X = 60;
   let currY = 140; // Increased top padding from 90 to 140
 
-  // Title (balanced, centered, with highlight) - much larger title!
-  const TITLE_FONT = 'bold 96px Merriweather';
-  const TITLE_LINE_HEIGHT = 108;
+  // Title (balanced, centered, with highlight) - dynamically sized
+  // Calculate optimal font size based on title length and word count
+  const titleLength = titleText.length;
+  const wordCount = titleText.trim().split(/\s+/).length;
+  
+  let titleFontSize = 82; // Base font size
+  
+  // Adjust based on character count
+  if (titleLength > 100) {
+    titleFontSize = 58;
+  } else if (titleLength > 80) {
+    titleFontSize = 64;
+  } else if (titleLength > 60) {
+    titleFontSize = 70;
+  } else if (titleLength > 40) {
+    titleFontSize = 76;
+  }
+  
+  // Further adjust based on word count (longer phrases need smaller text)
+  if (wordCount > 12) {
+    titleFontSize -= 8;
+  } else if (wordCount > 10) {
+    titleFontSize -= 6;
+  } else if (wordCount > 8) {
+    titleFontSize -= 4;
+  } else if (wordCount > 6) {
+    titleFontSize -= 2;
+  }
+  
+  // For very short titles (3 words or less), make them larger
+  if (wordCount <= 3 && titleLength < 30) {
+    titleFontSize = Math.min(92, titleFontSize + 10);
+  }
+  
+  // Ensure minimum and maximum font sizes
+  titleFontSize = Math.max(52, Math.min(92, titleFontSize));
+  
+  const TITLE_FONT = `bold ${titleFontSize}px Merriweather`;
+  const TITLE_LINE_HEIGHT = Math.floor(titleFontSize * 1.17); // Proportional line height
+  
+  console.log(`[TwoImageReel] Title font size: ${titleFontSize}px (length: ${titleLength}, words: ${wordCount}), line height: ${TITLE_LINE_HEIGHT}px`);
+  
   ctx.font = TITLE_FONT;
   
   // Pre-wrap title to determine line breaks for highlight handling
@@ -263,9 +302,9 @@ async function generateListImage(
   if (points.length <= 3) {
     fontSize = 56; // Very few items = very large text
   } else if (points.length <= 5) {
-    fontSize = 48;
+    fontSize = 50;
   } else if (points.length <= 7) {
-    fontSize = 44;
+    fontSize = 42;
   } else if (points.length <= 10) {
     fontSize = 38;
   } else if (points.length <= 15) {
