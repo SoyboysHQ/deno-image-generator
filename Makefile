@@ -1,6 +1,6 @@
 # Makefile for Instagram Image Generator
 
-.PHONY: help docker-build docker-build-fresh docker-start docker-stop docker-restart docker-update docker-test docker-test-all docker-test-health docker-test-image docker-test-carousel docker-test-reel docker-test-two-image-reel docker-test-watermark docker-test-setup docker-test-cleanup docker-logs docker-shell clean docker-rebuild
+.PHONY: help docker-build docker-build-fresh docker-start docker-stop docker-restart docker-update docker-test docker-test-all docker-test-health docker-test-image docker-test-carousel docker-test-reel docker-test-two-image-reel docker-test-three-part-reel docker-test-watermark docker-test-setup docker-test-cleanup docker-logs docker-shell clean docker-rebuild
 
 # Default target - show help
 help:
@@ -17,16 +17,17 @@ help:
 	@echo "  make docker-rebuild       - Clean, rebuild fresh, and start"
 	@echo ""
 	@echo "Docker Testing (NEW):"
-	@echo "  make docker-test-setup         - Build and start test container"
-	@echo "  make docker-test-all           - Test all endpoints"
-	@echo "  make docker-test-health        - Test health endpoint"
-	@echo "  make docker-test-image         - Test image generation"
-	@echo "  make docker-test-carousel      - Test carousel generation"
-	@echo "  make docker-test-reel          - Test reel generation"
+	@echo "  make docker-test-setup          - Build and start test container"
+	@echo "  make docker-test-all            - Test all endpoints"
+	@echo "  make docker-test-health         - Test health endpoint"
+	@echo "  make docker-test-image          - Test image generation"
+	@echo "  make docker-test-carousel       - Test carousel generation"
+	@echo "  make docker-test-reel           - Test reel generation"
 	@echo "  make docker-test-two-image-reel - Test two-image reel generation"
-	@echo "  make docker-test-watermark     - Test watermark generation"
-	@echo "  make docker-test-cleanup       - Stop and cleanup test container"
-	@echo "  make docker-test               - Legacy: Run all tests (kept for compatibility)"
+	@echo "  make docker-test-three-part-reel - Test three-part reel generation"
+	@echo "  make docker-test-watermark      - Test watermark generation"
+	@echo "  make docker-test-cleanup        - Stop and cleanup test container"
+	@echo "  make docker-test                - Legacy: Run all tests (kept for compatibility)"
 	@echo ""
 	@echo "Other:"
 	@echo "  make docker-logs          - Show Docker container logs"
@@ -234,6 +235,11 @@ docker-test-reel:
 docker-test-two-image-reel:
 	@echo "🎥 Testing two-image reel generation..."
 	@./docker-test-two-image-reel.sh
+
+# Test three-part reel generation
+docker-test-three-part-reel:
+	@echo "🎬 Testing three-part reel generation..."
+	@./docker-test-three-part-reel.sh
 
 # Test watermark generation
 docker-test-watermark:
