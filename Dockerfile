@@ -22,7 +22,7 @@ COPY src/ ./src/
 COPY deno.json ./
 
 # Cache the dependencies (this layer will rebuild when source files change)
-RUN deno cache --reload src/server.ts src/generators/image.ts src/generators/carousel.ts src/generators/reel.ts src/generators/watermark.ts
+RUN deno cache --reload src/server.ts src/generators/image.ts src/generators/carousel.ts src/generators/reel.ts src/generators/twoImageReel.ts src/generators/threePartReel.ts src/generators/watermark.ts
 
 # Expose the server port
 EXPOSE 8000
