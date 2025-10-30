@@ -8,6 +8,7 @@ Generate beautiful Instagram images and carousels with highlighted text using De
 - 📱 **Carousels** - Create multi-slide carousel posts
 - 🎬 **Quote Reels** - Create stunning quote videos with full text highlighting and author attribution
 - 🎥 **Two-Image Reels** - Create engaging listicle reels with a title slide + content slide
+- 🎞️ **Three-Part Reels** - NEW! Create dynamic reels with image transitions and text overlays
 - 🖼️ **Watermark** - Add customizable watermarks to any image
 - 🎵 **Background Music** - Add royalty-free music to your reels for maximum engagement
 - ✨ **Text Highlighting** - Full-line yellow highlight backgrounds for quotes

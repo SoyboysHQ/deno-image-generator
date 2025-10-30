@@ -6,6 +6,7 @@ import { handleGenerateImage } from "./handlers/generateImage.ts";
 import { handleGenerateCarousel } from "./handlers/generateCarousel.ts";
 import { handleGenerateReel } from "./handlers/generateReel.ts";
 import { handleGenerateTwoImageReel } from "./handlers/generateTwoImageReel.ts";
+import { handleGenerateThreePartReel } from "./handlers/generateThreePartReel.ts";
 import { handleGenerateWatermark } from "./handlers/generateWatermark.ts";
 
 console.log("🚀 Instagram Generator Server running on http://localhost:8000");
@@ -15,6 +16,7 @@ console.log("  POST /generate-image - Generate single Instagram image");
 console.log("  POST /generate-carousel - Generate Instagram carousel");
 console.log("  POST /generate-reel - Generate Instagram reel (video)");
 console.log("  POST /generate-two-image-reel - Generate two-image reel (title + list)");
+console.log("  POST /generate-three-part-reel - Generate three-part reel (image + fade + image)");
 console.log("  POST /generate-watermark - Add watermark to image");
 console.log("  POST / - Generate image (backward compatibility)\n");
 
@@ -79,6 +81,9 @@ serve(async (req) => {
       case "/generate-two-image-reel":
         return handleGenerateTwoImageReel(req);
       
+      case "/generate-three-part-reel":
+        return handleGenerateThreePartReel(req);
+      
       case "/generate-watermark":
         return handleGenerateWatermark(req);
       
@@ -95,6 +100,7 @@ serve(async (req) => {
               "POST /generate-carousel",
               "POST /generate-reel",
               "POST /generate-two-image-reel",
+              "POST /generate-three-part-reel",
               "POST /generate-watermark",
               "POST /",
               "GET /health"

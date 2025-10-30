@@ -88,3 +88,18 @@ export interface WatermarkOutput {
   file: string;
 }
 
+export interface ThreePartReelInput {
+  image1Url: string; // URL to first image
+  image2Url: string; // URL to second image
+  text1: string; // Text overlay for first frame
+  text2: string; // Text overlay for third frame
+  audioPath?: string; // Optional audio path, will auto-select if not provided
+  outputPath?: string;
+}
+
+export interface ThreePartReelOutput {
+  success: boolean;
+  file: string;
+  duration: number;
+}
+
