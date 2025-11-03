@@ -10,6 +10,13 @@ interface ThreePartReelRequestInput {
   text2: string;
   text3: string;
   audioPath?: string;
+  watermark?: {
+    opacity?: number;
+    scale?: number;
+    padding?: number;
+    horizontalOffset?: number;
+    verticalOffset?: number;
+  };
 }
 
 function validateThreePartReelInput(data: unknown): data is ThreePartReelRequestInput {
@@ -41,6 +48,13 @@ export async function handleGenerateThreePartReel(req: Request): Promise<Respons
       );
     }
 
+    const defaultWatermark = {
+      "scale": 0.15,
+      "padding": 20,
+      "horizontalOffset": 30,
+      "verticalOffset": 10
+    }
+
     const outputPath = "three_part_reel.mp4";
 
     // Build the generator input
@@ -51,6 +65,7 @@ export async function handleGenerateThreePartReel(req: Request): Promise<Respons
       text2: inputData.text2,
       text3: inputData.text3,
       audioPath: inputData.audioPath,
+      watermark: inputData.watermark ?? defaultWatermark,
       outputPath: outputPath,
     };
 

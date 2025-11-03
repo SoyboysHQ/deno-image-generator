@@ -14,6 +14,7 @@ Total duration: **5.5 seconds**
 - ✨ Downloads images from URLs (Cloudinary, etc.)
 - 📝 Animated text overlays with sequential reveals and fade-ins
 - 🎨 Smooth fade transitions between images and text
+- 💧 Automatic watermark added to all frames
 - 🎵 Automatic background music selection (or specify your own)
 - 🎬 Instagram Reel format (1080x1920, 9:16 aspect ratio)
 - 📱 Optimized video encoding (H.264, 30fps)
@@ -30,7 +31,14 @@ Total duration: **5.5 seconds**
   "text1": "First text for first frame",
   "text2": "Second text for first frame",
   "text3": "Text for last frame",
-  "audioPath": "assets/audio/background-music-7.mp3"  // Optional
+  "audioPath": "assets/audio/background-music-7.mp3",  // Optional
+  "watermark": {  // Optional - customize watermark
+    "opacity": 1.0,
+    "scale": 0.15,
+    "padding": 20,
+    "horizontalOffset": 0,
+    "verticalOffset": 0
+  }
 }
 ```
 
@@ -43,6 +51,12 @@ Total duration: **5.5 seconds**
 
 **Optional Fields:**
 - `audioPath` (string): Path to background music file. If not provided, a random background music will be selected automatically.
+- `watermark` (object): Watermark configuration options
+  - `opacity` (number): Watermark opacity, 0-1 (default: 1.0)
+  - `scale` (number): Watermark size relative to image width, 0-1 (default: 0.15)
+  - `padding` (number): Padding from edges in pixels (default: 20)
+  - `horizontalOffset` (number): Additional horizontal offset - positive moves right, negative moves left (default: 0)
+  - `verticalOffset` (number): Additional vertical offset - positive moves down, negative moves up (default: 0)
 
 **Response:**
 - Content-Type: `video/mp4`
@@ -61,7 +75,12 @@ curl -X POST http://localhost:8000/generate-three-part-reel \
     "text1": "The journey begins with a single step",
     "text2": "Every moment is an opportunity",
     "text3": "And ends with a thousand memories",
-    "audioPath": "assets/audio/background-music-7.mp3"
+    "audioPath": "assets/audio/background-music-7.mp3",
+    "watermark": {
+      "scale": 0.12,
+      "padding": 30,
+      "verticalOffset": -50
+    }
   }' \
   --output three_part_reel.mp4
 ```
@@ -124,7 +143,23 @@ The text overlay is styled as follows:
 1. Images are downloaded from the provided URLs
 2. Images are scaled and cropped to fit the 9:16 aspect ratio
 3. Text overlays are rendered on top with proper wrapping
-4. All processing is done server-side using canvas and FFmpeg
+4. Watermark is automatically added to each frame (bottom-right corner by default, customizable)
+5. All processing is done server-side using canvas and FFmpeg
+
+### Watermark Customization
+The watermark position and appearance can be customized using the `watermark` parameter:
+- **Position**: Defaults to bottom-right corner, adjust with `horizontalOffset` and `verticalOffset`
+- **Size**: Control with `scale` parameter (percentage of image width)
+- **Opacity**: Set transparency level (0 = invisible, 1 = fully opaque)
+- **Padding**: Distance from edges in pixels
+
+Example: To move watermark higher and more to the left:
+```json
+"watermark": {
+  "horizontalOffset": -20,
+  "verticalOffset": -50
+}
+```
 
 ### Fade Transition
 - Uses FFmpeg's `xfade` filter with `fade` transition
@@ -146,7 +181,13 @@ See `example_three_part_reel_input.json` for a complete example:
   "text1": "Now is all there ever is.",
   "text2": "Silence speaks louder than thought.",
   "text3": "Be present in the moment.",
-  "audioPath": "assets/audio/background-music-7.mp3"
+  "audioPath": "assets/audio/background-music-7.mp3",
+  "watermark": {
+    "scale": 0.15,
+    "padding": 20,
+    "horizontalOffset": 0,
+    "verticalOffset": -100
+  }
 }
 ```
 

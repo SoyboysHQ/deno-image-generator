@@ -96,6 +96,13 @@ export interface ThreePartReelInput {
   text3: string; // Text overlay for third frame
   audioPath?: string; // Optional audio path, will auto-select if not provided
   outputPath?: string;
+  watermark?: {
+    opacity?: number; // 0-1, default 1.0
+    scale?: number; // 0-1, watermark size relative to image width, default 0.15
+    padding?: number; // Padding from edges in pixels, default 20
+    horizontalOffset?: number; // Additional horizontal offset (positive = right, negative = left), default 0
+    verticalOffset?: number; // Additional vertical offset (positive = down, negative = up), default 0
+  };
 }
 
 export interface ThreePartReelOutput {

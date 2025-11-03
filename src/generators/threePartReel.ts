@@ -1,9 +1,10 @@
-// Three-part Instagram Reel generator
+// Three-part Instagram Reel generator with watermark on all frames
 // Part 1: Image 1 with text overlay (2 seconds total)
 //   - 0.5s: text1 only
 //   - 1.5s: text1 and text2 both visible
 // Part 2: Fade from Image 1 (with text) to Image 2 (captions fade out with image, 1.5s total, fade is 0.5s)
 // Part 3: Image 2 with text3 fading in (2 seconds, text fade is 0.4s)
+// All frames include watermark in bottom-right corner
 
 import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 import { Canvas, loadImage } from 'npm:@napi-rs/canvas@^0.1.52';
@@ -11,6 +12,7 @@ import type { ThreePartReelInput } from '../types/index.ts';
 import { wrapText } from '../utils/text.ts';
 import { registerFonts } from '../utils/fonts.ts';
 import { getRandomBackgroundMusicPath, getAudioDuration } from '../utils/audio.ts';
+import { generateWatermark } from './watermark.ts';
 
 const REEL_WIDTH = 1080;
 const REEL_HEIGHT = 1920; // Instagram Reel dimensions (9:16)
@@ -224,18 +226,59 @@ export async function generateThreePartReel(
   const frame2Path = join(currentDir, 'frame2_plain.jpg'); // For fade transition
   const frame3Path = join(currentDir, 'frame3_with_text.jpg');
   
+  // Prepare watermark options (use custom settings if provided)
+  const watermarkOptions = {
+    opacity: input.watermark?.opacity,
+    scale: input.watermark?.scale,
+    padding: input.watermark?.padding,
+    horizontalOffset: input.watermark?.horizontalOffset,
+    verticalOffset: input.watermark?.verticalOffset,
+  };
+  
   console.log('[ThreePartReel] Generating frame 1a with text1 only (for 0.5s)...');
-  await generateImageWithText(image1Path, input.text1, frame1aPath, 'center');
+  const tempFrame1aPath = join(currentDir, 'temp_frame1a.jpg');
+  await generateImageWithText(image1Path, input.text1, tempFrame1aPath, 'center');
+  console.log('[ThreePartReel] Adding watermark to frame 1a...');
+  await generateWatermark({
+    targetImagePath: tempFrame1aPath,
+    outputPath: frame1aPath,
+    ...watermarkOptions,
+  });
+  await Deno.remove(tempFrame1aPath);
   
   console.log('[ThreePartReel] Generating frame 1b with text1 and text2 (for 1.5s)...');
-  await generateImageWithText(image1Path, [input.text1, input.text2], frame1bPath, 'center');
+  const tempFrame1bPath = join(currentDir, 'temp_frame1b.jpg');
+  await generateImageWithText(image1Path, [input.text1, input.text2], tempFrame1bPath, 'center');
+  console.log('[ThreePartReel] Adding watermark to frame 1b...');
+  await generateWatermark({
+    targetImagePath: tempFrame1bPath,
+    outputPath: frame1bPath,
+    ...watermarkOptions,
+  });
+  await Deno.remove(tempFrame1bPath);
   
   console.log('[ThreePartReel] Generating frame 2 (plain image 2 for transition)...');
+  const tempFrame2Path = join(currentDir, 'temp_frame2.jpg');
   // Process image2 through canvas to ensure consistent color/lighting with frame 3
-  await generatePlainImage(image2Path, frame2Path);
+  await generatePlainImage(image2Path, tempFrame2Path);
+  console.log('[ThreePartReel] Adding watermark to frame 2...');
+  await generateWatermark({
+    targetImagePath: tempFrame2Path,
+    outputPath: frame2Path,
+    ...watermarkOptions,
+  });
+  await Deno.remove(tempFrame2Path);
   
   console.log('[ThreePartReel] Generating frame 3 with text3 (bottom)...');
-  await generateImageWithText(image2Path, input.text3, frame3Path, 'bottom');
+  const tempFrame3Path = join(currentDir, 'temp_frame3.jpg');
+  await generateImageWithText(image2Path, input.text3, tempFrame3Path, 'bottom');
+  console.log('[ThreePartReel] Adding watermark to frame 3...');
+  await generateWatermark({
+    targetImagePath: tempFrame3Path,
+    outputPath: frame3Path,
+    ...watermarkOptions,
+  });
+  await Deno.remove(tempFrame3Path);
   
   // Auto-select random background music if not provided
   console.log('[ThreePartReel] ========================================');

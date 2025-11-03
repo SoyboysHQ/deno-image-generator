@@ -8,8 +8,10 @@ export interface WatermarkOptions {
   watermarkPath?: string;
   outputPath?: string;
   opacity?: number;
-  scale?: number; // Scale factor for watermark (0-1), default 0.12 (12% of image width)
-  padding?: number; // Padding from edges in pixels, default 10
+  scale?: number; // Scale factor for watermark (0-1), default 0.15 (15% of image width)
+  padding?: number; // Padding from edges in pixels, default 20
+  horizontalOffset?: number; // Additional horizontal offset (positive = right, negative = left), default 0
+  verticalOffset?: number; // Additional vertical offset (positive = down, negative = up), default 0
 }
 
 /**
@@ -25,6 +27,8 @@ export async function generateWatermark(
     opacity = 1.0,
     scale = 0.15,
     padding = 20,
+    horizontalOffset = 0,
+    verticalOffset = 0,
   } = options;
 
   // Load the target image
@@ -50,11 +54,9 @@ export async function generateWatermark(
     watermarkTargetWidth / watermarkAspectRatio,
   );
 
-  const horizontalPositionModifier = 2;
-  const verticalPositionModifier = -5;
-  // Calculate position (bottom right with padding)
-  const x = width - watermarkWidth - padding + horizontalPositionModifier;
-  const y = height - watermarkHeight - padding + verticalPositionModifier;
+  // Calculate position (bottom right with padding + custom offsets)
+  const x = width - watermarkWidth - padding + horizontalOffset;
+  const y = height - watermarkHeight - padding + verticalOffset;
 
   // Set opacity and draw watermark
   ctx.globalAlpha = opacity;
