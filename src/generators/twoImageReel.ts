@@ -26,12 +26,15 @@ function splitHighlightsAcrossLines(
 ): Array<{ phrase: string; color: string }> {
   const result: Array<{ phrase: string; color: string }> = [];
   
+  // Reconstruct text from lines to ensure character positions align correctly
+  const reconstructedText = lines.join(' ');
+  
   for (const highlight of highlights) {
     const phrase = highlight.phrase;
-    const phraseStart = text.indexOf(phrase);
+    const phraseStart = reconstructedText.indexOf(phrase);
     
     if (phraseStart === -1) {
-      // Phrase not found in text, skip
+      // Phrase not found in reconstructed text, skip
       continue;
     }
     
@@ -88,7 +91,12 @@ async function generateTitleImage(
 
   // Parse title with highlights
   const parsed = parseMarkedText(title);
-  parsed.text = parsed.text.replace('-', ' ');
+  parsed.text = parsed.text.replace(/-/g, ' ');
+  
+  // IMPORTANT: Also replace dashes in highlight phrases to match the modified text
+  for (const highlight of parsed.highlights) {
+    highlight.phrase = highlight.phrase.replace(/-/g, ' ');
+  }
 
   // Draw title (large, bold, with highlights)
   const titleFont = '120px "Merriweather ExtraBold"';
@@ -170,6 +178,13 @@ async function generateListImage(
 
   // Parse title and items
   const parsedTitle = parseMarkedText(title);
+  
+  // Replace dashes with spaces (consistent with title image)
+  parsedTitle.text = parsedTitle.text.replace(/-/g, ' ');
+  for (const highlight of parsedTitle.highlights) {
+    highlight.phrase = highlight.phrase.replace(/-/g, ' ');
+  }
+  
   const titleText = parsedTitle.text;
   const titleHighlight = parsedTitle.highlights;
 
