@@ -8,6 +8,7 @@ interface ThreePartReelRequestInput {
   image2Url: string;
   text1: string;
   text2: string;
+  text3: string;
   audioPath?: string;
 }
 
@@ -19,7 +20,8 @@ function validateThreePartReelInput(data: unknown): data is ThreePartReelRequest
     typeof input.image1Url === "string" &&
     typeof input.image2Url === "string" &&
     typeof input.text1 === "string" &&
-    typeof input.text2 === "string"
+    typeof input.text2 === "string" &&
+    typeof input.text3 === "string"
   );
 }
 
@@ -33,7 +35,7 @@ export async function handleGenerateThreePartReel(req: Request): Promise<Respons
     // Validate input structure
     if (!validateThreePartReelInput(inputData)) {
       return errorResponse(
-        "Invalid input format. Expected object with 'image1Url', 'image2Url', 'text1', and 'text2' (all strings) fields.",
+        "Invalid input format. Expected object with 'image1Url', 'image2Url', 'text1', 'text2', and 'text3' (all strings) fields.",
         { received: inputData },
         400
       );
@@ -47,6 +49,7 @@ export async function handleGenerateThreePartReel(req: Request): Promise<Respons
       image2Url: inputData.image2Url,
       text1: inputData.text1,
       text2: inputData.text2,
+      text3: inputData.text3,
       audioPath: inputData.audioPath,
       outputPath: outputPath,
     };

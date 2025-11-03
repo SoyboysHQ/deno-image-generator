@@ -1,7 +1,9 @@
 // Three-part Instagram Reel generator
-// Part 1: Image 1 with text overlay (2 seconds)
-// Part 2: Quick fade to Image 2, stays without text (2 seconds, fade is 0.5s)
-// Part 3: Image 2 with text overlay (1.5 seconds)
+// Part 1: Image 1 with text overlay (2 seconds total)
+//   - 0.5s: text1 only
+//   - 1.5s: text1 and text2 both visible
+// Part 2: Fade from Image 1 (with text) to Image 2 (captions fade out with image, 1.5s total, fade is 0.5s)
+// Part 3: Image 2 with text3 fading in (2 seconds, text fade is 0.4s)
 
 import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 import { Canvas, loadImage } from 'npm:@napi-rs/canvas@^0.1.52';
@@ -13,9 +15,10 @@ import { getRandomBackgroundMusicPath, getAudioDuration } from '../utils/audio.t
 const REEL_WIDTH = 1080;
 const REEL_HEIGHT = 1920; // Instagram Reel dimensions (9:16)
 const PART1_DURATION = 2; // Part 1: Image 1 with text
-const PART2_DURATION = 2; // Part 2: Image 2 without text (with quick fade at start)
-const PART3_DURATION = 1.5; // Part 3: Image 2 with text
-const FADE_DURATION = 0.5; // Quick fade transition
+const PART2_DURATION = 1.5; // Part 2: Image 2 without text (with quick fade at start)
+const PART3_DURATION = 2; // Part 3: Image 2 with text
+const FADE_DURATION = 0.5; // Quick fade transition between images
+const TEXT_FADE_DURATION = 0.4; // Fade duration for text overlay appearing
 const TOTAL_DURATION = PART1_DURATION + PART2_DURATION + PART3_DURATION; // 5.5 seconds
 
 /**
@@ -63,11 +66,11 @@ async function generatePlainImage(
 }
 
 /**
- * Generate image with text overlay
+ * Generate image with text overlay (supports multiple texts for center position)
  */
 async function generateImageWithText(
   imagePath: string,
-  text: string,
+  text: string | string[],
   outputPath: string,
   position: 'center' | 'bottom' = 'center',
 ): Promise<void> {
@@ -98,10 +101,14 @@ async function generateImageWithText(
   const BORDER_RADIUS = 35; // Rounded corners for bottom position (increased from 20)
   
   ctx.font = TEXT_FONT;
-  const lines = wrapText(ctx, text, REEL_WIDTH - PADDING_X * 2, TEXT_FONT);
+  
+  // Handle multiple texts (for center position)
+  const texts = Array.isArray(text) ? text : [text];
+  const allLines: string[][] = texts.map(t => wrapText(ctx, t, REEL_WIDTH - PADDING_X * 2, TEXT_FONT));
   
   if (position === 'bottom') {
-    // Draw as a single rounded box near the bottom
+    // Draw as a single rounded box near the bottom (single text only)
+    const lines = allLines[0];
     const LINE_HEIGHT = 40;
     const totalTextHeight = lines.length * LINE_HEIGHT;
     const BOTTOM_MARGIN = 300; // Distance from bottom of screen (moved higher)
@@ -135,34 +142,51 @@ async function generateImageWithText(
       currY += LINE_HEIGHT;
     }
   } else {
-    // Center position: individual boxes for each line
+    // Center position: individual boxes for each line, support multiple texts
     const LINE_HEIGHT = 90; // More spacing between boxes
-    const totalTextHeight = lines.length * LINE_HEIGHT;
+    const INTER_TEXT_SPACING = 80; // Extra spacing between different text groups
+    
+    // Calculate total height for all texts
+    let totalLines = 0;
+    for (const lines of allLines) {
+      totalLines += lines.length;
+    }
+    const totalTextHeight = totalLines * LINE_HEIGHT + (allLines.length - 1) * INTER_TEXT_SPACING;
     let currY = (REEL_HEIGHT - totalTextHeight) / 2 + FONT_SIZE;
     
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     
-    for (const line of lines) {
-      // Measure text width for this line
-      const textMetrics = ctx.measureText(line);
-      const textWidth = textMetrics.width;
+    // Render each text group
+    for (let textIdx = 0; textIdx < allLines.length; textIdx++) {
+      const lines = allLines[textIdx];
       
-      // Calculate box dimensions
-      const boxWidth = textWidth + BOX_PADDING_X * 2;
-      const boxHeight = FONT_SIZE + BOX_PADDING_Y * 2;
-      const boxX = (REEL_WIDTH - boxWidth) / 2;
-      const boxY = currY - BOX_PADDING_Y;
+      for (const line of lines) {
+        // Measure text width for this line
+        const textMetrics = ctx.measureText(line);
+        const textWidth = textMetrics.width;
+        
+        // Calculate box dimensions
+        const boxWidth = textWidth + BOX_PADDING_X * 2;
+        const boxHeight = FONT_SIZE + BOX_PADDING_Y * 2;
+        const boxX = (REEL_WIDTH - boxWidth) / 2;
+        const boxY = currY - BOX_PADDING_Y;
+        
+        // Draw white background box for this line
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+        
+        // Draw black text
+        ctx.fillStyle = '#000000';
+        ctx.fillText(line, REEL_WIDTH / 2, currY);
+        
+        currY += LINE_HEIGHT;
+      }
       
-      // Draw white background box for this line
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-      
-      // Draw black text
-      ctx.fillStyle = '#000000';
-      ctx.fillText(line, REEL_WIDTH / 2, currY);
-      
-      currY += LINE_HEIGHT;
+      // Add extra spacing between text groups (but not after the last one)
+      if (textIdx < allLines.length - 1) {
+        currY += INTER_TEXT_SPACING;
+      }
     }
   }
 
@@ -195,19 +219,23 @@ export async function generateThreePartReel(
   await downloadImage(input.image2Url, image2Path);
   
   // Generate frames with text overlays
-  const frame1Path = join(currentDir, 'frame1_with_text.jpg');
+  const frame1aPath = join(currentDir, 'frame1a_text1_only.jpg'); // Text1 only (first 0.5s)
+  const frame1bPath = join(currentDir, 'frame1b_both_texts.jpg'); // Both texts (next 1.5s)
   const frame2Path = join(currentDir, 'frame2_plain.jpg'); // For fade transition
   const frame3Path = join(currentDir, 'frame3_with_text.jpg');
   
-  console.log('[ThreePartReel] Generating frame 1 with text (centered)...');
-  await generateImageWithText(image1Path, input.text1, frame1Path, 'center');
+  console.log('[ThreePartReel] Generating frame 1a with text1 only (for 0.5s)...');
+  await generateImageWithText(image1Path, input.text1, frame1aPath, 'center');
+  
+  console.log('[ThreePartReel] Generating frame 1b with text1 and text2 (for 1.5s)...');
+  await generateImageWithText(image1Path, [input.text1, input.text2], frame1bPath, 'center');
   
   console.log('[ThreePartReel] Generating frame 2 (plain image 2 for transition)...');
   // Process image2 through canvas to ensure consistent color/lighting with frame 3
   await generatePlainImage(image2Path, frame2Path);
   
-  console.log('[ThreePartReel] Generating frame 3 with text (bottom)...');
-  await generateImageWithText(image2Path, input.text2, frame3Path, 'bottom');
+  console.log('[ThreePartReel] Generating frame 3 with text3 (bottom)...');
+  await generateImageWithText(image2Path, input.text3, frame3Path, 'bottom');
   
   // Auto-select random background music if not provided
   console.log('[ThreePartReel] ========================================');
@@ -237,52 +265,116 @@ export async function generateThreePartReel(
   console.log(`[ThreePartReel] Generating ${TOTAL_DURATION}s video (Part 1: ${PART1_DURATION}s, Part 2: ${PART2_DURATION}s, Part 3: ${PART3_DURATION}s)`);
   console.log(`[ThreePartReel] Output: ${finalOutputPath}`);
 
-  // Create three video segments
-  const part1VideoPath = join(currentDir, 'part1_video.mp4');
+  // Create video segments
+  const part1aVideoPath = join(currentDir, 'part1a_video.mp4'); // Text1 only (0.5s)
+  const part1bVideoPath = join(currentDir, 'part1b_video.mp4'); // Both texts (1.5s)
+  const part1VideoPath = join(currentDir, 'part1_video.mp4'); // Combined part 1
   const part2VideoPath = join(currentDir, 'part2_video.mp4');
   const part3VideoPath = join(currentDir, 'part3_video.mp4');
   
-  // Part 1: Image 1 with text (2 seconds)
-  console.log(`[ThreePartReel] Creating Part 1: Image 1 with text (${PART1_DURATION}s)...`);
-  const part1Args = [
+  // Part 1a: Image 1 with text1 only (0.5 seconds)
+  console.log(`[ThreePartReel] Creating Part 1a: Image 1 with text1 only (0.5s)...`);
+  const part1aArgs = [
     '-loop', '1',
-    '-i', frame1Path,
+    '-i', frame1aPath,
     '-vf', `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}`,
     '-c:v', 'libx264',
     '-preset', 'ultrafast',
     '-crf', '23',
     '-pix_fmt', 'yuv420p',
     '-r', '30',
-    '-t', PART1_DURATION.toString(),
+    '-t', (PART1_DURATION / 2).toFixed(1).toString(),
     '-threads', '2',
     '-max_muxing_queue_size', '1024',
-    '-an', // No audio for now
-    '-y', part1VideoPath,
+    '-an',
+    '-y', part1aVideoPath,
   ];
   
-  let part1Command = new Deno.Command('ffmpeg', {
-    args: part1Args,
+  let part1aCommand = new Deno.Command('ffmpeg', {
+    args: part1aArgs,
     stdout: 'piped',
     stderr: 'piped',
   });
   
-  let result = await part1Command.output();
+  let result = await part1aCommand.output();
   if (result.code !== 0) {
     const errorText = new TextDecoder().decode(result.stderr);
-    console.error('[ThreePartReel] FFmpeg error creating part 1:', errorText);
-    throw new Error(`FFmpeg failed creating part 1 with code ${result.code}`);
+    console.error('[ThreePartReel] FFmpeg error creating part 1a:', errorText);
+    throw new Error(`FFmpeg failed creating part 1a with code ${result.code}`);
   }
-  console.log(`[ThreePartReel] ✅ Part 1 video created`);
+  console.log(`[ThreePartReel] ✅ Part 1a video created`);
   
-  // Part 2: Quick fade to Image 2, then stay (2 seconds total, 0.5s fade)
-  console.log(`[ThreePartReel] Creating Part 2: Quick fade transition to Image 2 (${PART2_DURATION}s, ${FADE_DURATION}s fade)...`);
+  // Part 1b: Image 1 with both texts (1.5 seconds)
+  console.log(`[ThreePartReel] Creating Part 1b: Image 1 with both texts (1.5s)...`);
+  const part1bArgs = [
+    '-loop', '1',
+    '-i', frame1bPath,
+    '-vf', `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}`,
+    '-c:v', 'libx264',
+    '-preset', 'ultrafast',
+    '-crf', '23',
+    '-pix_fmt', 'yuv420p',
+    '-r', '30',
+    '-t', (PART1_DURATION).toFixed(1).toString(),
+    '-threads', '2',
+    '-max_muxing_queue_size', '1024',
+    '-an',
+    '-y', part1bVideoPath,
+  ];
+  
+  let part1bCommand = new Deno.Command('ffmpeg', {
+    args: part1bArgs,
+    stdout: 'piped',
+    stderr: 'piped',
+  });
+  
+  result = await part1bCommand.output();
+  if (result.code !== 0) {
+    const errorText = new TextDecoder().decode(result.stderr);
+    console.error('[ThreePartReel] FFmpeg error creating part 1b:', errorText);
+    throw new Error(`FFmpeg failed creating part 1b with code ${result.code}`);
+  }
+  console.log(`[ThreePartReel] ✅ Part 1b video created`);
+  
+  // Concatenate part 1a and 1b to create full part 1
+  console.log(`[ThreePartReel] Concatenating Part 1a and 1b...`);
+  const part1ConcatPath = join(currentDir, 'concat_part1.txt');
+  const part1ConcatContent = `file '${part1aVideoPath}'\nfile '${part1bVideoPath}'`;
+  await Deno.writeTextFile(part1ConcatPath, part1ConcatContent);
+  
+  const part1ConcatArgs = [
+    '-f', 'concat',
+    '-safe', '0',
+    '-i', part1ConcatPath,
+    '-c:v', 'copy',
+    '-threads', '2',
+    '-max_muxing_queue_size', '1024',
+    '-y', part1VideoPath,
+  ];
+  
+  let part1ConcatCommand = new Deno.Command('ffmpeg', {
+    args: part1ConcatArgs,
+    stdout: 'piped',
+    stderr: 'piped',
+  });
+  
+  result = await part1ConcatCommand.output();
+  if (result.code !== 0) {
+    const errorText = new TextDecoder().decode(result.stderr);
+    console.error('[ThreePartReel] FFmpeg error concatenating part 1:', errorText);
+    throw new Error(`FFmpeg failed concatenating part 1 with code ${result.code}`);
+  }
+  console.log(`[ThreePartReel] ✅ Part 1 video created (combined ${PART1_DURATION}s)`);
+  
+  // Part 2: Fade from Image 1 with text to Image 2 (captions fade out with image)
+  console.log(`[ThreePartReel] Creating Part 2: Fade transition with captions (${PART2_DURATION}s, ${FADE_DURATION}s fade)...`);
   const part2Args = [
     '-loop', '1',
     '-t', PART2_DURATION.toString(),
-    '-i', image1Path,
+    '-i', frame1bPath, // Image 1 with both texts (so captions fade out with the image)
     '-loop', '1',
     '-t', PART2_DURATION.toString(),
-    '-i', frame2Path,
+    '-i', frame2Path, // Plain Image 2 (no text)
     '-filter_complex', 
     `[0:v]scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}[v0];` +
     `[1:v]scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}[v1];` +
@@ -313,18 +405,25 @@ export async function generateThreePartReel(
   }
   console.log(`[ThreePartReel] ✅ Part 2 video created`);
   
-  // Part 3: Image 2 with text (1.5 seconds)
-  console.log(`[ThreePartReel] Creating Part 3: Image 2 with text (${PART3_DURATION}s)...`);
+  // Part 3: Fade in text on Image 2 (1.5 seconds total, fade is 0.4s)
+  console.log(`[ThreePartReel] Creating Part 3: Fade in text on Image 2 (${PART3_DURATION}s, ${TEXT_FADE_DURATION}s fade)...`);
   const part3Args = [
     '-loop', '1',
-    '-i', frame3Path,
-    '-vf', `scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}`,
+    '-t', PART3_DURATION.toString(),
+    '-i', frame2Path, // Plain image 2 (no text)
+    '-loop', '1',
+    '-t', PART3_DURATION.toString(),
+    '-i', frame3Path, // Image 2 with text3
+    '-filter_complex', 
+    `[0:v]scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}[v0];` +
+    `[1:v]scale=${REEL_WIDTH}:${REEL_HEIGHT}:force_original_aspect_ratio=increase,crop=${REEL_WIDTH}:${REEL_HEIGHT}[v1];` +
+    `[v0][v1]xfade=transition=fade:duration=${TEXT_FADE_DURATION}:offset=0[outv]`,
+    '-map', '[outv]',
     '-c:v', 'libx264',
     '-preset', 'ultrafast',
     '-crf', '23',
     '-pix_fmt', 'yuv420p',
     '-r', '30',
-    '-t', PART3_DURATION.toString(),
     '-threads', '2',
     '-max_muxing_queue_size', '1024',
     '-an',
@@ -343,7 +442,7 @@ export async function generateThreePartReel(
     console.error('[ThreePartReel] FFmpeg error creating part 3:', errorText);
     throw new Error(`FFmpeg failed creating part 3 with code ${result.code}`);
   }
-  console.log(`[ThreePartReel] ✅ Part 3 video created`);
+  console.log(`[ThreePartReel] ✅ Part 3 video created with text fade-in`);
   
   // Concatenate all three parts
   console.log(`[ThreePartReel] Concatenating all parts...`);
@@ -416,9 +515,13 @@ export async function generateThreePartReel(
   try {
     await Deno.remove(image1Path);
     await Deno.remove(image2Path);
-    await Deno.remove(frame1Path);
+    await Deno.remove(frame1aPath);
+    await Deno.remove(frame1bPath);
     await Deno.remove(frame2Path);
     await Deno.remove(frame3Path);
+    await Deno.remove(part1aVideoPath);
+    await Deno.remove(part1bVideoPath);
+    await Deno.remove(part1ConcatPath);
     await Deno.remove(part1VideoPath);
     await Deno.remove(part2VideoPath);
     await Deno.remove(part3VideoPath);
@@ -452,8 +555,8 @@ export async function main(): Promise<void> {
   }
 
   // Validate required fields
-  if (!input.image1Url || !input.image2Url || !input.text1 || !input.text2) {
-    console.error('Error: image1Url, image2Url, text1, and text2 are required in the input JSON');
+  if (!input.image1Url || !input.image2Url || !input.text1 || !input.text2 || !input.text3) {
+    console.error('Error: image1Url, image2Url, text1, text2, and text3 are required in the input JSON');
     Deno.exit(1);
   }
 

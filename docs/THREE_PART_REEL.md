@@ -1,17 +1,19 @@
 # Three-Part Reel Generator
 
 The Three-Part Reel Generator creates dynamic Instagram reels with three distinct sections:
-- **Part 1**: First image with text overlay (2 seconds)
-- **Part 2**: Smooth fade transition from first to second image (2 seconds)
-- **Part 3**: Second image with text overlay (2 seconds)
+- **Part 1**: First image with animated text overlays in center (2 seconds total)
+  - 0.5s: text1 appears alone
+  - 1.5s: text2 appears below text1
+- **Part 2**: Smooth fade transition where text1 & text2 fade out with the image (1.5 seconds, 0.5s fade)
+- **Part 3**: Second image with text3 fading in at bottom (2 seconds, 0.4s fade)
 
-Total duration: **6 seconds**
+Total duration: **5.5 seconds**
 
 ## Features
 
 - ✨ Downloads images from URLs (Cloudinary, etc.)
-- 📝 Centered text overlays with semi-transparent backgrounds
-- 🎨 Smooth fade transitions between images
+- 📝 Animated text overlays with sequential reveals and fade-ins
+- 🎨 Smooth fade transitions between images and text
 - 🎵 Automatic background music selection (or specify your own)
 - 🎬 Instagram Reel format (1080x1920, 9:16 aspect ratio)
 - 📱 Optimized video encoding (H.264, 30fps)
@@ -25,8 +27,9 @@ Total duration: **6 seconds**
 {
   "image1Url": "https://example.com/image1.png",
   "image2Url": "https://example.com/image2.png",
-  "text1": "Text for first frame",
-  "text2": "Text for last frame",
+  "text1": "First text for first frame",
+  "text2": "Second text for first frame",
+  "text3": "Text for last frame",
   "audioPath": "assets/audio/background-music-7.mp3"  // Optional
 }
 ```
@@ -34,8 +37,9 @@ Total duration: **6 seconds**
 **Required Fields:**
 - `image1Url` (string): URL to the first image
 - `image2Url` (string): URL to the second image
-- `text1` (string): Text overlay for the first frame
-- `text2` (string): Text overlay for the third frame
+- `text1` (string): First text overlay for the first frame (centered)
+- `text2` (string): Second text overlay for the first frame (centered, below text1)
+- `text3` (string): Text overlay for the third frame (bottom positioned)
 
 **Optional Fields:**
 - `audioPath` (string): Path to background music file. If not provided, a random background music will be selected automatically.
@@ -55,7 +59,8 @@ curl -X POST http://localhost:8000/generate-three-part-reel \
     "image1Url": "https://res.cloudinary.com/dzahc280d/image/upload/v1761824929/nano_b_base_sideways_dhbbtq.png",
     "image2Url": "https://res.cloudinary.com/dzahc280d/image/upload/v1761824926/nano_b_base_cover_z5tonh.png",
     "text1": "The journey begins with a single step",
-    "text2": "And ends with a thousand memories",
+    "text2": "Every moment is an opportunity",
+    "text3": "And ends with a thousand memories",
     "audioPath": "assets/audio/background-music-7.mp3"
   }' \
   --output three_part_reel.mp4
@@ -74,19 +79,35 @@ Run the included test script:
 deno run --allow-all src/generators/threePartReel.ts '{
   "image1Url": "https://example.com/image1.png",
   "image2Url": "https://example.com/image2.png",
-  "text1": "First text",
-  "text2": "Second text"
+  "text1": "First text for first frame",
+  "text2": "Second text for first frame",
+  "text3": "Text for last frame"
 }'
 ```
 
 ## Text Overlay Styling
 
+### First Frame (text1 and text2)
 The text overlays are styled as follows:
 - **Font**: Bold Merriweather, 56px
-- **Color**: White (#FFFFFF)
-- **Background**: Semi-transparent black (rgba(0, 0, 0, 0.6))
+- **Color**: Black (#000000)
+- **Background**: White boxes (#FFFFFF)
 - **Alignment**: Center-aligned, vertically centered
-- **Line Height**: 72px
+- **Line Height**: 90px
+- **Spacing**: 120px between text1 and text2 groups
+- **Animation**: text1 appears first (0.5s), then text2 appears below it (1.5s)
+- **Auto-wrapping**: Text automatically wraps to fit the width with padding
+
+### Last Frame (text3)
+The text overlay is styled as follows:
+- **Font**: Bold Merriweather, 30px (smaller for bottom position)
+- **Color**: Black (#000000)
+- **Background**: Single rounded white box (#FFFFFF)
+- **Border Radius**: 35px
+- **Alignment**: Center-aligned, positioned near bottom
+- **Bottom Margin**: 300px from screen bottom
+- **Line Height**: 40px
+- **Animation**: Fades in smoothly over 0.4 seconds
 - **Auto-wrapping**: Text automatically wraps to fit the width with padding
 
 ## Technical Details
@@ -122,8 +143,9 @@ See `example_three_part_reel_input.json` for a complete example:
 {
   "image1Url": "https://res.cloudinary.com/dzahc280d/image/upload/v1761824929/nano_b_base_sideways_dhbbtq.png",
   "image2Url": "https://res.cloudinary.com/dzahc280d/image/upload/v1761824926/nano_b_base_cover_z5tonh.png",
-  "text1": "The journey begins with a single step",
-  "text2": "And ends with a thousand memories",
+  "text1": "Now is all there ever is.",
+  "text2": "Silence speaks louder than thought.",
+  "text3": "Be present in the moment.",
   "audioPath": "assets/audio/background-music-7.mp3"
 }
 ```
