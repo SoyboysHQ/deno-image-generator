@@ -9,10 +9,12 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     fontconfig \
     fonts-liberation \
+    fonts-noto-color-emoji \
     libfontconfig1 \
     zip \
     ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && fc-cache -f -v
 
 # Copy assets directory (fonts and images)
 COPY assets/ ./assets/

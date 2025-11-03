@@ -97,7 +97,8 @@ async function generateImageWithText(
   // Draw text overlay - Instagram style (white boxes with black text)
   const PADDING_X = 80;
   const FONT_SIZE = position === 'bottom' ? 30 : 56; // Smaller font for bottom position
-  const TEXT_FONT = `bold ${FONT_SIZE}px Merriweather`;
+  // Use Merriweather with emoji font fallbacks
+  const TEXT_FONT = `bold ${FONT_SIZE}px Merriweather, "Noto Emoji", Emoji, sans-serif`;
   const BOX_PADDING_X = 40; // Horizontal padding inside each box
   const BOX_PADDING_Y = 25; // Vertical padding inside each box
   const BORDER_RADIUS = 35; // Rounded corners for bottom position (increased from 20)
