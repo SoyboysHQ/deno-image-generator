@@ -8,11 +8,12 @@ Generate beautiful Instagram images and carousels with highlighted text using De
 - 📱 **Carousels** - Create multi-slide carousel posts
 - 🎬 **Quote Reels** - Create stunning quote videos with full text highlighting and author attribution
 - 🎥 **Two-Image Reels** - Create engaging listicle reels with a title slide + content slide
-- 🎞️ **Three-Part Reels** - NEW! Create dynamic reels with image transitions and text overlays
+- 🎞️ **Three-Part Reels** - Create dynamic reels with image transitions and text overlays
+- ✍️ **Text Reels** - NEW! Create reels with handwritten-style text on background for full audio duration
 - 🖼️ **Watermark** - Add customizable watermarks to any image
 - 🎵 **Background Music** - Add royalty-free music to your reels for maximum engagement
 - ✨ **Text Highlighting** - Full-line yellow highlight backgrounds for quotes
-- 🎭 **Custom Fonts** - Beautiful Merriweather typography
+- 🎭 **Custom Fonts** - Beautiful Merriweather typography and authentic Handwritten soyboys i font
 - 🚀 **HTTP API** - Deploy anywhere and integrate with n8n, Make, etc.
 - 🐳 **Docker Ready** - Production-ready containerization with FFmpeg support
 
@@ -251,6 +252,48 @@ curl -X POST http://localhost:8000/generate-two-image-reel \
 
 **📖 See [docs/TWO_IMAGE_REEL.md](docs/TWO_IMAGE_REEL.md) for complete documentation.**
 
+### `POST /generate-text-reel`
+
+Generate an Instagram Reel featuring handwritten-style text on a background image for the duration of the audio.
+
+**Request Body:**
+```json
+{
+  "text": "Life is what happens when you're busy making other plans.\n\nEmbrace the unexpected and find joy in the journey.",
+  "audioPath": "assets/audio/music.mp3",
+  "duration": 8
+}
+```
+
+**Fields:**
+- `text` (required): The text to display. Supports `<mark>` tags for highlights and `\n\n` for paragraph breaks
+- `audioPath` (optional): Path to background music file. **If not provided, random music will be auto-selected**
+- `duration` (optional): Video duration in seconds. If not provided and audio exists, uses audio duration (default: 5)
+- `outputPath` (optional): Custom output path for the generated video
+
+**Response:** MP4 video file (1080x1920, 30fps)
+
+**Features:**
+- Uses the Handwritten soyboys i font for an authentic handwritten look
+- Displays text on the `background.jpeg` image
+- Automatically centers text both horizontally and vertically
+- Supports text highlighting with `<mark>` tags (yellow background)
+- Paragraph breaks with `\n\n` and line breaks with `\n`
+- Auto-selects random background music if none provided
+
+**Example:**
+```bash
+curl -X POST http://localhost:8000/generate-text-reel \
+  -H "Content-Type: application/json" \
+  -d @example_text_reel_input.json \
+  --output text_reel.mp4
+
+# Or use the test script
+./test_text_reel.sh
+```
+
+**📖 See [docs/TEXT_REEL.md](docs/TEXT_REEL.md) for complete documentation.**
+
 ### `POST /generate-watermark`
 
 Add a watermark to any image with customizable positioning and appearance.
@@ -368,6 +411,9 @@ deno run --allow-net --allow-read --allow-write --allow-run --allow-ffi --allow-
 
 # Test two-image reel generation
 ./test_two_image_reel.sh
+
+# Test text reel generation
+./test_text_reel.sh
 ```
 
 ## Docker Deployment
@@ -398,6 +444,7 @@ Test all endpoints in Docker with dedicated test scripts:
 ./docker-test-image.sh        # Image generation
 ./docker-test-carousel.sh     # Carousel generation
 ./docker-test-reel.sh         # Reel generation
+./docker-test-text-reel.sh    # Text reel generation
 
 # 3. Or test all at once
 ./docker-test-all.sh
@@ -491,6 +538,7 @@ deno_deploy/
 ├── example_carousel_input.json # Example carousel input
 ├── example_reel_input.json    # Example quote reel input
 ├── example_two_image_reel_input.json # Example two-image reel input
+├── example_text_reel_input.json # Example text reel input
 └── README.md                  # This file
 ```
 

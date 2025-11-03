@@ -106,6 +106,85 @@ export function drawHighlight(
 }
 
 /**
+ * Draw handwritten-style highlight (rough, imperfect marker stroke)
+ */
+export function drawHandwrittenHighlight(
+  ctx: any,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  color: string,
+): void {
+  ctx.save();
+  
+  // Create random variations for more organic look
+  const topWobble = Math.random() * 3 - 1.5;
+  const bottomWobble = Math.random() * 3 - 1.5;
+  const heightVariation = Math.random() * 4 - 2;
+  
+  // Number of control points for the irregular edges
+  const segments = 15;
+  const segmentWidth = width / segments;
+  
+  // Create gradient that starts more opaque on the left and fades slightly to the right
+  const gradient = ctx.createLinearGradient(x, y, x + width, y);
+  
+  // Parse color and create gradient stops
+  const colorWithAlpha = (alpha: number) => {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+  
+  gradient.addColorStop(0, colorWithAlpha(0.7));    // Start more opaque (70%)
+  gradient.addColorStop(0.5, colorWithAlpha(0.6));  // Middle
+  gradient.addColorStop(1, colorWithAlpha(0.45));   // End lighter (45%)
+  
+  // Draw the irregular path
+  ctx.beginPath();
+  
+  // Start position with slight randomness
+  const startX = x - 2 + Math.random() * 4;
+  const startY = y + topWobble;
+  
+  ctx.moveTo(startX, startY);
+  
+  // Top edge - irregular with random variations
+  for (let i = 1; i <= segments; i++) {
+    const currentX = x + i * segmentWidth;
+    const wobble = Math.random() * 5 - 2.5; // Random wobble between -2.5 and 2.5
+    const heightVar = Math.sin(i / segments * Math.PI) * heightVariation;
+    ctx.lineTo(currentX, y + wobble + heightVar);
+  }
+  
+  // Right edge - slightly curved with variation
+  const rightX = x + width + Math.random() * 3;
+  const rightY = y + height + bottomWobble;
+  ctx.lineTo(rightX, rightY);
+  
+  // Bottom edge - irregular with random variations (going backwards)
+  for (let i = segments; i >= 0; i--) {
+    const currentX = x + i * segmentWidth;
+    const wobble = Math.random() * 5 - 2.5;
+    const heightVar = Math.sin(i / segments * Math.PI) * heightVariation;
+    ctx.lineTo(currentX, y + height + wobble - heightVar);
+  }
+  
+  // Left edge - close the path
+  ctx.lineTo(startX, y + height + bottomWobble);
+  
+  ctx.closePath();
+  
+  // Fill with gradient
+  ctx.fillStyle = gradient;
+  ctx.fill();
+  ctx.restore();
+}
+
+/**
  * Draw wrapped and centered text
  */
 export function drawWrappedCenteredText(

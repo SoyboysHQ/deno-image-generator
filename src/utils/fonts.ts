@@ -4,7 +4,7 @@ import { GlobalFonts } from 'npm:@napi-rs/canvas@^0.1.52';
 import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 
 /**
- * Register all Merriweather fonts and system emoji fonts
+ * Register all fonts (Merriweather, Handwritten, and system emoji fonts)
  */
 export function registerFonts(): void {
   const fontDir = join(Deno.cwd(), 'assets', 'fonts');
@@ -27,6 +27,12 @@ export function registerFonts(): void {
   GlobalFonts.registerFromPath(
     join(fontDir, 'Merriweather_120pt-ExtraBold.ttf'),
     'Merriweather ExtraBold',
+  );
+  
+  // Register Handwritten font for text reels
+  GlobalFonts.registerFromPath(
+    join(fontDir, 'Handwritten_soyboys_i-Regular.ttf'),
+    'Handwritten soyboys i',
   );
   
   // Try to register system emoji fonts

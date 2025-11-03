@@ -111,3 +111,16 @@ export interface ThreePartReelOutput {
   duration: number;
 }
 
+export interface TextReelInput {
+  text: string; // The text to display (supports <mark> tags for highlights)
+  audioPath?: string; // Optional audio path, will auto-select if not provided
+  duration?: number; // Duration in seconds, will use audio duration if not provided
+  outputPath?: string;
+}
+
+export interface TextReelOutput {
+  success: boolean;
+  file: string;
+  duration: number;
+}
+
