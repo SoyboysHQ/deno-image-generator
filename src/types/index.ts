@@ -124,3 +124,14 @@ export interface TextReelOutput {
   duration: number;
 }
 
+export interface MarkdownCarouselInput {
+  markdown: string; // Markdown text with slides separated by ---
+  outputPrefix?: string;
+}
+
+export interface MarkdownCarouselOutput {
+  success: boolean;
+  slideCount: number;
+  files: string[];
+}
+

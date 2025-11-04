@@ -6,6 +6,7 @@ Generate beautiful Instagram images and carousels with highlighted text using De
 
 - 🎨 **Single Images** - Generate 1080x1350px Instagram-ready images
 - 📱 **Carousels** - Create multi-slide carousel posts
+- 📝 **Markdown Carousels** - NEW! Generate carousels from markdown with automatic formatting
 - 🎬 **Quote Reels** - Create stunning quote videos with full text highlighting and author attribution
 - 🎥 **Two-Image Reels** - Create engaging listicle reels with a title slide + content slide
 - 🎞️ **Three-Part Reels** - Create dynamic reels with image transitions and text overlays
@@ -136,6 +137,48 @@ curl -X POST http://localhost:8000/generate-carousel \
 ```
 
 See [CAROUSEL.md](CAROUSEL.md) for detailed carousel documentation.
+
+### `POST /generate-markdown-carousel`
+
+Generate a multi-slide carousel from markdown input with automatic formatting and styling.
+
+**Request Body:**
+```json
+{
+  "markdown": "# 🧠 Main Title\n\n---\n\n## **Section 1**\n\nBody text here...\n\n- List item\n- Another item\n\n> \"Blockquote text\"\n\n---\n\n## **Section 2**\n\nMore content...",
+  "outputPrefix": "my_carousel"
+}
+```
+
+**Fields:**
+- `markdown` (required): Markdown text with slides separated by `---`
+- `outputPrefix` (optional): Prefix for output files (default: "markdown_carousel")
+
+**Supported Markdown:**
+- `#` Large title (90px)
+- `##` Section headers (54px)
+- `###` Subsections (42px)
+- `> Text` Blockquotes (italic, indented)
+- `- Item` or `* Item` Lists with bullets
+- `**bold**` Bold text
+- `*italic*` or `_italic_` Italic text
+- `<mark>text</mark>` Yellow highlights
+- `---` Slide separator
+
+**Response:** ZIP file with all slides (`{outputPrefix}_slide_1.jpg`, etc.)
+
+**Example:**
+```bash
+curl -X POST http://localhost:8000/generate-markdown-carousel \
+  -H "Content-Type: application/json" \
+  -d @example_markdown_carousel_input.json \
+  --output markdown_carousel.zip
+
+# Or use the test script
+./test_markdown_carousel.sh
+```
+
+**📖 See [docs/MARKDOWN_CAROUSEL.md](docs/MARKDOWN_CAROUSEL.md) for complete documentation and best practices.**
 
 ### `POST /generate-reel`
 
@@ -440,11 +483,12 @@ Test all endpoints in Docker with dedicated test scripts:
 ./docker-test-build.sh
 
 # 2. Test individual endpoints
-./docker-test-health.sh      # Health check
-./docker-test-image.sh        # Image generation
-./docker-test-carousel.sh     # Carousel generation
-./docker-test-reel.sh         # Reel generation
-./docker-test-text-reel.sh    # Text reel generation
+./docker-test-health.sh           # Health check
+./docker-test-image.sh            # Image generation
+./docker-test-carousel.sh         # Carousel generation
+./docker-test-markdown-carousel.sh # Markdown carousel generation
+./docker-test-reel.sh             # Reel generation
+./docker-test-text-reel.sh        # Text reel generation
 
 # 3. Or test all at once
 ./docker-test-all.sh
@@ -536,6 +580,7 @@ deno_deploy/
 ├── deno.json                  # Deno configuration
 ├── example_input.json         # Example single image input
 ├── example_carousel_input.json # Example carousel input
+├── example_markdown_carousel_input.json # Example markdown carousel input
 ├── example_reel_input.json    # Example quote reel input
 ├── example_two_image_reel_input.json # Example two-image reel input
 ├── example_text_reel_input.json # Example text reel input
