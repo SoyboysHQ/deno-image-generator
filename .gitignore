@@ -13,11 +13,6 @@
 # Deno
 .deno/
 
-# Docker
-# docker_test_output.jpg
-# test_output.jpg
-# tunnel_test.jpg
-
 # OS
 .DS_Store
 Thumbs.db

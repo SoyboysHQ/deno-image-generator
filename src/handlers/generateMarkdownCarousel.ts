@@ -48,14 +48,31 @@ export async function handleGenerateMarkdownCarousel(req: Request): Promise<Resp
     const result = await runGenerator("src/generators/markdownCarousel.ts", inputData);
 
     if (result.success) {
-      const output: MarkdownCarouselOutput = JSON.parse(
-        new TextDecoder().decode(result.stdout)
-      );
+      const stdoutText = new TextDecoder().decode(result.stdout);
       const stderrOutput = new TextDecoder().decode(result.stderr);
 
       if (stderrOutput) {
         console.log("Debug output:", stderrOutput);
       }
+
+      // Extract JSON from stdout (filter out browser debug logs like "[Fonts] Sys...")
+      const lines = stdoutText.split('\n').filter(line => line.trim());
+      let jsonLine = '';
+      
+      // Find the line that looks like valid JSON (starts with { or [)
+      for (const line of lines.reverse()) {
+        if (line.trim().startsWith('{') || line.trim().startsWith('[')) {
+          jsonLine = line;
+          break;
+        }
+      }
+
+      if (!jsonLine) {
+        console.error("❌ No valid JSON found in stdout:", stdoutText);
+        return errorResponse("Failed to parse generator output", stdoutText);
+      }
+
+      const output: MarkdownCarouselOutput = JSON.parse(jsonLine);
 
       console.log(`✅ Generated ${output.slideCount} slides`);
 

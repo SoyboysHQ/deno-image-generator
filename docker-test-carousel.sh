@@ -45,61 +45,71 @@ fi
 echo -e "${BLUE}📱 Testing POST /generate-carousel...${NC}"
 echo ""
 
-OUTPUT_FILE="docker_test_carousel_response.json"
+OUTPUT_FILE="docker_test_carousel_response.zip"
+EXTRACT_DIR="docker_test_carousel_slides"
 
-curl -X POST http://localhost:8000/generate-carousel \
+HTTP_STATUS=$(curl -X POST http://localhost:8000/generate-carousel \
     -H "Content-Type: application/json" \
     -d @example_carousel_input.json \
     --output "$OUTPUT_FILE" \
-    -s -w "HTTP Status: %{http_code}\n"
+    -s -w "%{http_code}")
 
+echo "HTTP Status: $HTTP_STATUS"
 echo ""
 
 if [ -f "$OUTPUT_FILE" ]; then
     FILE_SIZE=$(ls -lh "$OUTPUT_FILE" | awk '{print $5}')
-    echo -e "${GREEN}✅ Carousel generated successfully${NC}"
-    echo ""
-    echo "   Response file: $OUTPUT_FILE"
-    echo "   Size: $FILE_SIZE"
-    echo ""
     
-    # Parse and extract images from base64
-    if command -v jq &> /dev/null; then
-        echo -e "${BLUE}📊 Carousel details:${NC}"
-        SLIDE_COUNT=$(jq -r '.slideCount' "$OUTPUT_FILE")
-        echo "   Slides: $SLIDE_COUNT"
+    # Check if it's a ZIP file
+    if file "$OUTPUT_FILE" | grep -q "Zip archive"; then
+        echo -e "${GREEN}✅ Carousel ZIP generated successfully${NC}"
+        echo ""
+        echo "   Response file: $OUTPUT_FILE"
+        echo "   Size: $FILE_SIZE"
         echo ""
         
-        # Extract and save each slide
-        echo -e "${BLUE}💾 Extracting slides...${NC}"
-        for i in $(seq 0 $((SLIDE_COUNT - 1))); do
-            FILENAME=$(jq -r ".slides[$i].filename" "$OUTPUT_FILE")
-            BASE64_DATA=$(jq -r ".slides[$i].base64" "$OUTPUT_FILE")
+        # Extract the ZIP file
+        if command -v unzip &> /dev/null; then
+            echo -e "${BLUE}📊 Extracting carousel slides...${NC}"
             
-            if [ "$BASE64_DATA" != "null" ]; then
-                echo "$BASE64_DATA" | base64 --decode > "docker_test_$FILENAME"
-                SLIDE_SIZE=$(ls -lh "docker_test_$FILENAME" | awk '{print $5}')
-                echo "   ✅ docker_test_$FILENAME ($SLIDE_SIZE)"
+            # Create extraction directory
+            rm -rf "$EXTRACT_DIR"
+            mkdir -p "$EXTRACT_DIR"
+            
+            # Extract ZIP
+            unzip -q "$OUTPUT_FILE" -d "$EXTRACT_DIR"
+            
+            # Count slides
+            SLIDE_COUNT=$(find "$EXTRACT_DIR" -name "*.png" -o -name "*.jpg" | wc -l)
+            echo "   Slides extracted: $SLIDE_COUNT"
+            echo ""
+            
+            # List extracted files
+            echo -e "${BLUE}📄 Extracted files:${NC}"
+            ls -lh "$EXTRACT_DIR"
+            echo ""
+            
+            # Open first slide
+            FIRST_SLIDE=$(find "$EXTRACT_DIR" -name "*.png" -o -name "*.jpg" | head -n 1)
+            if [ -n "$FIRST_SLIDE" ]; then
+                if command -v open &> /dev/null; then
+                    echo "   Opening first slide..."
+                    open "$FIRST_SLIDE"
+                elif command -v xdg-open &> /dev/null; then
+                    echo "   Opening first slide..."
+                    xdg-open "$FIRST_SLIDE"
+                fi
             fi
-        done
-        
-        echo ""
-        
-        # Open first slide
-        if [ -f "docker_test_slide_1.jpg" ]; then
-            if command -v open &> /dev/null; then
-                echo "   Opening first slide..."
-                open docker_test_slide_1.jpg
-            elif command -v xdg-open &> /dev/null; then
-                echo "   Opening first slide..."
-                xdg-open docker_test_slide_1.jpg
-            fi
+        else
+            echo -e "${YELLOW}⚠️  unzip not found, skipping extraction${NC}"
         fi
     else
-        echo -e "${YELLOW}⚠️  jq not installed - cannot extract slides${NC}"
-        echo "Response preview:"
-        head -c 200 "$OUTPUT_FILE"
-        echo "..."
+        echo -e "${RED}❌ Response is not a ZIP file${NC}"
+        echo "   File type: $(file "$OUTPUT_FILE")"
+        echo ""
+        echo "   First 500 characters of response:"
+        head -c 500 "$OUTPUT_FILE"
+        echo ""
     fi
     
     echo ""
