@@ -4,9 +4,11 @@ import { errorResponse, binaryResponse } from "../utils/response.ts";
 import { runGenerator } from "../services/generatorService.ts";
 import { readImageFile, getFileSize } from "../services/fileService.ts";
 import { join } from "https://deno.land/std@0.224.0/path/mod.ts";
+import { AccountIdentifier, isValidAccount } from "../config/watermarks.ts";
 
 export interface WatermarkInput {
   targetImage: string; // Base64 encoded image data or path
+  account?: AccountIdentifier; // Account identifier for watermark selection (e.g., 'default', 'compounding_wisdom')
   opacity?: number; // 0-1, default 1.0
   scale?: number; // 0-1, watermark size relative to image width, default 0.12
   padding?: number; // Padding from edges in pixels, default 10
@@ -37,6 +39,15 @@ export async function handleGenerateWatermark(req: Request): Promise<Response> {
       );
     }
 
+    // Validate account if provided
+    if (inputData.account && !isValidAccount(inputData.account)) {
+      return errorResponse(
+        `Invalid account identifier. Valid options: 'default', 'compounding_wisdom'`,
+        { received: inputData.account },
+        400
+      );
+    }
+
     // Decode base64 image and save to temporary file
     const tempInputPath = "temp_watermark_input.jpg";
     
@@ -53,6 +64,7 @@ export async function handleGenerateWatermark(req: Request): Promise<Response> {
     // Prepare generator options
     const generatorInput = {
       targetImagePath: tempInputPath,
+      account: inputData.account, // Will use 'default' if not provided
       opacity: inputData.opacity ?? 1.0,
       scale: inputData.scale ?? 0.13,
       padding: inputData.padding ?? 0,

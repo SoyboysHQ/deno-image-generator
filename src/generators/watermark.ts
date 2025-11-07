@@ -2,10 +2,12 @@
 
 import { Canvas, loadImage, Image } from 'npm:@napi-rs/canvas@^0.1.52';
 import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
+import { getWatermarkPath, AccountIdentifier } from '../config/watermarks.ts';
 
 export interface WatermarkOptions {
   targetImagePath: string;
-  watermarkPath?: string;
+  account?: AccountIdentifier; // Account identifier for watermark selection (default: 'default')
+  watermarkPath?: string; // Direct watermark path (overrides account if provided)
   outputPath?: string;
   opacity?: number;
   scale?: number; // Scale factor for watermark (0-1), default 0.15 (15% of image width)
@@ -22,7 +24,8 @@ export async function generateWatermark(
 ): Promise<string> {
   const {
     targetImagePath,
-    watermarkPath = join(Deno.cwd(), 'assets', 'images', 'watermark.png'),
+    account = 'default',
+    watermarkPath,
     outputPath = 'watermarked_image.jpg',
     opacity = 1.0,
     scale = 0.15,
@@ -30,6 +33,9 @@ export async function generateWatermark(
     horizontalOffset = 0,
     verticalOffset = 0,
   } = options;
+
+  // Use direct watermarkPath if provided, otherwise use account mapping
+  const finalWatermarkPath = watermarkPath ?? getWatermarkPath(account);
 
   // Load the target image
   const targetImage = await loadImage(targetImagePath);
@@ -44,7 +50,7 @@ export async function generateWatermark(
   ctx.drawImage(targetImage, 0, 0, width, height);
 
   // Load the watermark
-  const watermark = await loadImage(watermarkPath);
+  const watermark = await loadImage(finalWatermarkPath);
 
   // Calculate watermark dimensions (maintain aspect ratio)
   const watermarkTargetWidth = Math.floor(width * scale);

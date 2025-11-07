@@ -24,6 +24,8 @@ The endpoint accepts JSON with the following structure:
 
 ### Optional Fields
 
+- **account** (string): Account identifier to select which watermark to use. Default: `"default"`
+  - Available options: `"default"`, `"compounding_wisdom"`
 - **opacity** (number): Watermark opacity from 0 (transparent) to 1 (opaque). Default: `1.0` (fully opaque)
 - **scale** (number): Watermark size relative to image width from 0 to 1. Default: `0.12` (12% of image width)
 - **padding** (number): Distance from image edges in pixels. Default: `10`
@@ -34,10 +36,14 @@ Returns a JPEG image with the watermark applied in the bottom-right corner.
 
 ## Watermark Configuration
 
-The watermark is loaded from:
-```
-assets/images/watermark.png
-```
+The system supports multiple watermark images, each mapped to an account identifier:
+
+| Account ID | Watermark File |
+|------------|----------------|
+| `default` | `assets/images/watermark.png` |
+| `compounding_wisdom` | `assets/images/watermark_compounding_wisdom.png` |
+
+The watermark configuration is centrally managed in `src/config/watermarks.ts`, making it easy to add new account-specific watermarks.
 
 The watermark is positioned in the **bottom-right corner** of the target image with the specified padding.
 
@@ -129,6 +135,14 @@ make docker-test-all
 
 ## Customization Examples
 
+### Using a Specific Account Watermark
+```json
+{
+  "targetImage": "data:image/png;base64,...",
+  "account": "compounding_wisdom"
+}
+```
+
 ### Larger Watermark
 ```json
 {
@@ -155,6 +169,17 @@ make docker-test-all
 }
 ```
 
+### Combining Options
+```json
+{
+  "targetImage": "data:image/png;base64,...",
+  "account": "compounding_wisdom",
+  "scale": 0.15,
+  "opacity": 0.8,
+  "padding": 15
+}
+```
+
 ## Technical Details
 
 - **Input Format**: Base64-encoded image data (supports JPEG, PNG, WebP, etc.)
@@ -178,6 +203,31 @@ Error responses include JSON with details:
   "details": "Error description here"
 }
 ```
+
+## Adding New Account Watermarks
+
+To add a new account-specific watermark:
+
+1. **Add the watermark image** to `assets/images/` with a descriptive name (e.g., `watermark_my_account.png`)
+
+2. **Update the configuration** in `src/config/watermarks.ts`:
+   ```typescript
+   export const WATERMARK_PATHS = {
+     default: join(Deno.cwd(), 'assets', 'images', 'watermark.png'),
+     compounding_wisdom: join(Deno.cwd(), 'assets', 'images', 'watermark_compounding_wisdom.png'),
+     my_account: join(Deno.cwd(), 'assets', 'images', 'watermark_my_account.png'), // Add this line
+   } as const;
+   ```
+
+3. **Use it** in your API calls:
+   ```json
+   {
+     "targetImage": "data:image/png;base64,...",
+     "account": "my_account"
+   }
+   ```
+
+The system automatically validates account identifiers and provides clear error messages for invalid accounts.
 
 ## Tips
 
