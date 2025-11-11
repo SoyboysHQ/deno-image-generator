@@ -42,7 +42,7 @@ export async function handleGenerateWatermark(req: Request): Promise<Response> {
     // Validate account if provided
     if (inputData.account && !isValidAccount(inputData.account)) {
       return errorResponse(
-        `Invalid account identifier. Valid options: 'default', 'compounding_wisdom'`,
+        `Invalid account identifier. Valid options: 'default', 'compounding_wisdom', 'itsnotwhatisaid'`,
         { received: inputData.account },
         400
       );
@@ -62,12 +62,13 @@ export async function handleGenerateWatermark(req: Request): Promise<Response> {
     console.log("✅ Saved temporary input image");
 
     // Prepare generator options
+    // Optional overrides for positioning, otherwise uses config defaults
     const generatorInput = {
       targetImagePath: tempInputPath,
       account: inputData.account, // Will use 'default' if not provided
-      opacity: inputData.opacity ?? 1.0,
-      scale: inputData.scale ?? 0.13,
-      padding: inputData.padding ?? 0,
+      opacity: inputData.opacity, // Optional override
+      scale: inputData.scale, // Optional override
+      padding: inputData.padding, // Optional override
       outputPath: "watermarked_output.jpg",
     };
 

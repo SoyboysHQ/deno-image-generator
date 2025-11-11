@@ -1,8 +1,5 @@
 {
   "targetImage": "data:image/png;base64,YOUR_BASE64_IMAGE_HERE",
-  "account": "default",
-  "opacity": 1.0,
-  "scale": 0.13,
-  "padding": 0
+  "account": "itsnotwhatisaid"
 }
 

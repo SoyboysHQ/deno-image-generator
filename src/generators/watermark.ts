@@ -2,22 +2,25 @@
 
 import { Canvas, loadImage, Image } from 'npm:@napi-rs/canvas@^0.1.52';
 import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
-import { getWatermarkPath, AccountIdentifier } from '../config/watermarks.ts';
+import {
+  getWatermarkConfig,
+  AccountIdentifier,
+} from '../config/watermarks.ts';
 
 export interface WatermarkOptions {
   targetImagePath: string;
   account?: AccountIdentifier; // Account identifier for watermark selection (default: 'default')
   watermarkPath?: string; // Direct watermark path (overrides account if provided)
   outputPath?: string;
-  opacity?: number;
-  scale?: number; // Scale factor for watermark (0-1), default 0.15 (15% of image width)
-  padding?: number; // Padding from edges in pixels, default 20
-  horizontalOffset?: number; // Additional horizontal offset (positive = right, negative = left), default 0
-  verticalOffset?: number; // Additional vertical offset (positive = down, negative = up), default 0
+  opacity?: number; // Optional override for opacity
+  scale?: number; // Optional override for scale
+  padding?: number; // Optional override for padding
+  horizontalOffset?: number; // Optional override for horizontal offset
+  verticalOffset?: number; // Optional override for vertical offset
 }
 
 /**
- * Add a watermark to an image
+ * Add a watermark to an image with high-quality rendering
  */
 export async function generateWatermark(
   options: WatermarkOptions,
@@ -27,15 +30,22 @@ export async function generateWatermark(
     account = 'default',
     watermarkPath,
     outputPath = 'watermarked_image.jpg',
-    opacity = 1.0,
-    scale = 0.15,
-    padding = 20,
-    horizontalOffset = 0,
-    verticalOffset = 0,
   } = options;
 
+  // Get watermark configuration for the account
+  const config = getWatermarkConfig(account);
+
   // Use direct watermarkPath if provided, otherwise use account mapping
-  const finalWatermarkPath = watermarkPath ?? getWatermarkPath(account);
+  const finalWatermarkPath = watermarkPath ?? config.path;
+
+  // Use provided options or fall back to config defaults
+  const opacity = options.opacity ?? config.position.opacity;
+  const scale = options.scale ?? config.position.scale;
+  const padding = options.padding ?? config.position.padding;
+  const horizontalOffset =
+    options.horizontalOffset ?? config.position.horizontalOffset;
+  const verticalOffset =
+    options.verticalOffset ?? config.position.verticalOffset;
 
   // Load the target image
   const targetImage = await loadImage(targetImagePath);
@@ -45,6 +55,10 @@ export async function generateWatermark(
   // Create canvas with target image dimensions
   const canvas = new Canvas(width, height);
   const ctx = canvas.getContext('2d');
+
+  // Enable high-quality image smoothing
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
   // Draw the target image
   ctx.drawImage(targetImage, 0, 0, width, height);
@@ -64,13 +78,15 @@ export async function generateWatermark(
   const x = width - watermarkWidth - padding + horizontalOffset;
   const y = height - watermarkHeight - padding + verticalOffset;
 
-  // Set opacity and draw watermark
+  // Set opacity and draw watermark with high quality
   ctx.globalAlpha = opacity;
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(watermark, x, y, watermarkWidth, watermarkHeight);
   ctx.globalAlpha = 1.0;
 
-  // Export as JPEG
-  const outputBuffer = canvas.toBuffer('image/jpeg', 95);
+  // Export as JPEG with maximum quality (required by Instagram)
+  const outputBuffer = canvas.toBuffer('image/jpeg', 100);
   await Deno.writeFile(outputPath, outputBuffer);
 
   return outputPath;
