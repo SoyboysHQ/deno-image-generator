@@ -7,6 +7,7 @@ import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
 export const WATERMARK_PATHS = {
   default: join(Deno.cwd(), 'assets', 'images', 'watermark.png'),
   compounding_wisdom: join(Deno.cwd(), 'assets', 'images', 'watermark_compounding_wisdom.png'),
+  itsnotwhatyousaid: join(Deno.cwd(), 'assets', 'images', 'watermark_itsnotwhatyousaid.png'),
 } as const;
 
 /**
