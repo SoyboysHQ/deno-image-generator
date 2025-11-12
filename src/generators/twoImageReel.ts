@@ -368,6 +368,9 @@ async function generateListImage(
   } else {
     fontSize = 26;
   }
+
+  // Maybe use this instead, since it is a more accurate estimate of overflow
+  const averageWidthPerItem = avgCharsPerItem * fontSize;
   
   // Further adjust if items are very long
   if (avgCharsPerItem > 100) {
@@ -393,9 +396,15 @@ async function generateListImage(
     LIST_FONT,
     REEL_WIDTH - PAD_X * 2 - numWidth - 12,
   );
+
+
+  // Make spacing proportional to font size for larger items - generous space between bullets
+  baseItemSpacing = Math.floor(fontSize * 1.2); // Increased from 0.5 to 0.7 (70% of font size)
+  baseItemSpacing = Math.max(24, baseItemSpacing); // Increased minimum from 18px to 24px
   
   let totalLines = itemHeights.reduce((sum, h) => sum + h, 0);
   let estimatedHeight = totalLines * BASE_LINE_HEIGHT + points.length * baseItemSpacing + extraSpacing;
+
   
   // If content doesn't fit, reduce font size and recalculate
   while (estimatedHeight > availableHeight && fontSize > 20) {
@@ -414,14 +423,11 @@ async function generateListImage(
     totalLines = itemHeights.reduce((sum, h) => sum + h, 0);
     estimatedHeight = totalLines * BASE_LINE_HEIGHT + points.length * baseItemSpacing + extraSpacing;
   }
-
-  // Make spacing proportional to font size for larger items - generous space between bullets
-  baseItemSpacing = Math.floor(fontSize * 1.2); // Increased from 0.5 to 0.7 (70% of font size)
-  baseItemSpacing = Math.max(24, baseItemSpacing); // Increased minimum from 18px to 24px
   
   // Dynamically adjust line height if content is still too tall
   let LIST_LINE_HEIGHT = BASE_LINE_HEIGHT;
   let itemSpacing = baseItemSpacing;
+
 
   if (estimatedHeight > availableHeight) {
     const targetHeight = availableHeight - points.length * itemSpacing - extraSpacing;
@@ -453,7 +459,7 @@ async function generateListImage(
 
     const highlightsColor = [primaryColor, secondaryColor, additionalColor][Math.floor(Math.random() * 3)];
     
-    // Draw text without highlights (empty array)
+    // Draw text with highlights, if given
     const usedHeight = drawTextWithHighlightWrapped(
       ctx,
       points[i],
