@@ -405,6 +405,22 @@ async function generateListImage(
   let totalLines = itemHeights.reduce((sum, h) => sum + h, 0);
   let estimatedHeight = totalLines * BASE_LINE_HEIGHT + points.length * baseItemSpacing + extraSpacing;
 
+  while (estimatedHeight < availableHeight * 0.95) {
+    fontSize += 2;
+    LIST_FONT = `${fontSize}px Merriweather`;
+    BASE_LINE_HEIGHT = Math.floor(fontSize * 1.5); // larger line spacing
+    ctx.font = LIST_FONT;
+    
+    itemHeights = calculateItemHeights(
+      ctx,
+      points,
+      LIST_FONT,
+      REEL_WIDTH - PAD_X * 2 - numWidth - 12,
+    );
+    
+    totalLines = itemHeights.reduce((sum, h) => sum + h, 0);
+    estimatedHeight = totalLines * BASE_LINE_HEIGHT + points.length * baseItemSpacing + extraSpacing;
+  }
   
   // If content doesn't fit, reduce font size and recalculate
   while (estimatedHeight > availableHeight && fontSize > 20) {
