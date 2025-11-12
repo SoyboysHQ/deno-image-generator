@@ -43,7 +43,7 @@ TESTS_FAILED=0
 
 # Test 1: Health
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Test 1/8: Health Endpoint   ║${NC}"
+echo -e "${BLUE}║  Test 1/9: Health Endpoint   ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -60,7 +60,7 @@ echo ""
 
 # Test 2: Image Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Test 2/8: Image Generation  ║${NC}"
+echo -e "${BLUE}║  Test 2/9: Image Generation  ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -77,7 +77,7 @@ echo ""
 
 # Test 3: Carousel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║ Test 3/8: Carousel Generation║${NC}"
+echo -e "${BLUE}║ Test 3/9: Carousel Generation║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -94,7 +94,7 @@ echo ""
 
 # Test 4: Reel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║  Test 4/8: Reel Generation   ║${NC}"
+echo -e "${BLUE}║  Test 4/9: Reel Generation   ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -111,7 +111,7 @@ echo ""
 
 # Test 5: Two-Image Reel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║Test 5/8: Two-Image Reel Gen  ║${NC}"
+echo -e "${BLUE}║Test 5/9: Two-Image Reel Gen  ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -128,7 +128,7 @@ echo ""
 
 # Test 6: Three-Part Reel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║Test 6/8: 3-Part Reel Gen     ║${NC}"
+echo -e "${BLUE}║Test 6/9: 3-Part Reel Gen     ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -143,9 +143,26 @@ fi
 echo ""
 echo ""
 
-# Test 7: Text Reel Generation
+# Test 7: Book Reveal Reel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║Test 7/8: Text Reel Generation║${NC}"
+echo -e "${BLUE}║Test 7/9: Book Reveal Reel Gen║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
+echo ""
+
+if ./docker-test-book-reveal-reel.sh; then
+    echo -e "${GREEN}✅ Book reveal reel generation: PASSED${NC}"
+    ((TESTS_PASSED++))
+else
+    echo -e "${RED}❌ Book reveal reel generation: FAILED${NC}"
+    ((TESTS_FAILED++))
+fi
+
+echo ""
+echo ""
+
+# Test 8: Text Reel Generation
+echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
+echo -e "${BLUE}║Test 8/9: Text Reel Generation║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -160,9 +177,9 @@ fi
 echo ""
 echo ""
 
-# Test 8: Watermark Generation
+# Test 9: Watermark Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║Test 8/8: Watermark Generation║${NC}"
+echo -e "${BLUE}║Test 9/9: Watermark Generation║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -182,7 +199,7 @@ echo -e "${BLUE}═════════════════════�
 echo -e "${BLUE}       Test Summary            ${NC}"
 echo -e "${BLUE}═══════════════════════════════${NC}"
 echo ""
-echo -e "Total Tests: 8"
+echo -e "Total Tests: 9"
 echo -e "${GREEN}Passed: $TESTS_PASSED${NC}"
 echo -e "${RED}Failed: $TESTS_FAILED${NC}"
 echo ""
@@ -196,6 +213,7 @@ if [ $TESTS_FAILED -eq 0 ]; then
     ls -lh docker_test_reel.mp4 2>/dev/null && echo "  ✅ docker_test_reel.mp4"
     ls -lh docker_test_two_image_reel.mp4 2>/dev/null && echo "  ✅ docker_test_two_image_reel.mp4"
     ls -lh docker_test_three_part_reel.mp4 2>/dev/null && echo "  ✅ docker_test_three_part_reel.mp4"
+    ls -lh docker_test_book_reveal_reel.mp4 2>/dev/null && echo "  ✅ docker_test_book_reveal_reel.mp4"
     ls -lh docker_text_reel_test.mp4 2>/dev/null && echo "  ✅ docker_text_reel_test.mp4"
     ls -lh output/docker_watermark_test.jpg 2>/dev/null && echo "  ✅ output/docker_watermark_test.jpg"
     echo ""

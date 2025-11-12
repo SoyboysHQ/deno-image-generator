@@ -124,3 +124,29 @@ export interface TextReelOutput {
   duration: number;
 }
 
+// =========================
+// Book Reveal Reel (Video + Image)
+// =========================
+export interface BookRevealReelInput {
+  videoUrl: string;    // URL to intro video (first part)
+  imageUrl: string;    // URL to reveal image (second/third parts)
+  hookText: string;    // First text overlay (appears first)
+  hookText2: string;   // Second text overlay (appears below hookText)
+  ctaText: string;     // Bottom CTA text on the final image
+  audioPath?: string;  // Optional background audio override; if omitted, auto-selected
+  outputPath?: string; // Optional output path; defaults to book_reveal_reel.mp4
+  watermark?: {
+    opacity?: number;          // 0-1, default 1.0 for image watermark rendering
+    scale?: number;            // 0-1, watermark width relative to frame width, default 0.15
+    padding?: number;          // Padding from edges in pixels, default 20
+    horizontalOffset?: number; // Positive = right, negative = left, default 30
+    verticalOffset?: number;   // Positive = down, negative = up, default 10
+  };
+}
+
+export interface BookRevealReelOutput {
+  success: boolean;
+  file: string;
+  duration: number;
+}
+
