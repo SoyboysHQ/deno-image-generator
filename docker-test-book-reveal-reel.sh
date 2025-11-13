@@ -51,7 +51,8 @@ curl -X POST http://localhost:8000/generate-book-reveal-reel \
     -H "Content-Type: application/json" \
     -d @example_book_reveal_reel_input.json \
     --output "$OUTPUT_FILE" \
-    -s -w "HTTP Status: %{http_code}\n"
+    --max-time 300 \
+    -s -w "\nHTTP Status: %{http_code}\n"
 
 echo ""
 
