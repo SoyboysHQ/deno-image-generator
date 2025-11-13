@@ -72,7 +72,7 @@ async function generateTextOverlay(
   const TEXT_FONT = `bold ${FONT_SIZE}px Merriweather, "Noto Emoji", Emoji, sans-serif`;
   const BOX_PADDING_X = 40;
   const BOX_PADDING_Y = 25;
-  const BORDER_RADIUS = 60;
+  const BORDER_RADIUS = 20;
 
   ctx.font = TEXT_FONT;
   const texts = Array.isArray(text) ? text : [text];
@@ -189,7 +189,7 @@ async function generateImageWithCTA(imagePath: string, ctaText: string, outputPa
   const TEXT_FONT = `bold ${FONT_SIZE}px Merriweather, "Noto Emoji", Emoji, sans-serif`;
   const BOX_PADDING_X = 50;
   const BOX_PADDING_Y = 35;
-  const BORDER_RADIUS = 60;
+  const BORDER_RADIUS = 20;
   const LINE_HEIGHT = 60; // Increased to match larger font
   const TOP_MARGIN = 200; // Position CTA at top above the book
 
