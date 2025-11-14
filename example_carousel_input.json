@@ -1,47 +1,47 @@
 {
-  "outputPrefix": "focus_micro_boundaries",
+  "outputPrefix": "weekly_checkins",
   "slides": [
     {
       "type": "title",
-      "title": "<mark>5 Micro-Boundaries</mark> to Protect Your Focus This Week"
+      "title": "<mark>5 Weekly Check-Ins</mark> That Keep You Honest"
     },
     {
       "type": "intro",
-      "body": "Tiny fences stop giant distractions.\n\nSay clearly once. Prevent repeated interruptions.\n\nHere are <mark>5 micro-boundaries</mark> you can set today:"
+      "body": "Clarity doesn’t come from motion.\n\nIt comes from reflection and adjustment.\n\nHere are <mark>5 simple questions</mark> to review your week wisely:"
     },
     {
       "type": "point",
       "number": 1,
-      "title": "<mark>Link closes at 6 p.m.</mark>",
-      "body": "End work by leaving the doc in draft.\n\nRename with 'v0.1' + date. Stage comments. Close the tab.\n\nClosed loops protect your evening and reset focus for tomorrow."
+      "title": "<mark>What went well?</mark>",
+      "body": "Start with the wins—no matter how small.\n\nList three things that worked.\nIdentify one pattern to repeat.\nSay “thank you, effort” to yourself.\n\nGratitude and data lift your mindset and inform your next plan."
     },
     {
       "type": "point",
       "number": 2,
-      "title": "<mark>Camera off until agenda</mark>",
-      "body": "Meet with intention.\n\nDefault to audio unless purpose and outcomes are shared. Request agenda 1 hour before. Decline fuzzy invites.\n\nClear expectations save attention and prevent meeting drift."
+      "title": "<mark>What didn’t?</mark>",
+      "body": "Name the miss without blame.\n\nPick one lesson and one course correction.\nWrite the new rule you’ll follow.\n\nFail fast, learn once, move forward."
     },
     {
       "type": "point",
       "number": 3,
-      "title": "<mark>Phone silent in focus blocks</mark>",
-      "body": "Create noise-canceling windows.\n\nCalendar the block. Turn on DND. Whitelist true emergencies. Notify contacts.\n\nTemporary silence yields lasting progress."
+      "title": "<mark>Where did my time go?</mark>",
+      "body": "Audit the 168 hours.\n\nList top three time sinks—include email, meetings, and scrolling.\nDecide what to stop, shorten, or delegate.\n\nOwnership of your schedule is ownership of your life."
     },
     {
       "type": "point",
       "number": 4,
-      "title": "<mark>Reply windows</mark>",
-      "body": "Contain the inbox.\n\nCheck messages at set times: 10 a.m., 2 p.m., 5 p.m. Use quick templates. Disable badges in between.\n\nYou decide when attention goes there, not the ping."
+      "title": "<mark>Am I aligned with my goal?</mark>",
+      "body": "Check the needle against intention.\n\nState the one outcome you want this month.\nScore the week 0–10.\nIdentify one micro-step to close the gap.\n\nAlignment is a verb, not a feeling."
     },
     {
       "type": "point",
       "number": 5,
-      "title": "<mark>Workspace reset</mark>",
-      "body": "Start and end the day with order.\n\nClear the desk. Stage water and the current project. Close unrelated tabs.\n\nA tidy zone cues focus and invites calm."
+      "title": "<mark>What do I need to rest well?</mark>",
+      "body": "Plan recovery like you plan work.\n\nChoose sleep bedtime, movement, and offline windows.\nPut them in the calendar.\nTell others this is non-negotiable.\n\nRecovery today prevents crisis tomorrow."
     },
     {
       "type": "closing",
-      "body": "Which micro-boundary will you say once to save hours later?"
+      "body": "Which question will you ask yourself at week’s end?"
     }
   ]
 }

@@ -1,4 +1,5 @@
 {
-  "targetImage": "data:image/png;base64,YOUR_BASE64_IMAGE_HERE"
+  "targetImage": "data:image/png;base64,YOUR_BASE64_IMAGE_HERE",
+  "account": "itsnotwhatisaid"
 }
 

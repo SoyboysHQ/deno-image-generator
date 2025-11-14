@@ -8,6 +8,12 @@ interface TwoImageReelRequestInput {
   items: string[];
   audioPath?: string;
   duration?: number;
+  author?: string;
+  style?: {
+    primaryHighlightColor?: string;
+    secondaryHighlightColor?: string;
+    additionalHighlightColor?: string;
+  };
 }
 
 function validateTwoImageReelInput(data: unknown): data is TwoImageReelRequestInput {
@@ -45,6 +51,8 @@ export async function handleGenerateTwoImageReel(req: Request): Promise<Response
       items: inputData.items,
       audioPath: inputData.audioPath,
       duration: inputData.duration,
+      author: inputData.author,
+      style: inputData.style,
       outputPath: outputPath,
     };
 

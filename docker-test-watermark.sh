@@ -32,24 +32,39 @@ echo ""
 echo "🧪 Testing watermark endpoint..."
 echo ""
 
-# Convert test image to base64
+# Convert test image to base64 and save to temp file
 if [ -f "watermark_target_image.png" ]; then
-  BASE64_IMAGE=$(base64 -i watermark_target_image.png)
+  base64 -i watermark_target_image.png > temp_base64.txt
 else
   echo "❌ Test image watermark_target_image.png not found!"
   docker-compose down
   exit 1
 fi
 
-# Create JSON input
-cat > temp_watermark_input.json <<EOF
-{
-  "targetImage": "data:image/png;base64,${BASE64_IMAGE}"
-}
-EOF
+# Check if example file exists
+if [ ! -f "example_watermark_input.json" ]; then
+  echo "❌ example_watermark_input.json not found!"
+  docker-compose down
+  exit 1
+fi
+
+# Create temp JSON by reading example file and replacing placeholder
+# Read files directly to avoid "Argument list too long" error
+awk '{
+  if (/YOUR_BASE64_IMAGE_HERE/) {
+    while ((getline line < "temp_base64.txt") > 0) {
+      gsub(/YOUR_BASE64_IMAGE_HERE/, line)
+      break
+    }
+  }
+  print
+}' example_watermark_input.json > temp_watermark_input.json
+
+# Clean up temp base64 file
+rm -f temp_base64.txt
 
 # Send request
-echo "📤 Sending watermark request..."
+echo "📤 Sending watermark request (using example_watermark_input.json)..."
 RESPONSE=$(curl -X POST \
   http://localhost:8000/generate-watermark \
   -H "Content-Type: application/json" \

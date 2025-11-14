@@ -78,6 +78,12 @@ function splitHighlightsAcrossLines(
 async function generateTitleImage(
   title: string,
   outputPath: string,
+  style?: {
+    primaryHighlightColor?: string;
+    secondaryHighlightColor?: string;
+    additionalHighlightColor?: string;
+  },
+  author?: string,
 ): Promise<void> {
   registerFonts();
 
@@ -111,21 +117,26 @@ async function generateTitleImage(
   const titleLines = wrapText(ctx, parsed.text, REEL_WIDTH - padding * 2, titleFont);
   
   // Create highlights with specific colors: first mark yellow, second orange
+  // Use style options if provided, otherwise use defaults
+  const primaryColor = style?.primaryHighlightColor || '#F0E231';
+  const secondaryColor = style?.secondaryHighlightColor || '#FFA500';
+  const additionalColor = style?.additionalHighlightColor || '#F0E231';
+  
   const originalHighlights: Array<{ phrase: string; color: string }> = [];
   
-  // Add first mark highlight (yellow)
+  // Add first mark highlight (primary color)
   if (parsed.highlights[0]) {
-    originalHighlights.push({ phrase: parsed.highlights[0].phrase, color: '#F0E231' });
+    originalHighlights.push({ phrase: parsed.highlights[0].phrase, color: primaryColor });
   }
   
-  // Add second mark highlight (orange)
+  // Add second mark highlight (secondary color)
   if (parsed.highlights[1]) {
-    originalHighlights.push({ phrase: parsed.highlights[1].phrase, color: '#FFA500' });
+    originalHighlights.push({ phrase: parsed.highlights[1].phrase, color: secondaryColor });
   }
   
-  // Add remaining mark highlights if any (yellow)
+  // Add remaining mark highlights if any (additional color)
   for (let i = 2; i < parsed.highlights.length; i++) {
-    originalHighlights.push({ phrase: parsed.highlights[i].phrase, color: '#F0E231' });
+    originalHighlights.push({ phrase: parsed.highlights[i].phrase, color: additionalColor });
   }
   
   // Split highlights across line breaks
@@ -151,13 +162,13 @@ async function generateTitleImage(
   ctx.letterSpacing = '0px';
 
   // Draw author/subtitle centered below title
-  const author = 'by @compounding.wisdom';
+  const authorText = author || 'by @compounding.wisdom';
   ctx.font = 'italic 28px Merriweather';
   ctx.fillStyle = '#666';
-  const authorWidth = ctx.measureText(author).width;
+  const authorWidth = ctx.measureText(authorText).width;
   const authorX = (REEL_WIDTH - authorWidth) / 2; // Center horizontally
   const authorY = titleY + titleLines.length * titleLineHeight - 15; // below title
-  ctx.fillText(author, authorX, authorY);
+  ctx.fillText(authorText, authorX, authorY);
 
   // Save
   const buffer = canvas.toBuffer('image/jpeg', 95);
@@ -173,6 +184,12 @@ async function generateListImage(
   title: string,
   items: string[],
   outputPath: string,
+  style?: {
+    primaryHighlightColor?: string;
+    secondaryHighlightColor?: string;
+    additionalHighlightColor?: string;
+  },
+  author?: string,
 ): Promise<void> {
   registerFonts();
 
@@ -269,21 +286,26 @@ async function generateListImage(
   
   // Create highlights with specific colors: first mark yellow, second orange
   // (same pattern as title page)
+  // Use style options if provided, otherwise use defaults
+  const primaryColor = style?.primaryHighlightColor || '#F0E231';
+  const secondaryColor = style?.secondaryHighlightColor || '#FFA500';
+  const additionalColor = style?.additionalHighlightColor || '#F0E231';
+  
   const originalHighlights: Array<{ phrase: string; color: string }> = [];
   
-  // Add first mark highlight (yellow)
+  // Add first mark highlight (primary color)
   if (titleHighlight[0]) {
-    originalHighlights.push({ phrase: titleHighlight[0].phrase, color: '#F0E231' });
+    originalHighlights.push({ phrase: titleHighlight[0].phrase, color: primaryColor });
   }
   
-  // Add second mark highlight (orange)
+  // Add second mark highlight (secondary color)
   if (titleHighlight[1]) {
-    originalHighlights.push({ phrase: titleHighlight[1].phrase, color: '#FFA500' });
+    originalHighlights.push({ phrase: titleHighlight[1].phrase, color: secondaryColor });
   }
   
-  // Add remaining mark highlights if any (yellow)
+  // Add remaining mark highlights if any (additional color)
   for (let i = 2; i < titleHighlight.length; i++) {
-    originalHighlights.push({ phrase: titleHighlight[i].phrase, color: '#F0E231' });
+    originalHighlights.push({ phrase: titleHighlight[i].phrase, color: additionalColor });
   }
   
   // Split highlights across line breaks (like we do for the first image)
@@ -305,9 +327,9 @@ async function generateListImage(
   // Author (centered, italic, smaller)
   ctx.font = 'italic 20px Merriweather';
   ctx.fillStyle = '#666';
-  const author = 'by @compounding.wisdom';
-  const authorWidth = ctx.measureText(author).width;
-  ctx.fillText(author, (REEL_WIDTH - authorWidth) / 2, currY);
+  const authorText = author || 'by @compounding.wisdom';
+  const authorWidth = ctx.measureText(authorText).width;
+  ctx.fillText(authorText, (REEL_WIDTH - authorWidth) / 2, currY);
   currY += 30;
 
   // Divider line
@@ -334,26 +356,29 @@ async function generateListImage(
   
   // Adjust base font size based on number of items - be very aggressive
   if (points.length <= 3) {
-    fontSize = 56; // Very few items = very large text
+    fontSize = 70; // Very few items = very large text
   } else if (points.length <= 5) {
-    fontSize = 50;
+    fontSize = 60;
   } else if (points.length <= 7) {
-    fontSize = 42;
+    fontSize = 50;
   } else if (points.length <= 10) {
-    fontSize = 38;
+    fontSize = 44;
   } else if (points.length <= 15) {
-    fontSize = 32;
+    fontSize = 36;
   } else {
-    fontSize = 28;
+    fontSize = 26;
   }
+
+  // Maybe use this instead, since it is a more accurate estimate of overflow
+  const averageWidthPerItem = avgCharsPerItem * fontSize;
   
   // Further adjust if items are very long
   if (avgCharsPerItem > 100) {
-    fontSize -= 6;
+    fontSize -= Math.ceil(fontSize * 0.2);
   } else if (avgCharsPerItem > 80) {
-    fontSize -= 4;
+    fontSize -= Math.ceil(fontSize * 0.15);
   } else if (avgCharsPerItem > 60) {
-    fontSize -= 2;
+    fontSize -= Math.ceil(fontSize * 0.1);
   }
   
   // Ensure minimum font size
@@ -371,9 +396,31 @@ async function generateListImage(
     LIST_FONT,
     REEL_WIDTH - PAD_X * 2 - numWidth - 12,
   );
+
+
+  // Make spacing proportional to font size for larger items - generous space between bullets
+  baseItemSpacing = Math.floor(fontSize * 1.2); // Increased from 0.5 to 0.7 (70% of font size)
+  baseItemSpacing = Math.max(24, baseItemSpacing); // Increased minimum from 18px to 24px
   
   let totalLines = itemHeights.reduce((sum, h) => sum + h, 0);
   let estimatedHeight = totalLines * BASE_LINE_HEIGHT + points.length * baseItemSpacing + extraSpacing;
+
+  while (estimatedHeight < availableHeight * 0.95) {
+    fontSize += 2;
+    LIST_FONT = `${fontSize}px Merriweather`;
+    BASE_LINE_HEIGHT = Math.floor(fontSize * 1.5); // larger line spacing
+    ctx.font = LIST_FONT;
+    
+    itemHeights = calculateItemHeights(
+      ctx,
+      points,
+      LIST_FONT,
+      REEL_WIDTH - PAD_X * 2 - numWidth - 12,
+    );
+    
+    totalLines = itemHeights.reduce((sum, h) => sum + h, 0);
+    estimatedHeight = totalLines * BASE_LINE_HEIGHT + points.length * baseItemSpacing + extraSpacing;
+  }
   
   // If content doesn't fit, reduce font size and recalculate
   while (estimatedHeight > availableHeight && fontSize > 20) {
@@ -392,14 +439,11 @@ async function generateListImage(
     totalLines = itemHeights.reduce((sum, h) => sum + h, 0);
     estimatedHeight = totalLines * BASE_LINE_HEIGHT + points.length * baseItemSpacing + extraSpacing;
   }
-
-  // Make spacing proportional to font size for larger items - generous space between bullets
-  baseItemSpacing = Math.floor(fontSize * 1.2); // Increased from 0.5 to 0.7 (70% of font size)
-  baseItemSpacing = Math.max(24, baseItemSpacing); // Increased minimum from 18px to 24px
   
   // Dynamically adjust line height if content is still too tall
   let LIST_LINE_HEIGHT = BASE_LINE_HEIGHT;
   let itemSpacing = baseItemSpacing;
+
 
   if (estimatedHeight > availableHeight) {
     const targetHeight = availableHeight - points.length * itemSpacing - extraSpacing;
@@ -417,7 +461,7 @@ async function generateListImage(
   const totalContentHeight = totalLines * LIST_LINE_HEIGHT + (points.length - 1) * itemSpacing;
   const verticalCenterOffset = Math.floor((availableHeight - totalContentHeight) / 2);
   // Use 60% of the center offset to bias towards top (40% from top, 60% from bottom)
-  const topBiasedOffset = Math.floor(verticalCenterOffset * 0.6);
+  const topBiasedOffset = Math.floor(verticalCenterOffset * 0.3);
   currY = listStartY + Math.max(0, topBiasedOffset);
   
   // List (no highlights on list items)
@@ -428,16 +472,18 @@ async function generateListImage(
     const numStr = i + 1 + '.';
     const numWidth = ctx.measureText(numStr).width;
     ctx.fillText(numStr, PAD_X, currY + 26);
+
+    const highlightsColor = [primaryColor, secondaryColor, additionalColor][Math.floor(Math.random() * 3)];
     
-    // Draw text without highlights (empty array)
+    // Draw text with highlights, if given
     const usedHeight = drawTextWithHighlightWrapped(
       ctx,
       points[i],
       PAD_X + numWidth + 12,
       currY + 26,
-      [], // No highlights
+      highlights[i], // No highlights
       LIST_FONT,
-      '#F0E231',
+      highlightsColor,
       REEL_WIDTH - PAD_X * 2 - numWidth - 12,
       LIST_LINE_HEIGHT,
     );
@@ -470,10 +516,10 @@ export async function generateTwoImageReel(
   const listImagePath = join(currentDir, 'list_image_temp.jpg');
   
   console.log('[TwoImageReel] Generating title image...');
-  await generateTitleImage(input.title, titleImagePath);
+  await generateTitleImage(input.title, titleImagePath, input.style, input.author);
   
   console.log('[TwoImageReel] Generating list image...');
-  await generateListImage(input.title, input.items, listImagePath);
+  await generateListImage(input.title, input.items, listImagePath, input.style, input.author);
   
   // Auto-select random background music if not provided
   console.log('[TwoImageReel] ========================================');

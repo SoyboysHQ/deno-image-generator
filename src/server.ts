@@ -4,6 +4,7 @@ import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { handleHealthCheck } from "./handlers/health.ts";
 import { handleGenerateImage } from "./handlers/generateImage.ts";
 import { handleGenerateCarousel } from "./handlers/generateCarousel.ts";
+import { handleGenerateMarkdownCarousel } from "./handlers/generateMarkdownCarousel.ts";
 import { handleGenerateReel } from "./handlers/generateReel.ts";
 import { handleGenerateTwoImageReel } from "./handlers/generateTwoImageReel.ts";
 import { handleGenerateThreePartReel } from "./handlers/generateThreePartReel.ts";
@@ -16,6 +17,7 @@ console.log("📝 Available endpoints:");
 console.log("  GET  /health - Health check");
 console.log("  POST /generate-image - Generate single Instagram image");
 console.log("  POST /generate-carousel - Generate Instagram carousel");
+console.log("  POST /generate-markdown-carousel - Generate carousel from markdown");
 console.log("  POST /generate-reel - Generate Instagram reel (video)");
 console.log("  POST /generate-two-image-reel - Generate two-image reel (title + list)");
 console.log("  POST /generate-three-part-reel - Generate three-part reel (image + fade + image)");
@@ -78,7 +80,10 @@ serve(async (req) => {
 
       case "/generate-carousel":
         return handleGenerateCarousel(req);
-
+      
+      case "/generate-markdown-carousel":
+        return handleGenerateMarkdownCarousel(req);
+      
       case "/generate-reel":
         return handleGenerateReel(req);
 
@@ -108,6 +113,7 @@ serve(async (req) => {
             availableEndpoints: [
               "POST /generate-image",
               "POST /generate-carousel",
+              "POST /generate-markdown-carousel",
               "POST /generate-reel",
               "POST /generate-two-image-reel",
               "POST /generate-three-part-reel",

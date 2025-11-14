@@ -54,6 +54,7 @@ export interface ReelInput {
   audioPath?: string;
   duration?: number; // Duration in seconds, default 5
   outputPath?: string;
+  highlightColor?: string;
 }
 
 export interface ReelOutput {
@@ -68,6 +69,12 @@ export interface TwoImageReelInput {
   audioPath?: string; // Optional audio path, will auto-select if not provided
   duration?: number; // Duration in seconds, will use audio duration if not provided
   outputPath?: string;
+  author?: string; // Optional author signature, default 'by @compounding.wisdom'
+  style?: {
+    primaryHighlightColor?: string; // Color for first <mark> tag, default '#F0E231' (yellow)
+    secondaryHighlightColor?: string; // Color for second <mark> tag, default '#FFA500' (orange)
+    additionalHighlightColor?: string; // Color for additional <mark> tags, default '#F0E231' (yellow)
+  };
 }
 
 export interface TwoImageReelOutput {
@@ -122,6 +129,20 @@ export interface TextReelOutput {
   success: boolean;
   file: string;
   duration: number;
+}
+
+// =========================
+// Markdown Carousel
+// =========================
+export interface MarkdownCarouselInput {
+  markdown: string; // Markdown text with slides separated by ---
+  outputPrefix?: string;
+}
+
+export interface MarkdownCarouselOutput {
+  success: boolean;
+  slideCount: number;
+  files: string[];
 }
 
 // =========================

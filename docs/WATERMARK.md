@@ -24,22 +24,33 @@ The endpoint accepts JSON with the following structure:
 
 ### Optional Fields
 
-- **opacity** (number): Watermark opacity from 0 (transparent) to 1 (opaque). Default: `1.0` (fully opaque)
-- **scale** (number): Watermark size relative to image width from 0 to 1. Default: `0.12` (12% of image width)
-- **padding** (number): Distance from image edges in pixels. Default: `10`
+- **account** (string): Account identifier to select which watermark to use. Default: `"default"`
+  - Available options: `"default"`, `"compounding_wisdom"`, `"itsnotwhatisaid"`
+  - Each account has its own pre-configured positioning settings
+- **opacity** (number): Watermark opacity from 0 (transparent) to 1 (opaque). Overrides account default if provided.
+- **scale** (number): Watermark size relative to image width from 0 to 1. Overrides account default if provided.
+- **padding** (number): Distance from image edges in pixels. Overrides account default if provided.
 
 ## Response
 
-Returns a JPEG image with the watermark applied in the bottom-right corner.
+Returns a **JPEG image** (100% quality, Instagram-compatible) with the watermark applied in the bottom-right corner.
 
 ## Watermark Configuration
 
-The watermark is loaded from:
-```
-assets/images/watermark.png
-```
+The system supports multiple watermark images, each mapped to an account identifier with its own positioning configuration:
 
-The watermark is positioned in the **bottom-right corner** of the target image with the specified padding.
+| Account ID | Watermark File | Default Scale | Default Padding |
+|------------|----------------|---------------|-----------------|
+| `default` | `assets/images/watermark.png` | 0.18 (18%) | 15px |
+| `compounding_wisdom` | `assets/images/watermark_compounding_wisdom.png` | 0.20 (20%) | 20px |
+| `itsnotwhatisaid` | `assets/images/watermark_itsnotwhatisaid.png` | 0.17 (17%) | 15px |
+
+The watermark configuration is centrally managed in `src/config/watermarks.ts`, where each account has:
+- **Watermark image path**
+- **Default positioning** (scale, padding, horizontal/vertical offsets)
+- **Default opacity**
+
+The watermark is positioned in the **bottom-right corner** of the target image using account-specific defaults, which can be overridden per request.
 
 ## Example Usage
 
@@ -129,6 +140,14 @@ make docker-test-all
 
 ## Customization Examples
 
+### Using a Specific Account Watermark
+```json
+{
+  "targetImage": "data:image/png;base64,...",
+  "account": "compounding_wisdom"
+}
+```
+
 ### Larger Watermark
 ```json
 {
@@ -155,12 +174,25 @@ make docker-test-all
 }
 ```
 
+### Combining Options
+```json
+{
+  "targetImage": "data:image/png;base64,...",
+  "account": "compounding_wisdom",
+  "scale": 0.15,
+  "opacity": 0.8,
+  "padding": 15
+}
+```
+
 ## Technical Details
 
 - **Input Format**: Base64-encoded image data (supports JPEG, PNG, WebP, etc.)
-- **Output Format**: JPEG with 95% quality
+- **Output Format**: JPEG with 100% quality (Instagram-compatible)
+- **Image Smoothing**: High-quality image smoothing enabled for best visual results
 - **Watermark Position**: Bottom-right corner
 - **Aspect Ratio**: Watermark maintains original aspect ratio
+- **Scaling**: Fully adjustable per account, or use `useOriginalSize` for no scaling
 - **Performance**: Processing time depends on image size; typical images process in < 1 second
 
 ## Error Handling
@@ -178,6 +210,49 @@ Error responses include JSON with details:
   "details": "Error description here"
 }
 ```
+
+## Adding New Account Watermarks
+
+To add a new account-specific watermark:
+
+1. **Add the watermark image** to `assets/images/` with a descriptive name (e.g., `watermark_my_account.png`)
+
+2. **Update the configuration** in `src/config/watermarks.ts`:
+   ```typescript
+   export const WATERMARK_CONFIGS: Record<string, WatermarkConfig> = {
+     default: {
+       path: join(Deno.cwd(), 'assets', 'images', 'watermark.png'),
+       position: {
+         scale: 0.13,
+         padding: 0,
+         horizontalOffset: 0,
+         verticalOffset: 0,
+         opacity: 1.0,
+       },
+     },
+     // ... other accounts ...
+     my_account: {
+       path: join(Deno.cwd(), 'assets', 'images', 'watermark_my_account.png'),
+       position: {
+         scale: 0.15,           // Watermark size (15% of image width)
+         padding: 20,           // Distance from edges
+         horizontalOffset: 0,   // Additional horizontal adjustment
+         verticalOffset: 0,     // Additional vertical adjustment
+         opacity: 1.0,          // Fully opaque
+       },
+     },
+   } as const;
+   ```
+
+3. **Use it** in your API calls:
+   ```json
+   {
+     "targetImage": "data:image/png;base64,...",
+     "account": "my_account"
+   }
+   ```
+
+The system automatically validates account identifiers and provides clear error messages for invalid accounts. Each account can have completely different positioning settings tailored to the specific watermark design.
 
 ## Tips
 

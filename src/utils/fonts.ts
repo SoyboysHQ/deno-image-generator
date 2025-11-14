@@ -47,14 +47,14 @@ export function registerFonts(): void {
     for (const path of systemEmojiPaths) {
       try {
         GlobalFonts.registerFromPath(path, 'Emoji');
-        console.log(`[Fonts] System emoji font registered from: ${path}`);
+        console.error(`[Fonts] System emoji font registered from: ${path}`);
         break;
       } catch {
         // Continue to next path
       }
     }
   } catch (e) {
-    console.warn('[Fonts] Could not register system emoji fonts');
+    console.error('[Fonts] Could not register system emoji fonts');
   }
 }
 
