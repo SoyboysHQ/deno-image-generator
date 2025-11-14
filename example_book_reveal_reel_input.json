@@ -1,0 +1,14 @@
+{
+  "videoUrl": "https://res.cloudinary.com/dzahc280d/video/upload/v1762705674/book-intro-video-beach1_pb3t7z.mp4",
+  "imageUrl": "https://res.cloudinary.com/dzahc280d/image/upload/v1762948063/book-reveal-reel/jjiyrasqtikpv32hnhiq.png",
+  "hookText": "The secret to lasting personal change is here",
+  "hookText2": "This book teaches habits that transform your life deeply",
+  "ctaText": "👉 Check Caption for Key Takeaways",
+  "musicName": "background-music-2.mp3",
+  "watermark": {
+    "scale": 0.15,
+    "padding": 20,
+    "horizontalOffset": 30,
+    "verticalOffset": 10
+  }
+}

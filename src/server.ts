@@ -10,6 +10,7 @@ import { handleGenerateTwoImageReel } from "./handlers/generateTwoImageReel.ts";
 import { handleGenerateThreePartReel } from "./handlers/generateThreePartReel.ts";
 import { handleGenerateWatermark } from "./handlers/generateWatermark.ts";
 import { handleGenerateTextReel } from "./handlers/generateTextReel.ts";
+import { handleGenerateBookRevealReel } from "./handlers/generateBookRevealReel.ts";
 
 console.log("🚀 Instagram Generator Server running on http://localhost:8000");
 console.log("📝 Available endpoints:");
@@ -22,6 +23,7 @@ console.log("  POST /generate-two-image-reel - Generate two-image reel (title + 
 console.log("  POST /generate-three-part-reel - Generate three-part reel (image + fade + image)");
 console.log("  POST /generate-text-reel - Generate text reel (handwritten text on background)");
 console.log("  POST /generate-watermark - Add watermark to image");
+console.log("  POST /generate-book-reveal-reel - Generate book reveal reel (video + image)");
 console.log("  POST / - Generate image (backward compatibility)\n");
 
 // Helper function for CORS headers
@@ -56,7 +58,7 @@ function errorResponse(message: string, details?: any, status = 500) {
 // Main server
 serve(async (req) => {
   const url = new URL(req.url);
-  
+
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -64,18 +66,18 @@ serve(async (req) => {
       headers: corsHeaders(),
     });
   }
-  
+
   // Health check endpoint
   if (url.pathname === "/health" && req.method === "GET") {
     return handleHealthCheck(req);
   }
-  
+
   // Route to different endpoints
   if (req.method === "POST") {
     switch (url.pathname) {
       case "/generate-image":
         return handleGenerateImage(req);
-      
+
       case "/generate-carousel":
         return handleGenerateCarousel(req);
       
@@ -84,23 +86,26 @@ serve(async (req) => {
       
       case "/generate-reel":
         return handleGenerateReel(req);
-      
+
       case "/generate-two-image-reel":
         return handleGenerateTwoImageReel(req);
-      
+
       case "/generate-three-part-reel":
         return handleGenerateThreePartReel(req);
-      
+
       case "/generate-text-reel":
         return handleGenerateTextReel(req);
-      
+
+      case "/generate-book-reveal-reel":
+        return handleGenerateBookRevealReel(req);
+
       case "/generate-watermark":
         return handleGenerateWatermark(req);
-      
+
       // Backward compatibility: keep root endpoint working
       case "/":
         return handleGenerateImage(req);
-      
+
       default:
         return errorResponse(
           `Endpoint not found: ${url.pathname}`,
@@ -113,6 +118,7 @@ serve(async (req) => {
               "POST /generate-two-image-reel",
               "POST /generate-three-part-reel",
               "POST /generate-text-reel",
+              "POST /generate-book-reveal-reel",
               "POST /generate-watermark",
               "POST /",
               "GET /health"
@@ -122,9 +128,9 @@ serve(async (req) => {
         );
     }
   }
-  
+
   // Default response for unsupported methods
-  return new Response("Method not allowed", { 
+  return new Response("Method not allowed", {
     status: 405,
     headers: corsHeaders(),
   });
