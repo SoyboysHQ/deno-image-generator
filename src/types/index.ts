@@ -54,6 +54,7 @@ export interface ReelInput {
   audioPath?: string;
   duration?: number; // Duration in seconds, default 5
   outputPath?: string;
+  highlightColor?: string;
 }
 
 export interface ReelOutput {

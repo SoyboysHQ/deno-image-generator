@@ -9,6 +9,7 @@ interface ReelRequestInput {
   imagePath?: string;
   audioPath?: string;
   duration?: number;
+  highlightColor?: string;
 }
 
 function validateReelInput(data: unknown): data is ReelRequestInput {
@@ -49,6 +50,7 @@ export async function handleGenerateReel(req: Request): Promise<Response> {
       audioPath: inputData.audioPath,
       duration: inputData.duration, // Pass through undefined to let generator handle audio duration
       outputPath: outputPath,
+      highlightColor: inputData.highlightColor,
     };
 
     console.log("🎬 Generating reel with FFmpeg...");

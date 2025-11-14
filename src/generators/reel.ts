@@ -18,6 +18,7 @@ const REEL_HEIGHT = 1920; // Instagram Reel dimensions (9:16)
 async function generateQuoteImage(
   quote: string,
   author: string,
+  highlightColor: string,
   outputPath: string = 'quote_image.jpg',
 ): Promise<void> {
   registerFonts();
@@ -98,7 +99,7 @@ async function generateQuoteImage(
       currY - FONT_SIZE * 0.85,
       lineWidth + padX * 2,
       FONT_SIZE,
-      '#F0E231',
+      highlightColor,
     );
 
     // Draw the text
@@ -152,7 +153,7 @@ export async function generateReel(
     const tempImagePath = join(currentDir, 'quote_image_temp.jpg');
     
     console.log(`[Reel] Generating quote image for: "${input.quote.slice(0, 50)}..."`);
-    await generateQuoteImage(input.quote, author, tempImagePath);
+    await generateQuoteImage(input.quote, author, input.highlightColor || '#F0E231', tempImagePath);
     imagePath = tempImagePath;
   } else if (input.imagePath) {
     imagePath = input.imagePath.startsWith('/') 
