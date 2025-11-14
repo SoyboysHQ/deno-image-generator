@@ -43,7 +43,7 @@ async function generateQuoteImage(
   const FONT_SIZE = 42; // Quote font size in pixels
   const QUOTE_FONT = `${FONT_SIZE}px Merriweather`;
   const LINE_HEIGHT = 60;
-  const PARAGRAPH_SPACING = 80; // Extra spacing between paragraphs
+  const PARAGRAPH_SPACING = 50; // Extra spacing between paragraphs
   const AUTHOR_FONT = '32px Merriweather';
 
   // Calculate available space for quote
