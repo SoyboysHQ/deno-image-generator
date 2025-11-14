@@ -629,16 +629,22 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
     await Deno.remove(listPath);
   }
 
-  // Add audio (use provided audioPath or default to background-music-7.mp3)
+  // Add audio (use musicName, audioPath, or default to background-music-7.mp3)
   const finalOutputPath = input.outputPath || 'book_reveal_reel.mp4';
-  let audioPath: string | undefined = input.audioPath;
+  let audioPath: string | undefined;
   
-  if (!audioPath) {
+  // Priority: musicName > audioPath > default
+  if (input.musicName) {
+    // Use musicName to construct path to assets/audio/
+    audioPath = join(currentDir, 'assets', 'audio', input.musicName);
+    console.log(`[BookReveal] Using musicName: ${input.musicName} -> ${audioPath}`);
+  } else if (input.audioPath) {
+    audioPath = input.audioPath;
+    console.log(`[BookReveal] Using provided audioPath: ${audioPath}`);
+  } else {
     // Use default background music
     audioPath = join(currentDir, 'assets', 'audio', 'background-music-7.mp3');
-    console.log(`[BookReveal] No audioPath provided, using default: ${audioPath}`);
-  } else {
-    console.log(`[BookReveal] Using provided audioPath: ${audioPath}`);
+    console.log(`[BookReveal] No audioPath or musicName provided, using default: ${audioPath}`);
   }
   
   // Check if audio file exists, or download if it's a URL

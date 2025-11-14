@@ -133,7 +133,8 @@ export interface BookRevealReelInput {
   hookText: string;    // First text overlay (appears first)
   hookText2: string;   // Second text overlay (appears below hookText)
   ctaText: string;     // Bottom CTA text on the final image
-  audioPath?: string;  // Optional background audio override; if omitted, auto-selected
+  musicName?: string;  // Optional music filename (e.g., "background-music-7.mp3") from assets/audio/; takes precedence over audioPath
+  audioPath?: string;  // Optional background audio override (full path or URL); if omitted, defaults to background-music-7.mp3
   outputPath?: string; // Optional output path; defaults to book_reveal_reel.mp4
   watermark?: {
     opacity?: number;          // 0-1, default 1.0 for image watermark rendering
