@@ -8,6 +8,7 @@ type BookRevealRequestInput = {
   hookText: string;
   hookText2: string;
   ctaText: string;
+  musicName?: string;
   audioPath?: string;
   watermark?: {
     opacity?: number;
@@ -63,6 +64,7 @@ export async function handleGenerateBookRevealReel(req: Request): Promise<Respon
       hookText: validated.hookText,
       hookText2: validated.hookText2,
       ctaText: validated.ctaText,
+      musicName: validated.musicName,
       audioPath: validated.audioPath,
       watermark: validated.watermark ?? defaultWatermark,
       outputPath,
