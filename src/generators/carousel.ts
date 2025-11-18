@@ -2,13 +2,50 @@
 
 import { Canvas, loadImage } from 'npm:@napi-rs/canvas@^0.1.52';
 import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
-import type { CarouselInput, CarouselSlide, CarouselOutput } from '../types/index.ts';
+import type { CarouselInput, CarouselSlide, CarouselOutput, HighlightItem } from '../types/index.ts';
 import { parseMarkedText, wrapText } from '../utils/text.ts';
 import { drawTextWithHighlights } from '../utils/canvas.ts';
 import { registerFonts } from '../utils/fonts.ts';
+import { generateWatermark } from './watermark.ts';
+import type { AccountIdentifier } from '../config/watermarks.ts';
+import { isValidAccount } from '../config/watermarks.ts';
 
 const WIDTH = 1080;
 const HEIGHT = 1350;
+
+/**
+ * Assign colors to highlights, cycling through the provided color array
+ */
+function assignHighlightColors(
+  highlights: HighlightItem[],
+  highlightColors: string[],
+): HighlightItem[] {
+  if (!highlightColors || highlightColors.length === 0) {
+    // Default to yellow if no colors provided
+    return highlights.map(h => ({ ...h, color: h.color || '#F0E231' }));
+  }
+
+  let colorIndex = 0;
+  return highlights.map(h => ({
+    ...h,
+    color: h.color || highlightColors[colorIndex++ % highlightColors.length],
+  }));
+}
+
+/**
+ * Format author slug into a readable author name
+ */
+function formatAuthorSlug(authorSlug: string): string {
+  const authorMap: Record<string, string> = {
+    'compounding_wisdom': 'Written by Compounding Wisdom',
+    'itsnotwhatisaid': "Created by @itsnotwhatisaid",
+    'default': 'Written by Compounding Wisdom',
+  };
+  
+  return authorMap[authorSlug] || `Written by ${authorSlug.split('_').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ')}`;
+}
 
 /**
  * Generate title slide
@@ -17,11 +54,19 @@ async function generateTitleSlide(
   slide: CarouselSlide,
   bgImage: any,
   outputPath: string,
+  highlightColors?: string[],
+  authorSlug?: string,
 ): Promise<void> {
   const canvas = new Canvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext('2d');
 
-  slide.author = 'Written by Compounding Wisdom';
+  // Set author text based on authorSlug if provided, otherwise use slide.author or nothing
+  if (authorSlug) {
+    slide.author = formatAuthorSlug(authorSlug);
+  } else if (!slide.author) {
+    // Don't show author text if no authorSlug and no slide.author
+    slide.author = undefined;
+  }
 
   // Draw background
   ctx.drawImage(bgImage, 0, 0, WIDTH, HEIGHT);
@@ -47,17 +92,28 @@ async function generateTitleSlide(
     allHighlights.push({ phrase: line });
   }
 
+  // Assign colors to highlights
+  const coloredHighlights = assignHighlightColors(
+    allHighlights,
+    highlightColors || ['#F0E231'],
+  );
+
   const titleY = HEIGHT / 2 - 200;
+  
+  // Use first highlight color as default, or yellow
+  const defaultHighlightColor = highlightColors && highlightColors.length > 0
+    ? highlightColors[0]
+    : '#F0E231';
   
   drawTextWithHighlights(
     ctx,
     parsed.text,
     padding,
     titleY,
-    allHighlights,
+    coloredHighlights,
     titleFont,
     '#222',
-    '#F0E231',
+    defaultHighlightColor,
     WIDTH - padding * 2,
     titleLineHeight,
     'left',
@@ -86,6 +142,7 @@ async function generateIntroSlide(
   slide: CarouselSlide,
   bgImage: any,
   outputPath: string,
+  highlightColors?: string[],
 ): Promise<void> {
   const canvas = new Canvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext('2d');
@@ -103,15 +160,26 @@ async function generateIntroSlide(
     const font = '34px Merriweather';
     const lineHeight = 55;
 
+    // Assign colors to highlights
+    const coloredHighlights = assignHighlightColors(
+      parsed.highlights,
+      highlightColors || ['#F0E231'],
+    );
+
+    // Use first highlight color as default, or yellow
+    const defaultHighlightColor = highlightColors && highlightColors.length > 0
+      ? highlightColors[0]
+      : '#F0E231';
+
     const height = drawTextWithHighlights(
       ctx,
       parsed.text,
       padding,
       currY,
-      parsed.highlights,
+      coloredHighlights,
       font,
       '#222',
-      '#F0E231',
+      defaultHighlightColor,
       WIDTH - padding * 2,
       lineHeight,
       'left',
@@ -132,6 +200,7 @@ async function generatePointSlide(
   slide: CarouselSlide,
   bgImage: any,
   outputPath: string,
+  highlightColors?: string[],
 ): Promise<void> {
   const canvas = new Canvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext('2d');
@@ -144,18 +213,29 @@ async function generatePointSlide(
   // Draw numbered title
   const titleText = `${slide.number}. ${slide.title || ''}`;
   const parsed = parseMarkedText(titleText);
-  const titleFont = 'bold 48px Merriweather';
-  const titleLineHeight = 65;
+  const titleFont = 'bold 60px Merriweather';
+  const titleLineHeight = 80;
+
+  // Assign colors to highlights
+  const coloredTitleHighlights = assignHighlightColors(
+    parsed.highlights,
+    highlightColors || ['#F0E231'],
+  );
+
+  // Use first highlight color as default, or yellow
+  const defaultHighlightColor = highlightColors && highlightColors.length > 0
+    ? highlightColors[0]
+    : '#F0E231';
 
   const titleHeight = drawTextWithHighlights(
     ctx,
     parsed.text,
     padding,
     currY,
-    parsed.highlights,
+    coloredTitleHighlights,
     titleFont,
     '#222',
-    '#F0E231',
+    defaultHighlightColor,
     WIDTH - padding * 2,
     titleLineHeight,
     'left',
@@ -168,18 +248,24 @@ async function generatePointSlide(
 
   for (const para of bodyParagraphs) {
     const bodyParsed = parseMarkedText(para);
-    const bodyFont = '32px Merriweather';
-    const bodyLineHeight = 52;
+    const bodyFont = '38px Merriweather';
+    const bodyLineHeight = 60;
+
+    // Assign colors to highlights
+    const coloredBodyHighlights = assignHighlightColors(
+      bodyParsed.highlights,
+      highlightColors || ['#F0E231'],
+    );
 
     const bodyHeight = drawTextWithHighlights(
       ctx,
       bodyParsed.text,
       padding,
       currY,
-      bodyParsed.highlights,
+      coloredBodyHighlights,
       bodyFont,
       '#222',
-      '#F0E231',
+      defaultHighlightColor,
       WIDTH - padding * 2,
       bodyLineHeight,
       'left',
@@ -199,6 +285,7 @@ async function generateClosingSlide(
   slide: CarouselSlide,
   bgImage: any,
   outputPath: string,
+  highlightColors?: string[],
 ): Promise<void> {
   const canvas = new Canvas(WIDTH, HEIGHT);
   const ctx = canvas.getContext('2d');
@@ -243,6 +330,22 @@ async function generateClosingSlide(
     const fontSize = 38;
     const halfChar = ctx.measureText(' ').width / 2;
 
+    // Use first highlight color as default, or yellow
+    const defaultHighlightColor = highlightColors && highlightColors.length > 0
+      ? highlightColors[0]
+      : '#F0E231';
+
+    // Convert hex to rgba for closing slide highlights
+    const hexToRgba = (hex: string, opacity: number): string => {
+      const cleanHex = hex.replace('#', '');
+      const r = parseInt(cleanHex.substring(0, 2), 16);
+      const g = parseInt(cleanHex.substring(2, 4), 16);
+      const b = parseInt(cleanHex.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    };
+
+    // Assign colors to highlights for closing slide
+    let highlightColorIndex = 0;
     for (const hi of lineHighlights) {
       const prefix = line.slice(0, hi.start);
       const highlightText = line.slice(hi.start, hi.end);
@@ -250,8 +353,13 @@ async function generateClosingSlide(
       const highlightWidth = ctx.measureText(highlightText).width;
       const padX = 10;
 
+      // Get color for this highlight (cycle through if multiple colors provided)
+      const highlightColor = highlightColors && highlightColors.length > 0
+        ? highlightColors[highlightColorIndex++ % highlightColors.length]
+        : defaultHighlightColor;
+
       // Use simple highlight for closing slide
-      ctx.fillStyle = 'rgba(240, 226, 49, 0.7)';
+      ctx.fillStyle = hexToRgba(highlightColor, 0.7);
       ctx.fillRect(
         lineX + prefixWidth - padX + halfChar,
         currY - fontSize * 0.85,
@@ -286,11 +394,13 @@ export async function generateCarousel(
 
   const outputPrefix = input.outputPrefix || 'carousel';
   const outputs: string[] = [];
+  const highlightColors = input.highlightColors;
+  const authorSlug = input.authorSlug;
 
   // Generate each slide
   for (let i = 0; i < input.slides.length; i++) {
     const slide = input.slides[i];
-    const outputPath = `${outputPrefix}_slide_${i + 1}.jpg`;
+    let outputPath = `${outputPrefix}_slide_${i + 1}.jpg`;
 
     // Alternate between the two background images
     const bgImage = i % 2 === 0 ? bgImage1 : bgImage2;
@@ -299,20 +409,45 @@ export async function generateCarousel(
 
     switch (slide.type) {
       case 'title':
-        await generateTitleSlide(slide, bgImage, outputPath);
+        await generateTitleSlide(slide, bgImage, outputPath, highlightColors, authorSlug);
         break;
       case 'intro':
-        await generateIntroSlide(slide, bgImage, outputPath);
+        await generateIntroSlide(slide, bgImage, outputPath, highlightColors);
         break;
       case 'point':
-        await generatePointSlide(slide, bgImage, outputPath);
+        await generatePointSlide(slide, bgImage, outputPath, highlightColors);
         break;
       case 'closing':
-        await generateClosingSlide(slide, bgImage, outputPath);
+        await generateClosingSlide(slide, bgImage, outputPath, highlightColors);
         break;
       default:
         console.error(`Unknown slide type: ${slide.type}`);
         continue;
+    }
+
+    // Apply watermark if authorSlug is provided
+    if (authorSlug && isValidAccount(authorSlug)) {
+      const originalPath = outputPath;
+      const watermarkedPath = `${outputPrefix}_slide_${i + 1}_watermarked.jpg`;
+      console.error(`Adding watermark for ${authorSlug}...`);
+      await generateWatermark({
+        targetImagePath: originalPath,
+        account: authorSlug as AccountIdentifier,
+        outputPath: watermarkedPath,
+        opacity: 0.5,
+        scale: 0.09,
+        padding: 30,
+        horizontalOffset: 0,
+        verticalOffset: 0,
+      });
+      // Clean up the original unwatermarked file
+      try {
+        await Deno.remove(originalPath);
+      } catch (e) {
+        console.warn(`Warning: Could not remove original file ${originalPath}:`, e);
+      }
+      // Replace the output path with the watermarked version
+      outputPath = watermarkedPath;
     }
 
     outputs.push(outputPath);

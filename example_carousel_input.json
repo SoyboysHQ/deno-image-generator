@@ -1,5 +1,7 @@
 {
   "outputPrefix": "weekly_checkins",
+  "highlightColors": ["#90EE90", "#F0E231", "#FFA500"],
+  "authorSlug": "itsnotwhatisaid",
   "slides": [
     {
       "type": "title",

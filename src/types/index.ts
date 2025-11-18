@@ -39,6 +39,8 @@ export interface CarouselSlide {
 export interface CarouselInput {
   slides: CarouselSlide[];
   outputPrefix?: string;
+  highlightColors?: string[]; // Array of colors to cycle through for highlights
+  authorSlug?: string; // Account identifier for watermark (e.g., 'compounding_wisdom', 'itsnotwhatisaid')
 }
 
 export interface CarouselOutput {
