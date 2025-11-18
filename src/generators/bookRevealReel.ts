@@ -274,6 +274,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-an', // No audio
       '-y', part1Seg1Path,
     ];
@@ -301,6 +303,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-an',
       '-y', part1Seg2VideoPath,
     ];
@@ -331,6 +335,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-t', PART1_HOOK1_DURATION.toString(),
       '-an',
       '-y', part1Seg2Path,
@@ -360,6 +366,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-an',
       '-y', part1Seg3VideoPath,
     ];
@@ -390,6 +398,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-t', PART1_HOOK2_DURATION.toString(),
       '-an',
       '-y', part1Seg3Path,
@@ -450,6 +460,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-an',
       '-y', part2Image1Path,
     ];
@@ -476,6 +488,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-an',
       '-y', part2ImageDelayPath,
     ];
@@ -502,6 +516,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-an',
       '-y', part2Image2Path,
     ];
@@ -528,6 +544,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-an',
       '-y', part1Last1sPath,
     ];
@@ -567,6 +585,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-t', PART2_FADE_DURATION.toString(),
       '-an',
       '-y', part2SlidePath,
@@ -616,6 +636,8 @@ export async function generateBookRevealReel(input: BookRevealReelInput): Promis
       '-pix_fmt', 'yuv420p',
       '-r', '30',
       '-vsync', 'cfr',
+      '-threads', '2', // Limit threads for memory-constrained environments
+      '-max_muxing_queue_size', '1024', // Limit muxing queue size
       '-an', // No audio
       '-y', videoOnlyPath,
     ];
