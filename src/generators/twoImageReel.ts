@@ -1,5 +1,5 @@
 // Two-image Instagram Reel generator
-// First image: Title slide (0.5 seconds)
+// First image: Title slide (1 frame)
 // Second image: List content (remaining duration)
 
 import { join } from 'https://deno.land/std@0.224.0/path/mod.ts';
@@ -12,7 +12,7 @@ import { getRandomBackgroundMusicPath, getAudioDuration } from '../utils/audio.t
 
 const REEL_WIDTH = 1080;
 const REEL_HEIGHT = 1920; // Instagram Reel dimensions (9:16)
-const TITLE_DURATION = 0.5; // Title slide shows for 0.5 seconds
+const TITLE_DURATION = 1 / 30; // Title slide shows for 1 frame (1/30 second at 30fps)
 const MIN_TOTAL_DURATION = 8; // Minimum total duration in seconds
 const MIN_SECOND_IMAGE_DURATION = 7; // Minimum duration for the listicle/second image
 
@@ -585,7 +585,7 @@ export async function generateTwoImageReel(
   const titleVideoPath = join(currentDir, 'title_video_temp.mp4');
   const listVideoPath = join(currentDir, 'list_video_temp.mp4');
   
-  // Step 1: Create title video (0.5 seconds)
+  // Step 1: Create title video (1 frame)
   console.log(`[TwoImageReel] Step 1: Creating title video (${TITLE_DURATION}s)...`);
   const titleArgs = [
     '-loop', '1',
@@ -649,7 +649,7 @@ export async function generateTwoImageReel(
   // Add audio if available
   if (audioPath) {
     listArgs.push('-i', audioPath);
-    // Start audio at 0.5 seconds (skip the title duration)
+    // Start audio after title duration (skip the title frame)
     listArgs.push('-ss', TITLE_DURATION.toString());
   }
   
