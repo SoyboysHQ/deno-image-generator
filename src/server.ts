@@ -11,6 +11,7 @@ import { handleGenerateThreePartReel } from "./handlers/generateThreePartReel.ts
 import { handleGenerateWatermark } from "./handlers/generateWatermark.ts";
 import { handleGenerateTextReel } from "./handlers/generateTextReel.ts";
 import { handleGenerateBookRevealReel } from "./handlers/generateBookRevealReel.ts";
+import { handleGenerateBookTakeawaysCarousel } from "./handlers/generateBookTakeawaysCarousel.ts";
 
 console.log("🚀 Instagram Generator Server running on http://localhost:8000");
 console.log("📝 Available endpoints:");
@@ -24,6 +25,7 @@ console.log("  POST /generate-three-part-reel - Generate three-part reel (image 
 console.log("  POST /generate-text-reel - Generate text reel (handwritten text on background)");
 console.log("  POST /generate-watermark - Add watermark to image");
 console.log("  POST /generate-book-reveal-reel - Generate book reveal reel (video + image)");
+console.log("  POST /generate-book-takeaways-carousel - Generate book takeaways carousel");
 console.log("  POST / - Generate image (backward compatibility)\n");
 
 // Helper function for CORS headers
@@ -99,6 +101,9 @@ serve(async (req) => {
       case "/generate-book-reveal-reel":
         return handleGenerateBookRevealReel(req);
 
+      case "/generate-book-takeaways-carousel":
+        return handleGenerateBookTakeawaysCarousel(req);
+
       case "/generate-watermark":
         return handleGenerateWatermark(req);
 
@@ -119,6 +124,7 @@ serve(async (req) => {
               "POST /generate-three-part-reel",
               "POST /generate-text-reel",
               "POST /generate-book-reveal-reel",
+              "POST /generate-book-takeaways-carousel",
               "POST /generate-watermark",
               "POST /",
               "GET /health"

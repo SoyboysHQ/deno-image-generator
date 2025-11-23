@@ -162,7 +162,7 @@ echo ""
 
 # Test 8: Book Reveal Reel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║Test 8/10: Book Reveal Reel Gen║${NC}"
+echo -e "${BLUE}║Test 8/11: Book Reveal Reel Gen║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -177,9 +177,26 @@ fi
 echo ""
 echo ""
 
-# Test 9: Text Reel Generation
+# Test 9: Book Takeaways Carousel Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║Test 9/10: Text Reel Generation║${NC}"
+echo -e "${BLUE}║Test 9/11: Book Takeaways Carousel║${NC}"
+echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
+echo ""
+
+if ./docker-test-book-takeaways-carousel.sh; then
+    echo -e "${GREEN}✅ Book takeaways carousel generation: PASSED${NC}"
+    ((TESTS_PASSED++))
+else
+    echo -e "${RED}❌ Book takeaways carousel generation: FAILED${NC}"
+    ((TESTS_FAILED++))
+fi
+
+echo ""
+echo ""
+
+# Test 10: Text Reel Generation
+echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
+echo -e "${BLUE}║Test 10/11: Text Reel Generation║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -194,9 +211,9 @@ fi
 echo ""
 echo ""
 
-# Test 10: Watermark Generation
+# Test 11: Watermark Generation
 echo -e "${BLUE}╔═══════════════════════════════╗${NC}"
-echo -e "${BLUE}║Test 10/10: Watermark Generation║${NC}"
+echo -e "${BLUE}║Test 11/11: Watermark Generation║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════╝${NC}"
 echo ""
 
@@ -216,7 +233,7 @@ echo -e "${BLUE}═════════════════════�
 echo -e "${BLUE}       Test Summary            ${NC}"
 echo -e "${BLUE}═══════════════════════════════${NC}"
 echo ""
-echo -e "Total Tests: 10"
+echo -e "Total Tests: 11"
 echo -e "${GREEN}Passed: $TESTS_PASSED${NC}"
 echo -e "${RED}Failed: $TESTS_FAILED${NC}"
 echo ""
@@ -232,6 +249,7 @@ if [ $TESTS_FAILED -eq 0 ]; then
     ls -lh docker_test_two_image_reel.mp4 2>/dev/null && echo "  ✅ docker_test_two_image_reel.mp4"
     ls -lh docker_test_three_part_reel.mp4 2>/dev/null && echo "  ✅ docker_test_three_part_reel.mp4"
     ls -lh docker_test_book_reveal_reel.mp4 2>/dev/null && echo "  ✅ docker_test_book_reveal_reel.mp4"
+    ls -lh docker_test_book_takeaways_carousel_response.zip 2>/dev/null && echo "  ✅ docker_test_book_takeaways_carousel_response.zip"
     ls -lh docker_text_reel_test.mp4 2>/dev/null && echo "  ✅ docker_text_reel_test.mp4"
     ls -lh output/docker_watermark_test.jpg 2>/dev/null && echo "  ✅ output/docker_watermark_test.jpg"
     echo ""

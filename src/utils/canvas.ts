@@ -42,6 +42,7 @@ function hexToRgba(hex: string, opacity: number): string {
 
 /**
  * Draw highlight background with rounded corners and wavy edges (for carousel)
+ * @param slantedEnds - If true, adds slanted "/" style ends like handwriting underlines
  */
 export function drawHighlight(
   ctx: any,
@@ -50,6 +51,7 @@ export function drawHighlight(
   width: number,
   height: number,
   color: string,
+  slantedEnds: boolean = false,
 ): void {
   ctx.save();
   ctx.beginPath();
@@ -57,45 +59,99 @@ export function drawHighlight(
   const waveAmp = 1 + Math.random() * 0.5; // very subtle wave
   const waveLen = 18;
   const radius = 8;
+  const slantLength = slantedEnds ? 10 : 0; // Length of slanted end
+
+  if (slantedEnds) {
+    // Left end: start with upward slant "/" (like handwriting underline)
+    // Start at bottom-left, slant up-right to top
+    ctx.moveTo(x, y + height); // Bottom-left
+    ctx.lineTo(x + slantLength, y); // Top-left with upward slant "/"
+  } else {
+    // Top-left corner (original)
+    ctx.moveTo(x + radius, y);
+  }
 
   // Top edge (wavy)
-  ctx.moveTo(x + radius, y);
-  for (let i = 0; i <= width - 2 * radius; i += waveLen) {
-    ctx.lineTo(
-      x + radius + i,
-      y + Math.sin((i / (width - 2 * radius)) * Math.PI * 2) * waveAmp,
-    );
+  const topStartX = slantedEnds ? x + slantLength : x + radius;
+  const topEndX = slantedEnds ? x + width - slantLength : x + width - radius;
+  const topWidth = topEndX - topStartX;
+  
+  if (topWidth > 0) {
+    ctx.moveTo(topStartX, y);
+    for (let i = 0; i <= topWidth; i += waveLen) {
+      ctx.lineTo(
+        topStartX + i,
+        y + Math.sin((i / topWidth) * Math.PI * 2) * waveAmp,
+      );
+    }
+    ctx.lineTo(topEndX, y);
+  } else {
+    ctx.moveTo(topStartX, y);
   }
-  ctx.lineTo(x + width - radius, y);
 
-  // Top-right corner
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  if (slantedEnds) {
+    // Right end: upward slant "/" (like handwriting underline end)
+    // From bottom-right, slant up-right to top-right
+    // This creates "/" going from left to right (upward)
+    // We're currently at (x+width-slantLength, y) from the top edge
+    // Go to bottom-right first, then up to top-right
+    ctx.lineTo(x + width - slantLength, y + height); // Bottom-right
+    ctx.lineTo(x + width, y); // Top-right with upward slant "/"
+  } else {
+    // Top-right corner (original)
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
 
-  // Right edge
-  ctx.lineTo(x + width, y + height - radius);
+    // Right edge
+    ctx.lineTo(x + width, y + height - radius);
 
-  // Bottom-right corner
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-
-  // Bottom edge (wavy)
-  for (let i = width - 2 * radius; i >= 0; i -= waveLen) {
-    ctx.lineTo(
-      x + radius + i,
-      y +
-        height +
-        Math.sin((i / (width - 2 * radius)) * Math.PI * 2 + Math.PI) * waveAmp,
-    );
+    // Bottom-right corner
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
   }
-  ctx.lineTo(x + radius, y + height);
 
-  // Bottom-left corner
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  // Bottom edge (wavy) - only if not closing the slanted path
+  if (!slantedEnds) {
+    const bottomStartX = x + width - radius;
+    const bottomEndX = x + radius;
+    const bottomWidth = bottomStartX - bottomEndX;
+    
+    for (let i = 0; i <= bottomWidth; i += waveLen) {
+      ctx.lineTo(
+        bottomStartX - i,
+        y +
+          height +
+          Math.sin((i / bottomWidth) * Math.PI * 2 + Math.PI) * waveAmp,
+      );
+    }
+    ctx.lineTo(x + radius, y + height);
 
-  // Left edge
-  ctx.lineTo(x, y + radius);
+    // Bottom-left corner
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
 
-  // Top-left corner
-  ctx.quadraticCurveTo(x, y, x + radius, y);
+    // Left edge
+    ctx.lineTo(x, y + radius);
+
+    // Top-left corner
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+  } else {
+    // For slanted ends, draw wavy bottom edge from right slant back to left start
+    // The path should go from (x + width - slantLength, y + height) back to (x, y + height)
+    const bottomStartX = x + width - slantLength;
+    const bottomEndX = x;
+    const bottomWidth = bottomStartX - bottomEndX;
+    
+    if (bottomWidth > 0) {
+      // Draw wavy bottom edge (going backwards from right to left)
+      for (let i = 0; i <= bottomWidth; i += waveLen) {
+        ctx.lineTo(
+          bottomStartX - i,
+          y +
+            height +
+            Math.sin((i / bottomWidth) * Math.PI * 2 + Math.PI) * waveAmp,
+        );
+      }
+    }
+    // Path closes back to starting point (x, y + height) via closePath()
+  }
 
   ctx.closePath();
   ctx.fillStyle = color;
@@ -389,6 +445,7 @@ export function drawTextWithHighlights(
   lineHeight: number,
   align: 'left' | 'center' = 'left',
   boldHighlights: boolean = false,
+  slantedEnds: boolean = false,
 ): number {
   // Split by newlines first to respect explicit line breaks
   const textSegments = text.split('\n');
@@ -439,6 +496,7 @@ export function drawTextWithHighlights(
         highlightWidth + padX * 2 - halfChar,
         fontSize,
         hi.color,
+        slantedEnds,
       );
     }
 

@@ -46,7 +46,7 @@ export interface CarouselInput {
 export interface CarouselOutput {
   success: boolean;
   slideCount: number;
-  files: string[];
+  files: string[];  
 }
 
 export interface ReelInput {
@@ -172,5 +172,33 @@ export interface BookRevealReelOutput {
   success: boolean;
   file: string;
   duration: number;
+}
+
+// =========================
+// Book Takeaways Carousel
+// =========================
+export interface BookTakeawaysSlide {
+  type: 'point';
+  title: string; // Title (may include number prefix like "1. Become...")
+  body: string; // Body text with paragraph breaks (\n\n)
+}
+
+export interface BookTakeawaysCarouselInput {
+  coverUrl: string; // URL to cover image
+  coverText?: string; // Optional cover text
+  slides: BookTakeawaysSlide[]; // Array of point slides
+  ctaText1?: string; // First CTA text
+  ctaText2?: string; // Second CTA text
+  ctaText3?: string; // Third CTA text
+  ctaText4?: string; // Fourth CTA text (also used as "Save this for later")
+  authorSlug: string; // Author slug (e.g., "itsnotwhatisaid")
+  goodreadsCoverUrl?: string; // URL to Goodreads cover image for CTA slide
+  outputPrefix?: string; // Optional output prefix
+}
+
+export interface BookTakeawaysCarouselOutput {
+  success: boolean;
+  slideCount: number;
+  files: string[];
 }
 
