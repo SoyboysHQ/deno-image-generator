@@ -740,10 +740,10 @@ async function generateCTASlide(
     ctx.fillText(saveText, saveX + iconSize + iconSpacing, saveY);
   }
 
-  // Draw author slug with @ prefix below "Save this for later" at fixed position
+  // Draw author slug below "Save this for later" at fixed position
   const authorFont = 'italic 24px Merriweather';
   ctx.font = authorFont;
-  const authorText = `@${authorSlug}`;
+  const authorText = `${authorSlug}`;
   const authorWidth = ctx.measureText(authorText).width;
   const authorX = (WIDTH - authorWidth) / 2;
   const authorY = authorSlugY; // Fixed position
