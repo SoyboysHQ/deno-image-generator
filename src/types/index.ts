@@ -57,6 +57,11 @@ export interface ReelInput {
   duration?: number; // Duration in seconds, default 5
   outputPath?: string;
   highlightColor?: string;
+  highlightOpacity?: number; // Highlight opacity (0-1), default 0.7
+  font?: string; // Font name, default 'Merriweather'. Options: 'Merriweather', 'EBGaramond Bold'
+  fontSize?: number; // Quote font size in pixels, default 42. If not provided and autoFontSize is true, will be calculated to fill 2/3 of available space
+  autoFontSize?: boolean; // Automatically calculate font size to fill 2/3 of available vertical space, default false
+  backgroundImage?: string; // Background image filename in assets/images/, default 'background.jpeg'
 }
 
 export interface ReelOutput {

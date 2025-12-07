@@ -1,6 +1,6 @@
 # Makefile for Instagram Image Generator
 
-.PHONY: help docker-build docker-build-fresh docker-start docker-stop docker-restart docker-update docker-test docker-test-all docker-test-health docker-test-image docker-test-carousel docker-test-markdown-carousel docker-test-reel docker-test-two-image-reel docker-test-three-part-reel docker-test-book-reveal-reel docker-test-book-takeaways-carousel docker-test-text-reel docker-test-watermark docker-test-setup docker-test-cleanup docker-logs docker-shell clean docker-rebuild
+.PHONY: help docker-build docker-build-fresh docker-start docker-stop docker-restart docker-update docker-test docker-test-all docker-test-health docker-test-image docker-test-carousel docker-test-markdown-carousel docker-test-reel docker-test-reel-garamond docker-test-two-image-reel docker-test-three-part-reel docker-test-book-reveal-reel docker-test-book-takeaways-carousel docker-test-text-reel docker-test-watermark docker-test-setup docker-test-cleanup docker-logs docker-shell clean docker-rebuild
 
 # Default target - show help
 help:
@@ -24,6 +24,7 @@ help:
 	@echo "  make docker-test-carousel           - Test carousel generation"
 	@echo "  make docker-test-markdown-carousel  - Test markdown carousel generation"
 	@echo "  make docker-test-reel               - Test reel generation"
+	@echo "  make docker-test-reel-garamond     - Test reel generation with EBGaramond Bold font"
 	@echo "  make docker-test-two-image-reel     - Test two-image reel generation"
 	@echo "  make docker-test-three-part-reel    - Test three-part reel generation"
 	@echo "  make docker-test-book-reveal-reel   - Test book reveal reel generation"
@@ -239,6 +240,11 @@ docker-test-markdown-carousel:
 docker-test-reel:
 	@echo "🎬 Testing reel generation..."
 	@./docker-test-reel.sh
+
+# Test reel generation with EBGaramond Bold font
+docker-test-reel-garamond:
+	@echo "🎬 Testing reel generation with EBGaramond Bold font..."
+	@./docker-test-reel-garamond.sh
 
 # Test two-image reel generation
 docker-test-two-image-reel:

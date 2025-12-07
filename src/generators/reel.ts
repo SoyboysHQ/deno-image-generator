@@ -13,6 +13,107 @@ const REEL_WIDTH = 1080;
 const REEL_HEIGHT = 1920; // Instagram Reel dimensions (9:16)
 
 /**
+ * Calculate font size to fill 2/3 of available vertical space
+ * Uses iterative approach to account for font size affecting line count
+ */
+function calculateFontSizeToFillBox(
+  quoteText: string,
+  font: string,
+  targetHeightRatio: number = 2/3,
+  maxFontSize: number = 80,
+): number {
+  // Register fonts first so we can measure with custom fonts
+  registerFonts();
+  
+  const PADDING_X = 80;
+  const PADDING_Y = 100;
+  const maxWidth = REEL_WIDTH - PADDING_X * 2; // 920px
+  const AUTHOR_HEIGHT = 80;
+  const AUTHOR_SPACING = 140;
+  const paragraphSpacing = 50;
+  
+  // Available height excluding padding and author space
+  const availableHeight = REEL_HEIGHT - PADDING_Y * 2 - AUTHOR_HEIGHT - AUTHOR_SPACING;
+  const targetHeight = availableHeight * targetHeightRatio;
+  
+  // Create temporary canvas for measurement
+  const tempCanvas = new Canvas(REEL_WIDTH, REEL_HEIGHT);
+  const tempCtx = tempCanvas.getContext('2d');
+  
+  // First, check if text fits in target space at max font size
+  // If it does, use max font size. Otherwise, calculate what's needed.
+  const testFontMax = `${maxFontSize}px ${font}`;
+  tempCtx.font = testFontMax;
+  
+  const paragraphs = quoteText.split('\n\n').filter(p => p.trim());
+  const paragraphBreaks = Math.max(0, paragraphs.length - 1);
+  
+  // Calculate lines at max font size
+  let totalLinesAtMax = 0;
+  for (const para of paragraphs) {
+    const explicitLines = para.split('\n').filter(l => l.trim());
+    for (const explicitLine of explicitLines) {
+      const wrappedLines = wrapText(tempCtx, explicitLine, maxWidth, testFontMax);
+      totalLinesAtMax += wrappedLines.length;
+    }
+  }
+  
+  if (totalLinesAtMax === 0) return 42; // Fallback
+  
+  // Check if max font size fits in target space
+  // Use same line height multiplier as rendering: 1.3 for > 50, 1.43 for <= 50
+  const lineHeightMultiplierMax = maxFontSize > 50 ? 1.3 : 1.43;
+  const lineHeightMax = maxFontSize * lineHeightMultiplierMax;
+  const heightAtMax = totalLinesAtMax * lineHeightMax + paragraphBreaks * paragraphSpacing;
+  
+  console.log(`[FontSize Calc] Max font size check: ${maxFontSize}px, lines: ${totalLinesAtMax}, height: ${heightAtMax}px, target: ${targetHeight}px`);
+  
+  // If max font size fits in target space, use it
+  if (heightAtMax <= targetHeight) {
+    console.log(`[FontSize Calc] Using max font size: ${maxFontSize}px`);
+    return maxFontSize;
+  }
+  
+  // Otherwise, calculate what font size is needed to fill target space
+  let fontSize = 42; // Start with default
+  let lastFontSize = 0;
+  
+  // Iterate until we converge (or max iterations)
+  for (let iteration = 0; iteration < 10 && Math.abs(fontSize - lastFontSize) > 0.5; iteration++) {
+    lastFontSize = fontSize;
+    const testFont = `${fontSize}px ${font}`;
+    tempCtx.font = testFont;
+    
+    // Calculate how many lines the quote will take at this font size
+    let totalLines = 0;
+    for (const para of paragraphs) {
+      const explicitLines = para.split('\n').filter(l => l.trim());
+      for (const explicitLine of explicitLines) {
+        const wrappedLines = wrapText(tempCtx, explicitLine, maxWidth, testFont);
+        totalLines += wrappedLines.length;
+      }
+    }
+    
+    if (totalLines === 0) return 42; // Fallback
+    
+    // Calculate actual height at this font size
+    // Use same line height multiplier as rendering: 1.3 for > 50, 1.43 for <= 50
+    const lineHeightMultiplier = fontSize > 50 ? 1.3 : 1.43;
+    const lineHeight = fontSize * lineHeightMultiplier;
+    const actualHeight = totalLines * lineHeight + paragraphBreaks * paragraphSpacing;
+    
+    // Calculate adjustment needed
+    const heightRatio = targetHeight / actualHeight;
+    fontSize = fontSize * heightRatio;
+    
+    // Clamp between reasonable bounds, with max font size limit
+    fontSize = Math.max(28, Math.min(maxFontSize, fontSize));
+  }
+  
+  return Math.round(fontSize);
+}
+
+/**
  * Generate a quote image for the reel
  */
 async function generateQuoteImage(
@@ -20,6 +121,10 @@ async function generateQuoteImage(
   author: string,
   highlightColor: string,
   outputPath: string = 'quote_image.jpg',
+  font: string = 'Merriweather',
+  fontSize: number = 42,
+  backgroundImage: string = 'background.jpeg',
+  highlightOpacity: number = 0.7,
 ): Promise<void> {
   registerFonts();
 
@@ -34,17 +139,20 @@ async function generateQuoteImage(
 
   // Load background image
   const currentDir = Deno.cwd();
-  const bg = await loadImage(join(currentDir, 'assets', 'images', 'background.jpeg'));
+  const bg = await loadImage(join(currentDir, 'assets', 'images', backgroundImage));
   ctx.drawImage(bg, 0, 0, REEL_WIDTH, REEL_HEIGHT);
 
   // Styling constants
   const PADDING_X = 80;
   const PADDING_Y = 100;
-  const FONT_SIZE = 42; // Quote font size in pixels
-  const QUOTE_FONT = `${FONT_SIZE}px Merriweather`;
-  const LINE_HEIGHT = 60;
+  const FONT_SIZE = fontSize; // Quote font size in pixels
+  const QUOTE_FONT = `${FONT_SIZE}px ${font}`;
+  // Dynamic line height: keep original 1.43 for normal fonts, tighter for larger fonts
+  const LINE_HEIGHT_MULTIPLIER = FONT_SIZE > 50 ? 1.3 : 1.43;
+  const LINE_HEIGHT = Math.round(FONT_SIZE * LINE_HEIGHT_MULTIPLIER);
   const PARAGRAPH_SPACING = 50; // Extra spacing between paragraphs
-  const AUTHOR_FONT = '32px Merriweather';
+  const AUTHOR_FONT_SIZE = Math.round(FONT_SIZE * 0.76); // Proportional author font (32/42 ratio)
+  const AUTHOR_FONT = `${AUTHOR_FONT_SIZE}px ${font}`;
 
   // Calculate available space for quote
   const maxWidth = REEL_WIDTH - PADDING_X * 2;
@@ -100,6 +208,8 @@ async function generateQuoteImage(
       lineWidth + padX * 2,
       FONT_SIZE,
       highlightColor,
+      false,
+      highlightOpacity,
     );
 
     // Draw the text
@@ -151,9 +261,32 @@ export async function generateReel(
   if (input.quote) {
     const author = input.author || 'Anonymous';
     const tempImagePath = join(currentDir, 'quote_image_temp.jpg');
+    const font = input.font || 'Merriweather'; // Default to Merriweather
+    const backgroundImage = input.backgroundImage || 'background.jpeg'; // Default to background.jpeg
+    const highlightOpacity = input.highlightOpacity ?? 0.7; // Default to 0.7 (use ?? to allow 0)
+    
+    // Parse quote to get clean text for font size calculation
+    const parsed = parseMarkedText(input.quote);
+    const quoteText = parsed.text;
+    
+    // Calculate font size: use provided fontSize, or auto-calculate to fill 2/3 of space
+    let fontSize: number;
+    if (input.fontSize) {
+      fontSize = input.fontSize; // Use provided font size
+    } else if (input.autoFontSize) {
+      // Auto-calculate to fill 2/3 of available vertical space, with max font size of 80px
+      fontSize = calculateFontSizeToFillBox(quoteText, font, 2/3, 80);
+      console.log(`[Reel] Auto-calculated font size to fill 2/3 of space: ${fontSize}px (max: 80px)`);
+    } else {
+      fontSize = 42; // Default to 42px
+    }
     
     console.log(`[Reel] Generating quote image for: "${input.quote.slice(0, 50)}..."`);
-    await generateQuoteImage(input.quote, author, input.highlightColor || '#F0E231', tempImagePath);
+    console.log(`[Reel] Using font: ${font}`);
+    console.log(`[Reel] Using font size: ${fontSize}px`);
+    console.log(`[Reel] Using background: ${backgroundImage}`);
+    console.log(`[Reel] Using highlight opacity: ${highlightOpacity}`);
+    await generateQuoteImage(input.quote, author, input.highlightColor || '#F0E231', tempImagePath, font, fontSize, backgroundImage, highlightOpacity);
     imagePath = tempImagePath;
   } else if (input.imagePath) {
     imagePath = input.imagePath.startsWith('/') 

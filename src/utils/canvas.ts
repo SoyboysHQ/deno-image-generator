@@ -52,6 +52,7 @@ export function drawHighlight(
   height: number,
   color: string,
   slantedEnds: boolean = false,
+  opacity: number = 0.7,
 ): void {
   ctx.save();
   ctx.beginPath();
@@ -155,7 +156,7 @@ export function drawHighlight(
 
   ctx.closePath();
   ctx.fillStyle = color;
-  ctx.globalAlpha = 0.7;
+  ctx.globalAlpha = opacity;
   ctx.fill();
   ctx.globalAlpha = 1.0;
   ctx.restore();

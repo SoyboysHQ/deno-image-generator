@@ -35,6 +35,12 @@ export function registerFonts(): void {
     'Handwritten soyboys i',
   );
   
+  // Register EBGaramond Bold font
+  GlobalFonts.registerFromPath(
+    join(fontDir, 'EBGaramond-Bold.ttf'),
+    'EBGaramond Bold',
+  );
+  
   // Try to register system emoji fonts
   try {
     // Try common system emoji font locations
