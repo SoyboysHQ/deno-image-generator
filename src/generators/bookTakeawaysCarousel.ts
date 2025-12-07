@@ -384,7 +384,7 @@ async function generatePointSlide(
   if (authorSlug) {
     const authorFont = 'italic 24px Merriweather';
     ctx.font = authorFont;
-    const authorText = `@${authorSlug}`;
+    const authorText = `${authorSlug}`;
     const authorWidth = ctx.measureText(authorText).width;
     const authorX = (WIDTH - authorWidth) / 2;
     const authorY = HEIGHT - 100;
